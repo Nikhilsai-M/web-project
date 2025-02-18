@@ -1,0 +1,71 @@
+
+.navbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #40BFFF;
+    padding: 15px 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.nav-item {
+    font-size: 16px;
+    cursor: pointer;
+    position: relative;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.2); 
+    color: #f1f1f1;
+    transition: background 0.2s ease-in-out;
+}
+
+
+.nav-item:hover .dropdown {
+    display: block;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    min-width: 150px;
+    border-radius: 5px;
+    z-index: 5;
+}
+
+
+.dropdown a {
+    display: block;
+    padding: 8px;
+    text-decoration: none;
+    color: black;
+}
+
+.nav_heading_sellphone {
+    font-weight: bold;
+    background: none !important;
+    pointer-events: none;
+    color: black;
+}
+
+.dropdown a:not(.nav_heading_sellphone):hover {
+    background: #d4d2d2;
+}
+
+.text-decoration {
+    text-decoration: none;
+    color: #ffffff;
+}

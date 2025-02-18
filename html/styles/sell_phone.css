@@ -18,7 +18,7 @@ body {
 .brand-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 20px;
+    gap: 25px;
     margin-top: 20px;
 }
 
@@ -33,7 +33,9 @@ body {
 }
 
 .brand-card:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
+    box-shadow: 6px 6px 6px rgba(0, 0, 0, 0.2);
+
 }
 
 .brand-card img {
@@ -60,8 +62,19 @@ body {
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.model-card:hover{
+    transform: scale(1.1);
+    box-shadow: 6px 6px 6px rgba(0, 0, 0, 0.2);
+}
 .model-card img {
     width: 100%;
     height: auto;
     border-radius: 5px;
 }
+.back-button-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start; /* Aligns button to the left */
+    margin-top: 20px;
+}
+

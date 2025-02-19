@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sell Old Mobile Phone Online</title>
-    <link rel="stylesheet" href="styles/sell_phone.css">
+    <link rel="stylesheet" href="styles/sell-phone-brands.css">
 </head>
 <body>
     <div class="container">
         <h1>Sell Old Mobile Phone</h1>
         <br>
-        <p>Home > Sell Old Mobile Phone</p>
+        <p class="breadcrumb">Home > Sell Old Mobile Phone</p>
         <br>
-        <h2>Select Brand</h2>
+        <h2 class ="Select-brand">Select Brand</h2>
         <br>
         <div class="brand-grid">
             <div class="brand-card" data-brand="Apple"><img src="images/sellphone_brands/apple.webp" alt="Apple"><p>Apple</p></div>
@@ -25,9 +25,16 @@
             <div class="brand-card" data-brand="Lenovo"><img src="images/sellphone_brands/lenovo.webp" alt="Lenovo"><p>Lenovo</p></div>
             <div class="brand-card" data-brand="Nothing"><img src="images/sellphone_brands/nothing.webp" alt="Nothing"><p>Nothing</p></div>
             <div class="brand-card" data-brand="Google"><img src="images/sellphone_brands/google.webp" alt="Google"><p>Google</p></div>
-        </div>
-        <br>
-    </div>
-    
+        </div> 
+        <button class="back-Button">Back</button>
+</div>
+    <script>
+    const backButton = document.querySelector(".back-Button");
+    backButton.addEventListener("click", function () {
+        window.location.href = "index.html"; 
+    });
+    </script>
+<script src="scripts/sellphone-model.js" defer></script>
+<script src="scripts/index.js"></script>
 </body>
 </html>

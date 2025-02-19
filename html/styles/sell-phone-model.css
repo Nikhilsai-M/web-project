@@ -4,44 +4,22 @@
     box-sizing: border-box;
     font-family: Arial, sans-serif;
 }
-
 body {
-    padding: 20px;
     background-color: #f8f8f8;
+    padding: 20px;
 }
+h1,.breadcrumb,.Select-brand{
+    margin-left: 1vw;
+    margin-top: 1.5vh;
+}
+
 
 .container {
-    max-width: 1200px;
     margin: auto;
-}
-
-.brand-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 25px;
-    margin-top: 20px;
-}
-
-.brand-card {
     background: #fff;
+    padding: 2vh 4vw 7vh 1.5vw;
     border-radius: 10px;
-    padding: 20px;
-    text-align: center;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-}
-
-.brand-card:hover {
-    transform: scale(1.1);
-    box-shadow: 6px 6px 6px rgba(0, 0, 0, 0.2);
-
-}
-
-.brand-card img {
-    width: 60px;
-    height: auto;
-    margin-bottom: 10px;
 }
 
 #modelContainer {
@@ -59,22 +37,41 @@ body {
     border-radius: 10px;
     background: #fff;
     text-align: center;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
 }
 
 .model-card:hover{
     transform: scale(1.1);
     box-shadow: 6px 6px 6px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
 }
 .model-card img {
     width: 100%;
     height: auto;
     border-radius: 5px;
 }
+
+.backButton {
+    margin-top: 1vh;
+    margin-bottom: 2vh;
+    padding: 10px 15px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: left;
+}
+.backButton:hover{
+    opacity: 0.85;
+    transform: scale(1.1);
+}
 .back-button-wrapper {
     width: 100%;
     display: flex;
-    justify-content: flex-start; /* Aligns button to the left */
-    margin-top: 20px;
+    justify-content: flex-start; 
+    margin-top: 3vh;
+    margin-left: 4vw;
 }
-

@@ -112,48 +112,28 @@ const mobileModels = {
         { name: "OnePlus Nord CE 5G", image: "images/sellphone_models/OnePlus/OnePlus Nord CE 3 5G.webp" }
     ]
 };
-
 document.addEventListener("DOMContentLoaded", function () {
-    const brandCards = document.querySelectorAll(".brand-card");
-    const container = document.querySelector(".container");
-    const brandGrid = document.querySelector(".brand-grid");
-    const heading = document.querySelector(".Select-brand");
+    const modelContainer = document.getElementById("modelContainer");
     const breadcrumb = document.querySelector(".breadcrumb");
+    const heading = document.querySelector(".Select-brand");
+    const backButton = document.querySelector(".backButton");
 
-    const modelContainer = document.createElement("div");
-    modelContainer.id = "modelContainer";
-    container.appendChild(modelContainer);
-
-    const brand_heading=document.querySelector("h2");
     const backButtonWrapper = document.createElement("div");
     backButtonWrapper.classList.add("back-button-wrapper");
 
-    const backButton = document.createElement("button");
-    backButton.innerText = "Back";
-    backButton.style.display = "none";
-    backButton.style.margin = "20px";
-    backButton.style.padding = "10px 15px";
-    backButton.style.background = "#007bff";
-    backButton.style.color = "#fff";
-    backButton.style.border = "none";
-    backButton.style.borderRadius = "5px";
-    backButton.style.cursor = "pointer";
-
     backButtonWrapper.appendChild(backButton);
 
-    brandCards.forEach(card => {
-        card.addEventListener("click", function () {
-            const selectedBrand = this.getAttribute("data-brand");
-            heading.textContent = "Select Model";
-            breadcrumb.innerHTML = `Home > Sell Old Mobile Phone > ${selectedBrand}`;
-            showModels(selectedBrand);
-        });
-    });
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedBrand = urlParams.get("brand");
+
+    if (selectedBrand) {
+        heading.textContent = "Select Model"; 
+        breadcrumb.innerHTML = `Home > Sell Old Mobile Phone > ${selectedBrand}`; 
+        showModels(selectedBrand);
+    }
 
     function showModels(brand) {
-        brandGrid.style.display = "none";
         modelContainer.innerHTML = ""; 
-       
 
         if (mobileModels[brand]) {
             mobileModels[brand].forEach(model => {
@@ -171,16 +151,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 modelCard.appendChild(modelName);
                 modelContainer.appendChild(modelCard);
             });
+        } else {
+            modelContainer.innerHTML = "<p>No models available for this brand.</p>";
         }
         modelContainer.appendChild(backButtonWrapper);
         backButton.style.display = "block";
+
     }
 
     backButton.addEventListener("click", function () {
-        modelContainer.innerHTML = "";
-        brandGrid.style.display = "grid";
-        backButton.style.display = "none";
-        heading.textContent = "Select Brand";
-        breadcrumb.innerHTML = "Home > Sell Old Mobile Phone"; 
+        window.location.href = "sell_phone.html"; 
     });
 });

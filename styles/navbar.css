@@ -54,14 +54,14 @@
     color: black;
 }
 
-.nav_heading_sellphone {
+.dropdown-heading{
     font-weight: bold;
     background: none !important;
     pointer-events: none;
     color: black;
 }
 
-.dropdown a:not(.nav_heading_sellphone):hover {
+.dropdown a:not(.dropdown-heading):hover {
     background: #d4d2d2;
 }
 

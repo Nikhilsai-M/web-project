@@ -1,16 +1,16 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const brandCards = document.querySelectorAll(".brand-card");
-    const topBrandLinks = document.querySelectorAll(".top-brands-dropdown"); // Navbar brands
+    const brandCards = document.querySelectorAll(".sell-phone-brand");
+    const topBrandLinks = document.querySelectorAll(".top-sell-phone-dropdown"); // Navbar brands
 
     // Create a hidden anchor element for navigation
     const link = document.createElement("a");
-    link.style.display = "none"; // Hide the link
+    link.style.display = "none"; //Hide the link
     document.body.appendChild(link); // Append to body
 
     // Function to navigate to models page
     function goToModelsPage(brand) {
         link.href = `sellphone-models.html?brand=${encodeURIComponent(brand)}`;
-        link.click(); // Simulate a click event
+        link.click(); //Simulate a click event
     }
 
     // Event Listener for clicking a brand card on Sell Phone page

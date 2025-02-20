@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="styles/header.css">
     <link rel="stylesheet" href="styles/homepage.css">
     <link rel="stylesheet" href="styles/navbar.css">   
-   
+   <link rel="stylesheet" href="styles/profile-menubar.css"
 </head>
 <body>
 
@@ -35,14 +35,26 @@
 
         <!-- Right Section with Cart and Sign In/Profile -->
         <div class="header-right-section">
-            <a class="cart-link header-link" href="checkout.html">
-                <img class="cart-icon" src="images/header/cart-icon.png" alt="Cart">
+            <a class="" href="checkout.html">
+                <img class="icons" src="images/header/cart-icon.png" alt="Cart">
                 <div class="cart-text">Cart</div>
             </a>
-            <a class="cart-link header-link" href="checkout.html">
-                <img class="cart-icon" src="images/header/profile-icon.png" alt="Profile">
-                <div class="cart-text">Sign in</div>
-            </a>
+            <div id="user-section">
+                <a class="" href="login.html">
+                    <img class="icons" style="display: inline;" src="images/header/profile-icon.png" alt="Profile">
+                    <a href="login.html" id="login-link">Sign in</a>
+                </a>
+            </div>
+            
+            <div id="profile-menu" class="profile-menu">
+                <div class="menu-header">
+                    <p id="welcome-message">Welcome, User</p>
+                    <button id="close-menu">&times;</button>
+                </div>
+                <ul>
+                    <li><button id="logout-button">Logout</button></li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -59,7 +71,7 @@
         </div>
         <div class="nav-item" > <a href="sell_phone.html" class="text-decoration">Sell Phone </a>
             <div class="dropdown">
-                <a  class="nav_heading_sellphone">Top Selling brands</a>
+                <a  class="dropdown-heading">Top Selling brands</a>
                 <a class="top-sell-phone-dropdown">Apple</a>
                 <a class="top-sell-phone-dropdown">Samsung</a>
                 <a class="top-sell-phone-dropdown">Xiaomi</a>
@@ -71,7 +83,7 @@
         </div>
         <div class="nav-item"> <a href="sell_laptop.html" class="text-decoration">Sell Laptops</a>
             <div class="dropdown">
-                <a  class="nav_heading_sellphone">Top Selling brands</a>
+                <a  class="dropdown-heading">Top Selling brands</a>
                 <a href="#">Apple</a>
                 <a href="#">Dell</a>
                 <a href="#">Hp</a>
@@ -85,7 +97,7 @@
         </div>
         <div class="nav-item">Buy Phone
             <div class="dropdown">
-                <a  class="nav_heading_sellphone">Top brands</a>
+                <a  class="dropdown-heading">Top brands</a>
                 <a href="#">Apple</a>
                 <a href="#">Samsung</a>
                 <a href="#">Xiaomi</a>
@@ -98,7 +110,7 @@
         </div>
         <div class="nav-item">Buy Laptop
             <div class="dropdown">
-                <a  class="nav_heading_sellphone">Top  brands</a>
+                <a  class="dropdown-heading">Top  brands</a>
                 <a href="#">Apple</a>
                 <a href="#">Dell</a>
                 <a href="#">Hp</a>
@@ -260,7 +272,7 @@
 </div>
 </div>
 
-
+<script src="scripts/menubar.js"></script>
 <script src="scripts/index.js"></script>
 </body>
 </html>

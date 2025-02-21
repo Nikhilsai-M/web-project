@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectedBrand = urlParams.get("brand");
     const selectedModel = urlParams.get("model");
 
+    console.log(selectedBrand);
     if (selectedBrand && !selectedModel) {
         showModels(selectedBrand);
     } else if (selectedModel) {

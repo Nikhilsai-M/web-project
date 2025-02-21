@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);
     const selectedBrand = urlParams.get("brand");
 
+    const brandheading = document.querySelector(".brand-in-heading");
+    brandheading.innerHTML=`<a>${selectedBrand}</a>`;
+    
     console.log(selectedBrand);
     if (selectedBrand) {
         showModels(selectedBrand);

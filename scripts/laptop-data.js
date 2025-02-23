@@ -25,7 +25,7 @@ window.laptopModels = {
         { name: "HP ZBook Studio", image: "images/sell-laptop-models/hp/HP ZBOOK STUDIO.webp", 
             },         
     ],
-    "ACER":[
+    "Acer":[
         { name: "ACER Aspire 3", image: "images/sell-laptop-models/ACER/ACER ASPIRE 3.webp", 
         },
         { name: "ACER Aspire 5", image: "images/sell-laptop-models/ACER/Acer Aspire 5.webp", 
@@ -49,7 +49,7 @@ window.laptopModels = {
         { name: "ACER Travelmate", image: "images/sell-laptop-models/ACER/Acer Travelmate.webp", 
         },
     ],
-    "ASUS":[
+    "Asus":[
         { name: "ASUS ChromeBook", image: "images/sell-laptop-models/ASUS/ASUS CHROMEBOOK.webp", 
         },
         { name: "ASUS ExpertBook B14", image: "images/sell-laptop-models/ASUS/ASUS EXPERTBOOK B14.webp", 
@@ -74,7 +74,7 @@ window.laptopModels = {
         },
 
     ],
-    "DELL":[
+    "Dell":[
         { name: "DELL 15", image: "images/sell-laptop-models/dell/DELL 15.webp", 
         },
         { name: "DELL Insipiron 7741 Plus", image: "images/sell-laptop-models/dell/DELL INSIPIRON 7741 PLUS.webp", 
@@ -93,7 +93,7 @@ window.laptopModels = {
         },
 
     ],
-    "LENOVO":[
+    "Lenovo":[
         { name: "Lenovo ChromeBook", image: "images/sell-laptop-models/Lenovo/Lenovo Chromebook.webp", 
         },
         { name: "Lenovo IdeaPad 3", image: "images/sell-laptop-models/Lenovo/Lenovo IdeaPad 3.webp", 
@@ -123,7 +123,7 @@ window.laptopModels = {
 
 
     ],
-    "MICROSOFT":[
+    "Microsoft":[
         { name: "MICROSOFT Laptop Go 3", image: "images/sell-laptop-models/microsoft/MICROSOFT Laptop Go 3.webp", 
         },
         { name: "MICROSOFT Surface Laptop 4", image: "images/sell-laptop-models/microsoft/MICROSOFT Surface Laptop 4.webp", 
@@ -142,11 +142,7 @@ window.laptopModels = {
 
     ],
     "MSI":[
-        { name: "MSI Bravo 15", image: "images/sell-laptop-models/MSI/MSI Bravo 15.webp", 
-        },
-        { name: "MSI Creator Z16", image: "images/sell-laptop-models/MSI/MSI Creator Z16.webp", 
-        },
-        { name: "MSI Crosshair 16HX", image: "images/sell-laptop-models/MSI/MSI Crosshair 16HX.webp", 
+        { name: "MSI Crosshair 16 HX", image: "images/sell-laptop-models/MSI/MSI Crosshair 16 HX.webp", 
         },
         { name: "MSI Cyborg 15", image: "images/sell-laptop-models/MSI/MSI Cyborg 15.webp", 
         },
@@ -182,7 +178,7 @@ window.laptopModels = {
         },
 
     ],
-    "APPLE": [
+    "Apple": [
     { name: "2022 APPLE MAC BOOK AIR", image: "images/sell-laptop-models/apple/2022 APPLE MAC BOOK AIR.webp" },
     { name: "Apple 2020 MacBook Air Apple M1", image: "images/sell-laptop-models/apple/Apple 2020 MacBook Air Apple M1.webp" },
     { name: "Apple 2024 MacBook Air 15", image: "images/sell-laptop-models/apple/Apple 2024 MacBook Air 15.webp" },

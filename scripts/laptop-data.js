@@ -173,9 +173,9 @@ window.laptopModels = {
     ],
     "Apple": [
     { name: "2022 Apple Mac Book AIR", image: "images/sell-laptop-models/apple/2022 APPLE MAC BOOK AIR.webp" },
-    { name: "Apple 2020 MacBook Air Apple M1", image: "images/sell-laptop-models/apple/Apple 2020 MacBook air Apple M1.webp" },
-    { name: "Apple 2024 MacBook Air 15", image: "images/sell-laptop-models/apple/Apple 2024 MacBook air 15.webp" },
-    { name: "Apple M3", image: "images/sell-laptop-models/apple/APPLE Apple M3.webp" },
+    { name: "Apple 2020 MacBook Air Apple M1", image: "images/sell-laptop-models/apple/Apple 2020 Macbook air apple M1.webp" },
+    { name: "Apple 2024 MacBook Air 15", image: "images/sell-laptop-models/apple/Apple 2024 macbook air 15.webp" },
+    { name: "Apple MacBook M3", image: "images/sell-laptop-models/apple/APPLE apple M3.webp" },
     { name: "Apple MacBook Air M2", image: "images/sell-laptop-models/apple/Apple MacBook Air Apple M2.webp" },
     { name: "Apple MacBook Air M3", image: "images/sell-laptop-models/apple/Apple MacBook Air Apple M3.webp" },
     { name: "Apple MacBook M3 Pro", image: "images/sell-laptop-models/apple/Apple MacBook pro Apple M3 pro.webp" }

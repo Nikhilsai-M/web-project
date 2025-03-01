@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Function to navigate to models page
     function goTo_phoneModelsPage(brand) {
-        link.href = `sellphone-models.html?brand=${encodeURIComponent(brand)}`;
+        link.href = `sell-phone-container.html?brand=${encodeURIComponent(brand)}`;
         link.click(); // Simulate a click event
     }
     function goTo_laptopModelsPage(brand) {

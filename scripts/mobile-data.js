@@ -1,4 +1,4 @@
-window.mobileModels = {
+const mobileModels = {
     "Apple": [
         { name: "iPhone 12 Mini", image: "images/sellphone_models/Apple/Apple iPhone 12 Mini.webp", 
             variants: {
@@ -450,3 +450,5 @@ window.mobileModels = {
         }
     ]
 };
+
+export default mobileModels;

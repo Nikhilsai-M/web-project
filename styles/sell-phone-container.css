@@ -64,20 +64,29 @@ h1{
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    text-align: left;
+   
 }
-.backButton:hover{
+.backButton:hover,.nextButton:hover,#nextButton:hover{
     opacity: 0.85;
     transform: scale(1.1);
 }
-.back-button-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: flex-start; 
-    margin-top: 3vh;
-    margin-left: 4vw;
-}
 
+.back-next-class{
+    display: flex;
+    justify-content:space-between;
+}
+.nextButton{
+    margin-top: 1vh;
+    margin-bottom: 2vh;
+    padding: 10px 15px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    right: 1vw;
+}
 /* Container for the model details */
 .model-details {
     display: flex;
@@ -168,4 +177,19 @@ h1{
     font-size: 16px;
     color: #333;
     cursor: pointer; 
+}
+
+
+.submitButton {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.submitButton:hover {
+    background-color: #45a049;
 }

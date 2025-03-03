@@ -6,7 +6,6 @@
 }
 
 body {
-    padding: 20px;
     background-color: #f8f8f8;
 }
 
@@ -14,8 +13,10 @@ h1 {
     text-align: center;
 }
 
+
 .container {
     margin: auto;
+    margin-top: 6vh;
     background: #fff;
     padding: 2vh 4vw 7vh 4vw;
     border-radius: 10px;

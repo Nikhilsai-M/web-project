@@ -50,28 +50,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function showModels(brand) {
         modelContainer.innerHTML = "";
-
+    
+        // ❗ Clear previously selected model
+        sessionStorage.removeItem("selectedModel");
+        sessionStorage.setItem("selectedBrand", brand); // ✅ Store new brand
+    
         if (mobileModels[brand]) {
             mobileModels[brand].forEach(model => {
                 const modelCard = document.createElement("div");
                 modelCard.classList.add("model-card");
-
+    
                 modelCard.innerHTML = `
                     <img src="${model.image}" alt="${model.name}">
                     <p>${model.name}</p>
                 `;
-
+    
                 modelCard.addEventListener("click", function () {
                     sessionStorage.setItem("selectedModel", model.name);
-                    window.location.href = `sell-phone-container.html?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model.name)}`;
+                    window.location.href = `/sell-phone-models?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model.name)}`;
                 });
-
+    
                 modelContainer.appendChild(modelCard);
             });
         } else {
             modelContainer.innerHTML = "<p>No models available for this brand.</p>";
         }
     }
+    
 
     window.addEventListener("popstate", function () {
         let currentStep = parseInt(sessionStorage.getItem("currentStep")) || 1;

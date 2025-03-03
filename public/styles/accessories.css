@@ -1,0 +1,32 @@
+.carousel-container {
+    width: 93%; 
+    margin: auto;
+    border-radius: 20px; 
+}
+
+.carousel-inner img {
+    height: 60vh; 
+    width: 100%; 
+    border-radius: 20px;
+}
+.carousel-control-prev,
+.carousel-control-next {
+    width: 50px; /* Set a smaller width */
+    height: 50px; /* Set a smaller height */
+    background-color: rgba(128, 128, 128, 0.5); /* Gray semi-transparent */
+    border-radius: 50%; /* Make it circular */
+    top: 50%; /* Align vertically */
+    transform: translateY(-50%);
+    margin-right: 5px;
+    margin-left: 5px;;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    background-color: rgba(128, 128, 128, 0.8); /* Darker on hover */
+}
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 20px;
+    height: 20px;
+}

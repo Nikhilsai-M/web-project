@@ -1,30 +1,58 @@
+import { showModelDetails, mobileCheckStep2, mobileCheckStep3, updateCurrentStep, showNextButton, hideNextButton,showFinalPrice } from "./mobile-check.js";
+import mobileModels from "./mobile-data.js";
+
 document.addEventListener("DOMContentLoaded", function () {
     const modelContainer = document.getElementById("modelContainer");
     const backButton = document.querySelector(".backButton");
 
-    // Ensure mobileModels data is available
-    if (!window.mobileModels) {
-        console.error("Error: Mobile models data not loaded!");
-        return;
-    }
+    // Get URL parameters
+    const urlParams = new URLSearchParams(location.search);
+    let selectedBrand = urlParams.get("brand") || sessionStorage.getItem("selectedBrand");
+    let selectedModel = urlParams.get("model") || sessionStorage.getItem("selectedModel");
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const selectedBrand = urlParams.get("brand");
-    const selectedModel = urlParams.get("model");
-    const brandheading = document.querySelector(".brand-in-heading");
-    brandheading.innerHTML=`<a>${selectedBrand}</a>`;
-    console.log(selectedBrand);
-    if (selectedBrand && !selectedModel) {
-        showModels(selectedBrand);
-    } else if (selectedModel) {
-        showModelDetails(selectedModel);
+    // Debugging: Log session storage values
+    console.log("Selected Brand:", selectedBrand);
+    console.log("Selected Model:", selectedModel);
+
+    // Update session storage with latest selection
+    if (selectedBrand) sessionStorage.setItem("selectedBrand", selectedBrand);
+    if (selectedModel) sessionStorage.setItem("selectedModel", selectedModel);
+
+    const brandHeading = document.querySelector(".brand-in-heading");
+
+    // Check currentStep on page load
+    let currentStep = parseInt(sessionStorage.getItem("currentStep")) || 1;
+
+    // Debugging: Log currentStep
+    console.log("Current Step:", currentStep);
+
+    // Restore the correct step based on currentStep
+    if (currentStep === 1) {
+        if (selectedBrand && !selectedModel) {
+            brandHeading.innerHTML = `<a>${selectedBrand}</a>`;
+            showModels(selectedBrand); // Show models for selected brand
+        } else if (selectedModel) {
+            showModelDetails(selectedModel); // Show details of selected model
+        } else {
+            brandHeading.innerHTML = `<a>Choose a Brand</a>`; // Default heading
+        }
+        showNextButton(); // Show Next button for Step 1
+    } else if (currentStep === 2) {
+        mobileCheckStep2(); // Restore Step 2
+        showNextButton(); // Show Next button for Step 2
+    } else if (currentStep === 3) {
+        mobileCheckStep3(); // Restore Step 3
+        showNextButton(); // Show Next button for Step 3
+    } else if (currentStep === 4) {
+        showFinalPrice(); // Restore Final Step
+        hideNextButton(); // Hide Next button for Final Step
     }
 
     function showModels(brand) {
         modelContainer.innerHTML = "";
 
-        if (window.mobileModels[brand]) {
-            window.mobileModels[brand].forEach(model => {
+        if (mobileModels[brand]) {
+            mobileModels[brand].forEach(model => {
                 const modelCard = document.createElement("div");
                 modelCard.classList.add("model-card");
 
@@ -34,7 +62,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 `;
 
                 modelCard.addEventListener("click", function () {
-                    window.location.href = `sellphone-models.html?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model.name)}`;
+                    sessionStorage.setItem("selectedModel", model.name);
+                    window.location.href = `sell-phone-container.html?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model.name)}`;
                 });
 
                 modelContainer.appendChild(modelCard);
@@ -44,74 +73,69 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function showModelDetails(modelName) {
-        modelContainer.innerHTML = "";
+    window.addEventListener("popstate", function () {
+        let currentStep = parseInt(sessionStorage.getItem("currentStep")) || 1;
     
-        let model;
-        Object.values(window.mobileModels).forEach(brandModels => {
-            const foundModel = brandModels.find(m => m.name === modelName);
-            if (foundModel) model = foundModel;
-        });
+        console.log("Popstate Event Triggered. Current Step:", currentStep);
     
-        if (!model) {
-            modelContainer.innerHTML = "<p>Model not found.</p>";
-            return;
+        if (currentStep === 4) {
+            updateCurrentStep(3);
+            mobileCheckStep3();
+            showNextButton();
+        } else if (currentStep === 3) {
+            updateCurrentStep(2);
+            mobileCheckStep2();
+            showNextButton();
+        } else if (currentStep === 2) {
+            updateCurrentStep(1);
+            let selectedModel = sessionStorage.getItem("selectedModel");
+            if (selectedModel) {
+                showModelDetails(selectedModel);
+                showNextButton();
+            } else {
+                let selectedBrand = sessionStorage.getItem("selectedBrand");
+                showModels(selectedBrand);
+            }
+        } else {
+            window.location.href = "/sell-phone"; // Redirect to brands page
         }
+    });
     
-        const modelDetails = document.createElement("div");
-        modelDetails.classList.add("model-details");
-    
-        modelDetails.innerHTML = `
-            <div class="model-image-container">
-                <img src="${model.image}" alt="${model.name}">
-            </div>
-            <div class="model-info-container">
-                <h2>${model.name}</h2>
-                <h3>Choose a variant</h3>
-                <select id="variantSelect">
-                    ${Object.keys(model.variants || {})
-                        .map(variant => `<option value="${model.variants[variant]}">${variant}</option>`)
-                        .join("")}
-                </select>
-                <h3>Phone Condition</h3>
-                <select id="conditionSelect">
-                    <option value="0.9">Like New</option>
-                    <option value="0.8">Good</option>
-                    <option value="0.6">Average</option>
-                    <option value="0.4">Poor</option>
-                </select>
-                <h3>Accessories Included?</h3>
-                <div class="checkbox-container">
-                    <input type="checkbox" id="accessoriesCheckbox">
-                    <label for="accessoriesCheckbox">Charger & Box Included</label>
-                </div>
-                <br><br>
-                <button id="calculatePriceBtn">Get Estimated Price</button>
-                <p id="estimatedPrice"></p>
-            </div>
-        `;
 
-        modelContainer.appendChild(modelDetails);
-
-        document.getElementById("calculatePriceBtn").addEventListener("click", function () {
-            calculatePrice();
-        });
-    }
-
-    function calculatePrice() {
-        const basePrice = parseInt(document.getElementById("variantSelect").value);
-        const conditionMultiplier = parseFloat(document.getElementById("conditionSelect").value);
-        const hasAccessories = document.getElementById("accessoriesCheckbox").checked;
-
-        let finalPrice = basePrice * conditionMultiplier;
-        if (hasAccessories) finalPrice += 200;
-
-        document.getElementById("estimatedPrice").innerHTML = `<h3>Estimated Price: ₹${finalPrice}</h3>`;
-    }
 
     if (backButton) {
         backButton.addEventListener("click", function () {
-            window.location.href = "/sell-phone";
+            let currentStep = parseInt(sessionStorage.getItem("currentStep")) || 1;
+            let selectedBrand = sessionStorage.getItem("selectedBrand");
+            let selectedModel = sessionStorage.getItem("selectedModel");
+
+            // If on the show models page (selectedBrand is present but selectedModel is not)
+            if (selectedBrand && !selectedModel) {
+                window.location.href = "/sell-phone"; // Go back to sell-phone route
+            }
+            // Step-based navigation
+            else if (currentStep === 4) {
+                updateCurrentStep(3);
+                mobileCheckStep3(); // Go back to Step 3
+                showNextButton(); // Show Next button for Step 3
+            } else if (currentStep === 3) {
+                updateCurrentStep(2);
+                mobileCheckStep2(); // Go back to Step 2
+                showNextButton(); // Show Next button for Step 2
+            } else if (currentStep === 2) {
+                updateCurrentStep(1);
+                if (selectedModel) {
+                    showModelDetails(selectedModel); // Correctly show model details
+                    showNextButton(); // Show Next button for Step 1
+                } else {
+                    showModels(selectedBrand); // Show models of the brand
+                }
+            } else if (selectedBrand) {
+                sessionStorage.removeItem("selectedModel"); // Clear selected model
+                showModels(selectedBrand); // Go back to brand's models
+            } else {
+                window.history.back(); // If no brand is selected, go back to the previous page
+            }
         });
     }
 });

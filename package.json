@@ -1,0 +1,24 @@
+{
+  "name": "web-project",
+  "version": "1.0.0",
+  "description": "https://nikhilsai-m.github.io/web-project/",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nikhilsai-M/web-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nikhilsai-M/web-project/issues"
+  },
+  "homepage": "https://github.com/Nikhilsai-M/web-project#readme",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2"
+  }
+}

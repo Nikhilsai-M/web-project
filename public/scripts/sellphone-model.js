@@ -33,10 +33,10 @@ document.addEventListener("DOMContentLoaded", function () {
             showModels(selectedBrand); // Show models for selected brand
         } else if (selectedModel) {
             showModelDetails(selectedModel); // Show details of selected model
+            showNextButton(); // Show Next button for Step 1
         } else {
             brandHeading.innerHTML = `<a>Choose a Brand</a>`; // Default heading
         }
-        showNextButton(); // Show Next button for Step 1
     } else if (currentStep === 2) {
         mobileCheckStep2(); // Restore Step 2
         showNextButton(); // Show Next button for Step 2
@@ -134,10 +134,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     showNextButton(); // Show Next button for Step 1
                 } else {
                     showModels(selectedBrand); // Show models of the brand
+                    hideNextButton();
                 }
             } else if (selectedBrand) {
                 sessionStorage.removeItem("selectedModel"); // Clear selected model
                 showModels(selectedBrand); // Go back to brand's models
+                hideNextButton();
+
             } else {
                 window.history.back(); // If no brand is selected, go back to the previous page
             }

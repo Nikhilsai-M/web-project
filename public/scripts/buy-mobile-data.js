@@ -4,6 +4,7 @@ const mobilePhones = [
         brand: "Apple",
         model: "iPhone 14",
         baseImage: "iphone14.jpg",
+        color: "Midnight",
         specs: {
             processor: "A15 Bionic",
             display: "6.1-inch Super Retina XDR",
@@ -14,20 +15,8 @@ const mobilePhones = [
             weight: "172g"
         },
         variants: {
-            "4GB/128GB": {
-                price: { likeNew: 699, veryGood: 649, good: 599 },
-                colors: [
-                    { name: "Midnight", image: "iphone14_midnight.jpg" },
-                    { name: "Starlight", image: "iphone14_starlight.jpg" }
-                ]
-            },
-            "6GB/256GB": {
-                price: { likeNew: 899, veryGood: 849, good: 799 },
-                colors: [
-                    { name: "Midnight", image: "iphone14_midnight.jpg" },
-                    { name: "Purple", image: "iphone14_purple.jpg" }
-                ]
-            }
+            "4GB/128GB": { price: { likeNew: 699, veryGood: 649, good: 599 } },
+            "6GB/256GB": { price: { likeNew: 899, veryGood: 849, good: 799 } }
         }
     },
     {
@@ -35,6 +24,7 @@ const mobilePhones = [
         brand: "Samsung",
         model: "Galaxy S22",
         baseImage: "galaxy_s22.jpg",
+        color: "Phantom Black",
         specs: {
             processor: "Snapdragon 8 Gen 1",
             display: "6.1-inch Dynamic AMOLED",
@@ -45,20 +35,8 @@ const mobilePhones = [
             weight: "167g"
         },
         variants: {
-            "8GB/128GB": {
-                price: { likeNew: 799, veryGood: 749, good: 699 },
-                colors: [
-                    { name: "Phantom Black", image: "s22_black.jpg" },
-                    { name: "Phantom White", image: "s22_white.jpg" }
-                ]
-            },
-            "8GB/256GB": {
-                price: { likeNew: 899, veryGood: 849, good: 799 },
-                colors: [
-                    { name: "Bora Purple", image: "s22_purple.jpg" },
-                    { name: "Graphite", image: "s22_graphite.jpg" }
-                ]
-            }
+            "8GB/128GB": { price: { likeNew: 799, veryGood: 749, good: 699 } },
+            "8GB/256GB": { price: { likeNew: 899, veryGood: 849, good: 799 } }
         }
     }
 ];

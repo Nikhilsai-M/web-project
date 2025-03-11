@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 modelCard.addEventListener("click", function () {
                     sessionStorage.setItem("selectedModel", model.name);
-                    window.location.href = `sell-phone-container.html?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model.name)}`;
+                    window.location.href = `/sell-phone-models?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model.name)}`;
                 });
 
                 modelContainer.appendChild(modelCard);

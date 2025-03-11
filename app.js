@@ -27,5 +27,8 @@ app.get('/Accessories',(req,res) => {
 app.get('/sell-phone-models',(req,res) => {
   res.render("sellphone-container")
 })
+app.get('/buy-phone',(req,res) => {
+  res.render("buy_phone")
+})
 
 app.listen(port);

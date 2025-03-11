@@ -33,10 +33,10 @@ document.addEventListener("DOMContentLoaded", function () {
             showModels(selectedBrand); // Show models for selected brand
         } else if (selectedModel) {
             showModelDetails(selectedModel); // Show details of selected model
+            showNextButton(); // Show Next button for Step 1
         } else {
             brandHeading.innerHTML = `<a>Choose a Brand</a>`; // Default heading
         }
-        showNextButton(); // Show Next button for Step 1
     } else if (currentStep === 2) {
         mobileCheckStep2(); // Restore Step 2
         showNextButton(); // Show Next button for Step 2
@@ -50,28 +50,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function showModels(brand) {
         modelContainer.innerHTML = "";
-
+    
+        // ❗ Clear previously selected model
+        sessionStorage.removeItem("selectedModel");
+        sessionStorage.setItem("selectedBrand", brand); // ✅ Store new brand
+    
         if (mobileModels[brand]) {
             mobileModels[brand].forEach(model => {
                 const modelCard = document.createElement("div");
                 modelCard.classList.add("model-card");
-
+    
                 modelCard.innerHTML = `
                     <img src="${model.image}" alt="${model.name}">
                     <p>${model.name}</p>
                 `;
-
+    
                 modelCard.addEventListener("click", function () {
                     sessionStorage.setItem("selectedModel", model.name);
                     window.location.href = `/sell-phone-models?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model.name)}`;
                 });
-
+    
                 modelContainer.appendChild(modelCard);
             });
         } else {
             modelContainer.innerHTML = "<p>No models available for this brand.</p>";
         }
     }
+    
 
     window.addEventListener("popstate", function () {
         let currentStep = parseInt(sessionStorage.getItem("currentStep")) || 1;
@@ -129,10 +134,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     showNextButton(); // Show Next button for Step 1
                 } else {
                     showModels(selectedBrand); // Show models of the brand
+                    hideNextButton();
                 }
             } else if (selectedBrand) {
                 sessionStorage.removeItem("selectedModel"); // Clear selected model
                 showModels(selectedBrand); // Go back to brand's models
+                hideNextButton();
+
             } else {
                 window.history.back(); // If no brand is selected, go back to the previous page
             }

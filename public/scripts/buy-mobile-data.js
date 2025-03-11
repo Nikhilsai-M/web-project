@@ -4,7 +4,7 @@ const mobilePhones = [
         brand: "Apple",
         model: "iPhone 14",
         color: "Midnight",
-        baseImage: "iphone14.jpg",
+        image: "images/buy-page-phones/image_name",
         specs: {
             processor: "A15 Bionic",
             display: "6.1-inch Super Retina XDR",
@@ -25,7 +25,7 @@ const mobilePhones = [
         brand: "Samsung",
         model: "Galaxy S22",
         color: "Phantom Black",
-        baseImage: "galaxy_s22.jpg",
+        image: "images/buy-page-phones/image_name",
         specs: {
             processor: "Snapdragon 8 Gen 1",
             display: "6.1-inch Dynamic AMOLED",
@@ -46,7 +46,7 @@ const mobilePhones = [
         brand: "OnePlus",
         model: "OnePlus 10 Pro",
         color: "Emerald Green",
-        baseImage: "oneplus_10pro.jpg",
+        image: "images/buy-page-phones/image_name",
         specs: {
             processor: "Snapdragon 8 Gen 1",
             display: "6.7-inch Fluid AMOLED",

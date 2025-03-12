@@ -59,10 +59,11 @@ const mobilePhones = [
         ram: "12GB",
         rom: "256GB",
         price: 74999,
-        discount: 20, // 15% off
+        discount: 20, // 20% off
         condition: "Good" // Condition added
     }
-    ,  {
+    ,  
+    {
         id: 0,
         brand: "Apple",
         model: "iPhone 13 (Green, 512 GB)",
@@ -82,5 +83,9 @@ const mobilePhones = [
         price: 74999,
         discount: 10, // 15% off
         condition: "Good" // Condition added
-    }
+    },
+       
+
+    
+
 ];

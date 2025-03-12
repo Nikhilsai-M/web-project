@@ -4,7 +4,7 @@ const mobilePhones = [
         brand: "Apple",
         model: "iPhone 14",
         color: "Midnight",
-        baseImage: "iphone14.jpg",
+        image: "images/buy-page-phones/image_name",
         specs: {
             processor: "A15 Bionic",
             display: "6.1-inch Super Retina XDR",
@@ -19,47 +19,68 @@ const mobilePhones = [
         price: 79999,
         discount: 10, // 10% off
         condition: "Superb" // Condition added
-    },
-    {
-        id: 2,
-        brand: "Samsung",
-        model: "Galaxy S22",
-        color: "Phantom Black",
-        baseImage: "galaxy_s22.jpg",
+    }
+    ,  {
+        id: 0,
+        brand: "Apple",
+        model: "iPhone 16 (Black, 128 GB)",
+        color: "Black",
+        image: "images/buy-page-phones/i-16-black.webp",
         specs: {
-            processor: "Snapdragon 8 Gen 1",
-            display: "6.1-inch Dynamic AMOLED",
-            battery: 3700,
-            camera: "50MP + 10MP + 12MP | 10MP Front Camera",
-            os: "Android 12",
-            network: "5G",
-            weight: "167g"
-        },
-        ram: "8GB",
-        rom: "128GB",
-        price: 69999,
-        discount: 5, // 5% off
-        condition: "Very Good" // Condition added
-    },
-    {
-        id: 3,
-        brand: "OnePlus",
-        model: "OnePlus 10 Pro",
-        color: "Emerald Green",
-        baseImage: "oneplus_10pro.jpg",
-        specs: {
-            processor: "Snapdragon 8 Gen 1",
-            display: "6.7-inch Fluid AMOLED",
+            processor: "A18 Chip, 6 Core Processor",
+            display: "15.49 cm (6.1 inch) OLED Display",
             battery: 5000,
-            camera: "48MP + 8MP + 50MP | 32MP Front Camera",
-            os: "Android 12",
+            camera: "48MP + 12MP | 12MP Front Camera",
+            os: "iOS 18",
+            network: "5G",
+            weight: "200g"
+        },
+        ram: "6GB",
+        rom: "128GB",
+        price: 71999,
+        discount: 15, // 15% off
+        condition: "very Good" // Condition added
+    }
+    ,  {
+        id: 0,
+        brand: "Apple",
+        model: "iPhone 16 (White, 256 GB)",
+        color: "Black",
+        image: "images/buy-page-phones/i-16-white.webp",
+        specs: {
+            processor: "A18 Chip, 6 Core Processor",
+            display: "15.49 cm (6.1 inch) OLED Display",
+            battery: 5000,
+            camera: "48MP + 12MP | 12MP Front Camera",
+            os: "iOS 18",
             network: "5G",
             weight: "200g"
         },
         ram: "12GB",
         rom: "256GB",
-        price: 71999,
-        discount: 15, // 15% off
+        price: 74999,
+        discount: 20, // 15% off
+        condition: "Good" // Condition added
+    }
+    ,  {
+        id: 0,
+        brand: "Apple",
+        model: "iPhone 13 (Green, 512 GB)",
+        color: "Black",
+        image: "images/buy-page-phones/i-16-black.webp",
+        specs: {
+            processor: "A18 Chip, 6 Core Processor",
+            display: "15.49 cm (6.1 inch) OLED Display",
+            battery: 5000,
+            camera: "48MP + 12MP | 12MP Front Camera",
+            os: "   iOS 18",
+            network: "5G",
+            weight: "200g"
+        },
+        ram: "6GB",
+        rom: "1GB",
+        price: 74999,
+        discount: 10, // 15% off
         condition: "Good" // Condition added
     }
 ];

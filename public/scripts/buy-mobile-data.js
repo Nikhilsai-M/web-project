@@ -1,7 +1,7 @@
 const mobilePhones = [
 // OnePlus
     {
-id: ,
+id: 1,
 brand: "OnePlus",
 model: "OnePlus Nord 2",
 color: "Blue Haze",
@@ -23,7 +23,7 @@ condition: "Good" // Condition added
 },
 
 {
-    id: ,
+    id: 1,
     brand: "OnePlus",
     model: " OnePlus 8T 5G",
     color: "Lunar Silver",
@@ -45,7 +45,7 @@ condition: "Good" // Condition added
 },
 
 {
-    id: ,
+    id: 1,
     brand: "OnePlus",
     model: " OnePlus 10T 5G",
     color: "Jade Green",
@@ -67,7 +67,7 @@ condition: "Good" // Condition added
 },
 
 {
-    id: ,
+    id: 1,
     brand: "OnePlus",
     model: " OnePlus 11 5G",
     color: "Eternal Green",
@@ -88,7 +88,7 @@ condition: "Good" // Condition added
     condition: "Superb" 
 },
 {
-    id: ,
+    id:1 ,
     brand: "OnePlus",
     model: " OnePlus 8T 5G",
     color: "AquaMarine Green",
@@ -109,7 +109,7 @@ condition: "Good" // Condition added
     condition: "Good" 
 },
 {
-    id: ,
+    id: 1,
     brand: "OnePlus",
     model: "OnePlus Nord 2",
     color: "Gray Sierra",
@@ -131,7 +131,7 @@ condition: "Good" // Condition added
     },
 
 {
-    id: ,
+    id: 1,
     brand: "OnePlus",
     model: "OnePlus 10R",
     color: "Sierra Black",
@@ -153,7 +153,7 @@ condition: "Good" // Condition added
 },
 
 {
-    id: ,
+    id: 1,
     brand: "OnePlus",
     model: "OnePlus 10R",
     color: "Forest Green",
@@ -175,7 +175,7 @@ condition: "Good" // Condition added
 },
         
 {
-    id: ,
+    id: 1,
     brand: "OnePlus",
     model: "OnePlus 11R",
     color: "Sonic Black",
@@ -197,7 +197,7 @@ condition: "Good" // Condition added
 },
 
 {
-    id: ,
+    id:1 ,
     brand: "OnePlus",
     model: "OnePlus  Nord CE 3 Lite",
     color: "Pastel Lime",
@@ -219,7 +219,7 @@ condition: "Good" // Condition added
 },
 // Google
 {
-    id: ,
+    id:2 ,
     brand: "Google",
     model: "Google Pixel 7",
     color: "Lemon Grass",
@@ -241,7 +241,7 @@ condition: "Good" // Condition added
 },
 
 {
-    id: ,
+    id:2 ,
     brand: "Google",
     model: "Google Pixel 7",
     color: "Obsidian",
@@ -263,7 +263,7 @@ condition: "Good" // Condition added
     },
 
 {
-    id: ,
+    id: 2,
     brand: "Google",
     model: "Google Pixel 7a",
     color: "Charcoal",
@@ -285,7 +285,7 @@ condition: "Good" // Condition added
 },
 
 {
-    id: ,
+    id: 2,
     brand: "Google",
     model: "Google Pixel 7a",
     color: "Sea",
@@ -307,7 +307,7 @@ condition: "Good" // Condition added
 },
 
 {
-    id: ,
+    id:2 ,
     brand: "Google",
     model: "Google Pixel 7a",
     color: "Snow",
@@ -329,7 +329,7 @@ condition: "Good" // Condition added
 },
 
 {
-    id: ,
+    id: 2,
     brand: "Google",
     model: "Google Pixel 7",
     color: "Snow",
@@ -351,7 +351,7 @@ condition: "Good" // Condition added
     },
 
     {
-        id: ,
+        id: 2,
         brand: "Google",
         model: "Google Pixel 8",
         color: "Hazel",
@@ -374,7 +374,7 @@ condition: "Good" // Condition added
     
     
 {
-    id: ,
+    id:2 ,
     brand: "Google",
     model: "Google Pixel 8",
     color: "Mint",
@@ -396,7 +396,7 @@ condition: "Good" // Condition added
 },
 
 {
-    id: ,
+    id:2 ,
     brand: "Google",
     model: "Google Pixel 8 Pro",
     color: "Bay",
@@ -418,7 +418,7 @@ condition: "Good" // Condition added
 },
 
 {
-    id: ,
+    id:2 ,
     brand: "Google",
     model: "Google Pixel 8 Pro",
     color: "Obsidian",

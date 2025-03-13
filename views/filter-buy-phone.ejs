@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Buying Page</title>
+    <link rel="stylesheet" href="/styles/filter-buy-phone.css">
+</head>
+<body>
+    <%- include('partials/header') %> 
+    <div class="page-container">
+    <div class="filters">
+        <h3>Filters</h3>
+
+        <!-- Selected Filters Section -->
+        <div class="selected-filters">
+            <h4>Selected Filters</h4>
+            <div id="selected-filters-list"></div>
+            <div class="clear-all">CLEAR ALL</div>
+        </div>
+
+        <!-- Brand Filter -->
+        <h4>Brand</h4>
+        <label><input type="checkbox" class="brand" value="Apple"> Apple</label>
+        <label><input type="checkbox" class="brand" value="Samsung"> Samsung</label>
+        <label><input type="checkbox" class="brand" value="OnePlus"> OnePlus</label>
+
+        <!-- Price Range Slider -->
+        <h4>Price Range</h4>
+        <div class="price-range">
+            <div class="slider-container">
+                <div class="slider"></div>
+                <input type="range" id="min-price" min="0" max="150000" value="0">
+                <input type="range" id="max-price" min="0" max="150000" value="150000">
+            </div>
+            <div class="values">
+                <span style="font-weight: bold;">From: </span>
+                <input type="text" id="min-value" value="0">
+                <span style="font-weight: bold;"> To: </span>
+                <input type="text" id="max-value" value="150000">
+            </div>
+        </div>
+
+        <!-- RAM Filter -->
+        <h4>RAM</h4>
+        <label><input type="checkbox" class="ram" value="3"> 3GB</label>
+        <label><input type="checkbox" class="ram" value="4"> 4GB</label>
+        <label><input type="checkbox" class="ram" value="6"> 6GB</label> 
+        <label><input type="checkbox" class="ram" value="8"> 8GB</label>
+        <label><input type="checkbox" class="ram" value="12"> 12GB</label>
+
+        <!-- ROM Filter -->
+        <h4>Storage</h4>
+        <label><input type="checkbox" class="rom" value="32"> 32GB</label>
+        <label><input type="checkbox" class="rom" value="64"> 64GB</label>
+        <label><input type="checkbox" class="rom" value="128"> 128GB</label>
+        <label><input type="checkbox" class="rom" value="256"> 256GB</label>
+        <label><input type="checkbox" class="rom" value="512"> 512GB</label>
+
+        <!-- Battery Capacity Filter -->
+        <h4>Battery Capacity</h4>
+        <label><input type="checkbox" class="battery" value="2000-3000"> 2000mAh - 3000mAh</label>
+        <label><input type="checkbox" class="battery" value="3000-4000"> 3000mAh - 4000mAh</label>
+        <label><input type="checkbox" class="battery" value="4000-5000"> 4000mAh - 5000mAh</label>
+        <label><input type="checkbox" class="battery" value="5000-6000"> 5000mAh - 6000mAh</label>
+
+        <!-- Condition Filter -->
+        <h4>Condition</h4>
+        <label><input type="checkbox" class="condition" value="Superb"> Superb</label>
+        <label><input type="checkbox" class="condition" value="Very Good"> Very Good</label>
+        <label><input type="checkbox" class="condition" value="Good"> Good</label>
+
+        <!-- Discount Filter -->
+        <h4>Discount</h4>
+        <label><input type="checkbox" class="discount" value="10"> 10% off and more</label>
+        <label><input type="checkbox" class="discount" value="20"> 20% off and more</label>
+        <label><input type="checkbox" class="discount" value="30"> 30% off and more</label>
+        <label><input type="checkbox" class="discount" value="40"> 40% off and more</label>
+        <label><input type="checkbox" class="discount" value="50"> 50% off and more</label>
+    </div>
+
+    <!-- Products Section -->
+    <div class="products" id="product-list"></div>
+
+    <script src="/scripts/filter-phones.js" type="module"></script>
+</div>
+</body>
+</html>

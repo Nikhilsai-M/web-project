@@ -30,5 +30,7 @@ app.get('/sell-phone-models',(req,res) => {
 app.get('/buy-phone',(req,res) => {
   res.render("buy_phone")
 })
-
+app.get('/filter-buy-phone',(req,res) => {
+  res.render("filter-buy-phone")
+})
 app.listen(port);

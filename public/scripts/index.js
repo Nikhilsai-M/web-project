@@ -4,6 +4,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const laptopBrandCards = document.querySelectorAll(".sell-laptop-brand");
     const topLaptopBrandLinks = document.querySelectorAll(".top-sell-laptop-dropdown");
 
+    const topBuyPhoneLinks = document.querySelectorAll(".top-buy-phone-dropdown");
+    
+        function goToFilterPage(brand) {
+            window.location.href = `/filter-buy-phone?brand=${encodeURIComponent(brand)}`;
+        }
+    
+        // Attach event listeners to dropdown links
+        topBuyPhoneLinks.forEach(link => {
+            link.addEventListener("click", function (event) {
+                event.preventDefault();
+                const selectedBrand = this.innerText.trim();
+                goToFilterPage(selectedBrand);
+            });
+        });
+
     // Function to navigate to phone models page (Step 0)
     function goToPhoneModelsPage(brand) {
         sessionStorage.clear(); // Clear previous session data
@@ -19,6 +34,8 @@ document.addEventListener("DOMContentLoaded", function () {
         sessionStorage.setItem("currentStep", 0); // Step 0: Show models
         window.location.href = `/sell-laptop-models?brand=${encodeURIComponent(brand)}`;
     }
+
+    
 
     // Attach event listeners to brand cards
     function attachBrandCardListeners(cards, goToPageFunction) {

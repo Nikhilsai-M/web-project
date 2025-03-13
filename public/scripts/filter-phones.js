@@ -25,6 +25,7 @@ function displayProducts(filteredProducts) {
                         <li>${product.specs.battery}mAh Battery</li>
                         <li>Condition: ${product.condition}</li>
                     </ul>
+                    <button class="add-to-cart-btn">Add to Cart</button>
                 </div>
             </div>
         `;
@@ -120,28 +121,9 @@ function removeFilter(type, value) {
 function updateSliderBackground() {
     const minSlider = document.getElementById("min-price");
     const maxSlider = document.getElementById("max-price");
-    const slider = document.querySelector(".slider");
-    
-    const minVal = parseInt(minSlider.value);
-    const maxVal = parseInt(maxSlider.value);
-    
-    // Calculate percentages for slider positioning
-    const minPercent = (minVal / parseInt(minSlider.max)) * 100;
-    const maxPercent = (maxVal / parseInt(maxSlider.max)) * 100;
-    
-    // Update the slider background to show the selected range
-    slider.style.left = minPercent + "%";
-    slider.style.width = (maxPercent - minPercent) + "%";
-    
-    // Update the text inputs
-    document.getElementById("min-value").value = minVal;
-    document.getElementById("max-value").value = maxVal;
-    
-    // Ensure min doesn't exceed max
-    if (minVal > maxVal) {
-        minSlider.value = maxVal;
-        document.getElementById("min-value").value = maxVal;
-    }
+
+    document.getElementById("min-value").value = minSlider.value;
+    document.getElementById("max-value").value = maxSlider.value;
 }
 
 // Function to filter products based on selected filters
@@ -174,59 +156,35 @@ function clearAllFilters() {
     document.getElementById("min-value").value = 0;
     document.getElementById("max-value").value = 150000;
 
-    // Reset the slider visual
-    updateSliderBackground();
-    
     localStorage.removeItem("selectedFilters");
+    updateSliderBackground();
     filterProducts();
 }
 
 // Load filters and set event listeners when DOM is ready
 document.addEventListener("DOMContentLoaded", function () {
-    loadFiltersFromStorage();
-    
-    // Event listeners for price range sliders
-    document.getElementById("min-price").addEventListener("input", function() {
-        updateSliderBackground();
-        updateFiltersAndStore();
-    });
-    
-    document.getElementById("max-price").addEventListener("input", function() {
-        updateSliderBackground();
-        updateFiltersAndStore();
-    });
-    
-    // Event listeners for text inputs
-    document.getElementById("min-value").addEventListener("change", function() {
-        const minVal = parseInt(this.value);
-        const maxVal = parseInt(document.getElementById("max-value").value);
-        
-        if (minVal > maxVal) {
-            this.value = maxVal;
-        }
-        
-        document.getElementById("min-price").value = this.value;
-        updateSliderBackground();
-        updateFiltersAndStore();
-    });
+    if (!performance.navigation || performance.navigation.type !== performance.navigation.TYPE_RELOAD) {
+        localStorage.removeItem("selectedFilters"); // Reset filters if navigating from another page
+    }
 
-    document.getElementById("max-value").addEventListener("change", function() {
-        const maxVal = parseInt(this.value);
-        const minVal = parseInt(document.getElementById("min-value").value);
-        
-        if (maxVal < minVal) {
-            this.value = minVal;
+    loadFiltersFromStorage();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedBrand = urlParams.get("brand");
+
+    if (selectedBrand) {
+        localStorage.removeItem("selectedFilters");
+        const brandCheckbox = document.querySelector(`.brand[value="${selectedBrand}"]`);
+        if (brandCheckbox) {
+            brandCheckbox.checked = true;
+            updateFiltersAndStore();
         }
-        
-        document.getElementById("max-price").value = this.value;
-        updateSliderBackground();
-        updateFiltersAndStore();
-    });
-    
+    }
+
     document.querySelector(".clear-all").addEventListener("click", clearAllFilters);
-    document.querySelectorAll(".filters input[type='checkbox']").forEach(checkbox => checkbox.addEventListener("change", updateFiltersAndStore));
-    
-    // Initialize slider and products
-    updateSliderBackground();
+    document.querySelectorAll(".filters input[type='checkbox']").forEach(checkbox => 
+        checkbox.addEventListener("change", updateFiltersAndStore)
+    );
+
     filterProducts();
 });

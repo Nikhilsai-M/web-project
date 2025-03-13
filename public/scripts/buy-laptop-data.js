@@ -23,7 +23,7 @@ const laptopSchema = [
     weight: 1.4,
     condition: "Superb", // Condition grade (Superb, VeryGood, Good)
     os: "Windows 11", // Operating system installed
-    image: "/images/laptops/dell-xps-13-001.jpg", // Path to laptop image
+    image: "/images/buy-laptops/image.png", // Path to laptop image
   },
   
 ];

@@ -35,13 +35,13 @@ function displayProducts(filteredProducts) {
 function getSelectedFilters() {
     return {
         brands: Array.from(document.querySelectorAll(".brand:checked")).map(cb => cb.value),
-        rams: Array.from(document.querySelectorAll(".ram:checked")).map(cb => parseInt(cb.value)), // Ensure integer
-        roms: Array.from(document.querySelectorAll(".rom:checked")).map(cb => parseInt(cb.value)), // Ensure integer
+        rams: Array.from(document.querySelectorAll(".ram:checked")).map(cb => parseInt(cb.value)), 
+        roms: Array.from(document.querySelectorAll(".rom:checked")).map(cb => parseInt(cb.value)), 
         batteries: Array.from(document.querySelectorAll(".battery:checked")).map(cb => cb.value), 
         conditions: Array.from(document.querySelectorAll(".condition:checked")).map(cb => cb.value),
         discounts: Array.from(document.querySelectorAll(".discount:checked")).map(cb => parseInt(cb.value)), 
-        minPrice: parseInt(document.getElementById("min-price").value) || 0,
-        maxPrice: parseInt(document.getElementById("max-price").value) || 150000
+        minPrice: parseInt(document.getElementById("min-value").value) || 0,
+        maxPrice: parseInt(document.getElementById("max-value").value) || 150000
     };
 }
 
@@ -55,7 +55,6 @@ function loadFiltersFromStorage() {
     const storedFilters = JSON.parse(localStorage.getItem("selectedFilters"));
     if (!storedFilters) return;
 
-    // Restore checkboxes
     document.querySelectorAll(".brand").forEach(cb => cb.checked = storedFilters.brands.includes(cb.value));
     document.querySelectorAll(".ram").forEach(cb => cb.checked = storedFilters.rams.includes(parseInt(cb.value)));
     document.querySelectorAll(".rom").forEach(cb => cb.checked = storedFilters.roms.includes(parseInt(cb.value)));
@@ -63,11 +62,10 @@ function loadFiltersFromStorage() {
     document.querySelectorAll(".condition").forEach(cb => cb.checked = storedFilters.conditions.includes(cb.value));
     document.querySelectorAll(".discount").forEach(cb => cb.checked = storedFilters.discounts.includes(parseInt(cb.value)));
 
-    // Restore price sliders
-    document.getElementById("min-price").value = storedFilters.minPrice;
-    document.getElementById("max-price").value = storedFilters.maxPrice;
     document.getElementById("min-value").value = storedFilters.minPrice;
     document.getElementById("max-value").value = storedFilters.maxPrice;
+    document.getElementById("min-price").value = storedFilters.minPrice;
+    document.getElementById("max-price").value = storedFilters.maxPrice;
 
     updateSliderBackground();
 }
@@ -118,30 +116,32 @@ function removeFilter(type, value) {
     updateFiltersAndStore();
 }
 
-// Function to clear all filters
-function clearAllFilters() {
-    document.querySelectorAll(".filters input[type='checkbox']").forEach(checkbox => checkbox.checked = false);
-    document.getElementById("min-price").value = 0;
-    document.getElementById("max-price").value = 150000;
-    document.getElementById("min-value").value = 0;
-    document.getElementById("max-value").value = 150000;
-
-    localStorage.removeItem("selectedFilters");
-    updateSliderBackground();
-    filterProducts();
-}
-
 // Function to update slider background
 function updateSliderBackground() {
     const minSlider = document.getElementById("min-price");
     const maxSlider = document.getElementById("max-price");
     const slider = document.querySelector(".slider");
-
-    const minPercent = (parseInt(minSlider.value) / minSlider.max) * 100;
-    const maxPercent = (parseInt(maxSlider.value) / maxSlider.max) * 100;
-
-    slider.style.left = `${minPercent}%`;
-    slider.style.right = `${100 - maxPercent}%`;
+    
+    const minVal = parseInt(minSlider.value);
+    const maxVal = parseInt(maxSlider.value);
+    
+    // Calculate percentages for slider positioning
+    const minPercent = (minVal / parseInt(minSlider.max)) * 100;
+    const maxPercent = (maxVal / parseInt(maxSlider.max)) * 100;
+    
+    // Update the slider background to show the selected range
+    slider.style.left = minPercent + "%";
+    slider.style.width = (maxPercent - minPercent) + "%";
+    
+    // Update the text inputs
+    document.getElementById("min-value").value = minVal;
+    document.getElementById("max-value").value = maxVal;
+    
+    // Ensure min doesn't exceed max
+    if (minVal > maxVal) {
+        minSlider.value = maxVal;
+        document.getElementById("min-value").value = maxVal;
+    }
 }
 
 // Function to filter products based on selected filters
@@ -151,31 +151,12 @@ function filterProducts() {
     const filteredProducts = mobileModels.filter(product => {
         const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
 
-        // Brand filter
         if (selectedFilters.brands.length > 0 && !selectedFilters.brands.includes(product.brand)) return false;
-
-        // Price filter
         if (discountedPrice < selectedFilters.minPrice || discountedPrice > selectedFilters.maxPrice) return false;
-
-        // RAM filter (convert product.ram to number)
         if (selectedFilters.rams.length > 0 && !selectedFilters.rams.includes(parseInt(product.ram))) return false;
-
-        // ROM filter (convert product.rom to number)
         if (selectedFilters.roms.length > 0 && !selectedFilters.roms.includes(parseInt(product.rom))) return false;
-
-        // Battery filter
-        if (selectedFilters.batteries.length > 0) {
-            const batteryInRange = selectedFilters.batteries.some(range => {
-                const [min, max] = range.split("-").map(Number);
-                return product.specs.battery >= min && product.specs.battery <= max;
-            });
-            if (!batteryInRange) return false;
-        }
-
-        // Condition filter
+        if (selectedFilters.batteries.length > 0 && !selectedFilters.batteries.includes(product.specs.battery.toString())) return false;
         if (selectedFilters.conditions.length > 0 && !selectedFilters.conditions.includes(product.condition)) return false;
-
-        // Discount filter
         if (selectedFilters.discounts.length > 0 && !selectedFilters.discounts.includes(product.discount)) return false;
 
         return true;
@@ -185,10 +166,67 @@ function filterProducts() {
     updateSelectedFilters();
 }
 
+// Function to clear all filters
+function clearAllFilters() {
+    document.querySelectorAll(".filters input[type='checkbox']").forEach(checkbox => checkbox.checked = false);
+    document.getElementById("min-price").value = 0;
+    document.getElementById("max-price").value = 150000;
+    document.getElementById("min-value").value = 0;
+    document.getElementById("max-value").value = 150000;
+
+    // Reset the slider visual
+    updateSliderBackground();
+    
+    localStorage.removeItem("selectedFilters");
+    filterProducts();
+}
+
 // Load filters and set event listeners when DOM is ready
 document.addEventListener("DOMContentLoaded", function () {
     loadFiltersFromStorage();
+    
+    // Event listeners for price range sliders
+    document.getElementById("min-price").addEventListener("input", function() {
+        updateSliderBackground();
+        updateFiltersAndStore();
+    });
+    
+    document.getElementById("max-price").addEventListener("input", function() {
+        updateSliderBackground();
+        updateFiltersAndStore();
+    });
+    
+    // Event listeners for text inputs
+    document.getElementById("min-value").addEventListener("change", function() {
+        const minVal = parseInt(this.value);
+        const maxVal = parseInt(document.getElementById("max-value").value);
+        
+        if (minVal > maxVal) {
+            this.value = maxVal;
+        }
+        
+        document.getElementById("min-price").value = this.value;
+        updateSliderBackground();
+        updateFiltersAndStore();
+    });
+
+    document.getElementById("max-value").addEventListener("change", function() {
+        const maxVal = parseInt(this.value);
+        const minVal = parseInt(document.getElementById("min-value").value);
+        
+        if (maxVal < minVal) {
+            this.value = minVal;
+        }
+        
+        document.getElementById("max-price").value = this.value;
+        updateSliderBackground();
+        updateFiltersAndStore();
+    });
+    
     document.querySelector(".clear-all").addEventListener("click", clearAllFilters);
     document.querySelectorAll(".filters input[type='checkbox']").forEach(checkbox => checkbox.addEventListener("change", updateFiltersAndStore));
+    
+    // Initialize slider and products
+    updateSliderBackground();
     filterProducts();
 });

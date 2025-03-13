@@ -1,4 +1,5 @@
 const accessoriesData = {
+    
     earphones: [
         {
             title: "Boult Astra with Quad Mic ENC, 48Hrs Battery, Low Latency Gaming, Made in India, 5.3v Bluetooth  (White Opal, True Wireless)",
@@ -6,17 +7,17 @@ const accessoriesData = {
             brand: "Boult",
             originalPrice: 3499,
             discount: "65%",
-            design: "Earbud",
-            batteryLife: "48 hours"
+            design: "Earbuds",
+            batteryLife: "48"
         },
         {
             title: "boAt Airdopes 181 Pro w/ 100 HRS Playback, 4 Mics ENx Technology & ASAP Charge Bluetooth  (Frosted Mint, True Wireless)",
             image: "images/accessories/earphones/boat_airdopes.webp",
-            brand: "boAt",
+            brand: "Boat",
             originalPrice: 4990,
             discount: "81%",
             design: "Earbuds",
-            batteryLife: "100 hours"
+            batteryLife: "100"
         },
         {
             title: "Boult Y1 with Zen ENC Mic, 50H Battery, Fast Charging, Pro+ Calling, Knurled Design Bluetooth  (Black, True Wireless)",
@@ -25,16 +26,16 @@ const accessoriesData = {
             originalPrice: 5499,
             discount: "85%",
             design: "Earbuds",
-            batteryLife: "50 hours"
+            batteryLife: "50"
         },
         {
             title: "boAt Airdopes Alpha with 35 HRS Playback, 13mm Drivers, Dual Mics ENx & Beast Mode Bluetooth  (Jet Black, In the Ear)",
             image: "images/accessories/earphones/boat_alpha.webp",
-            brand: "boAt",
+            brand: "Boat",
             originalPrice: 3490,
             discount: "79%",
             design: "Earbuds",
-            batteryLife: "35 hours"
+            batteryLife: "35"
         },{
             title: "OnePlus Nord Buds 2r in Ear Earbuds with Dual Mic & AI Crystal Clear Call Bluetooth  (Deep Grey, True Wireless)",
             image: "images/accessories/earphones/oneplus_nord2.webp",
@@ -42,7 +43,7 @@ const accessoriesData = {
             originalPrice: 2299,
             discount: "30%",
             design: "Earbuds",
-            batteryLife: "38 hours"
+            batteryLife: "38"
         },
         {
             title: "OnePlus Nord Buds 3 with up to 32dB ANC Bluetooth  (Harmonic Gray, True Wireless)",
@@ -51,7 +52,7 @@ const accessoriesData = {
             originalPrice: 2799,
             discount: "28%",
             design: "Earbuds",
-            batteryLife: "43 hours"
+            batteryLife: "43"
         },
         {
             title: "OnePlus Bullets Wireless Z2 Bluetooth 5.0 in Ear Earphones, Bombastic Bass E310A Bluetooth  (Blue, In the Ear)",
@@ -60,7 +61,7 @@ const accessoriesData = {
             originalPrice: 2999,
             discount: "10%",
             design: "behind the neck",
-            batteryLife: "50 hours"
+            batteryLife: "50"
         },
         {
             title: "realme Buds Air Neo Bluetooth  (White, True Wireless)",
@@ -69,7 +70,7 @@ const accessoriesData = {
             originalPrice: 3999,
             discount: "25%",
             design: "Earbuds",
-            batteryLife: "17 hours"
+            batteryLife: "17"
         },
         {
             title: "realme Buds T110 (RMA2306) with AI ENC for calls, 38 hours of Playback and Deep Bass Bluetooth  (Jazz Blue, True Wireless)",
@@ -78,7 +79,7 @@ const accessoriesData = {
             originalPrice: 2999,
             discount: "63%",
             design: "Earbuds",
-            batteryLife: "38 hours"
+            batteryLife: "38"
         },
         {
             title: "realme Buds Wireless 3 Neo with 13.4mm Driver, 32 hrs Playback, Dual Device Connection Bluetooth  (Black, In the Ear)",
@@ -87,7 +88,7 @@ const accessoriesData = {
             originalPrice: 2499,
             discount: "60%",
             design: "behind the neck",
-            batteryLife: "32 hours"
+            batteryLife: "32"
         },
         {
             title: "SAMSUNG SM-R400NZ Bluetooth  (Graphite, True Wireless)",
@@ -96,7 +97,7 @@ const accessoriesData = {
             originalPrice: 12999,
             discount: "52%",
             design: "Earbuds",
-            batteryLife: "43 hours"
+            batteryLife: "43"
         },
         {
             title: "SAMSUNG Galaxy Buds 3 Pro Bluetooth  (White, In the Ear)",
@@ -105,16 +106,16 @@ const accessoriesData = {
             originalPrice: 24999,
             discount: "25%",
             design: "Earbuds",
-            batteryLife: "37 hours"
+            batteryLife: "37"
         },
         {
             title: "Noise Buds Trance with 45 Hrs Playtime, Low Latency (up to 40ms), HyperSync, and IPX5 Bluetooth  (True Purple, True Wireless)",
-            image: "images/accessories/earphones/noice_trance.webp",
+            image: "/images/accessories/earphones/noise_trance.webp",
             brand: "Noise",
             originalPrice: 2499,
             discount: "60%",
             design: "Earbuds",
-            batteryLife: "45 hours"
+            batteryLife: "45"
         },
         {
             title: "Noise Buds VS102 Plus with 70 Hrs Playtime, Environmental Noise Cancellation, Quad Mic Bluetooth  (Deep Wine, True Wireless)",
@@ -123,7 +124,7 @@ const accessoriesData = {
             originalPrice: 3999,
             discount: "75%",
             design: "Earbuds",
-            batteryLife: "70 hours"
+            batteryLife: "70"
         },
         {
             title: "Noise Airwave Pro with ANC, 60 Hrs of Playtime, Low latency(Up to 40ms), 3 EQ Modes Bluetooth  (Metallic Blue, In the Ear)",
@@ -132,7 +133,7 @@ const accessoriesData = {
             originalPrice: 3999,
             discount: "62%",
             design: "behind the neck",
-            batteryLife: "60 hours"
+            batteryLife: "60"
         },
         {
             title: "Portronics Twins S16 in Ear Earbuds Bluetooth  (Green, In the Ear)",
@@ -140,8 +141,8 @@ const accessoriesData = {
             brand: "Portronics",
             originalPrice: 1999,
             discount: "62%",
-            design: "Earbud",
-            batteryLife: "24 hours"
+            design: "Earbuds",
+            batteryLife: "24"
         },
         {
             title: "Portronics Harmonics Twins S5 Smart TWS Earbuds,15Hrs Playtime, LED Display, Game Mode,5.2v Bluetooth  (Black, In the Ear)",
@@ -149,8 +150,8 @@ const accessoriesData = {
             brand: "Portronics",
             originalPrice: 2999,
             discount: "82%",
-            design: "Earbud",
-            batteryLife: "15 hours"
+            design: "Earbuds",
+            batteryLife: "15"
         },
         {
             title: "Portronics Harmonics Z11 Bluetooth in Ear Earphones,35Hrs Playback,Magnetic Earbuds(ON/OFF) Bluetooth  (Black, In the Ear)",
@@ -159,16 +160,16 @@ const accessoriesData = {
             originalPrice: 2499,
             discount: "68%",
             design: "behind the neck",
-            batteryLife: "35 hours"
+            batteryLife: "35"
         },
         {
-            title: "boAt Rockerz 235 Pro with upto 20 Hours Playback & ASAP Charge Bluetooth  (Ash Grey, In the Ear)",
+            title: "Boat Rockerz 235 Pro with upto 20 Hours Playback & ASAP Charge Bluetooth  (Ash Grey, In the Ear)",
             image: "images/accessories/earphones/boat_235.webp",
-            brand: "boAt",
+            brand: "Boat",
             originalPrice: 2490,
             discount: "71%",
             design: "behind the neck",
-            batteryLife: "20 hours"
+            batteryLife: "20"
         },
         {
             title: "JBL Wave Beam TWS, 32Hr Playtime, IP54, Smart Ambient & TalkThru Mode, JBL App Bluetooth  (Beige, In the Ear)",
@@ -177,17 +178,9 @@ const accessoriesData = {
             originalPrice: 4999,
             discount: "50%",
             design: "Earbuds",
-            batteryLife: "32 hours"
+            batteryLife: "32"
         },
-        {
-            title: "JBL Tune Buds Active Noise Cancellation, 48H playtime,Speed Charge, BT5.3LE Bluetooth  (Black, True Wireless)",
-            image: "images/accessories/earphones/jbl_tune.webp",
-            brand: "JBL",
-            originalPrice: 6999,
-            discount: "35%",
-            design: "Earbuds",
-            batteryLife: "48 hours"
-        },
+      
         {
             title: "JBL Tune 125BT Flex Neckband with 16 Hour Playtime, Quick Charge, Multipoint Connect Bluetooth  (Grey, In the Ear)",
             image: "images/accessories/earphones/jbl_125bt.webp",
@@ -195,19 +188,19 @@ const accessoriesData = {
             originalPrice: 2999,
             discount: "33%",
             design: "behind the neck",
-            batteryLife: "16 hours"
+            batteryLife: "16"
         },
 
         
     ],
 
-    chargers: [
+     chargers: [
         {
             title: "Apple 20W USB-C Power Adapter",
             image: "images/accessories/chargers/apple_20w.webp",
             brand: "Apple",
-            wattage: "20W",
-            type: "USB-C",
+            wattage: "20",
+            type: "USB C",
             originalPrice: 1900,
             discount: "10%",
             outputCurrent: "3A"
@@ -216,8 +209,8 @@ const accessoriesData = {
             title: "Samsung 25W Fast Charger",
             image: "images/accessories/chargers/samsung_25.webp",
             brand: "Samsung",
-            wattage: "25W",
-            type: "USB-C",
+            wattage: "25",
+            type: "USB C",
             originalPrice: 1800,
             discount: "15%",
             outputCurrent: "2.5A"
@@ -226,8 +219,8 @@ const accessoriesData = {
             title: "RoarX 33 W SuperVOOC 6 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)",
             image: "images/accessories/chargers/roar_33v.webp",
             brand: "RoarX",
-            wattage: "33W",
-            type: "USB-C",
+            wattage: "33",
+            type: "USB C",
             originalPrice: 2999,
             discount: "87%",
             outputCurrent: "6A"
@@ -236,8 +229,8 @@ const accessoriesData = {
             title: "EYNK 44 W Quick Charge 5 A Wall Charger for Mobile with Detachable Cable  (Supported All Flash Charge 2.0 devices, White, Cable Included)",
             image: "images/accessories/chargers/eynk_44.webp",
             brand: "EYNK",
-            wattage: "44W",
-            type: "USB-C",
+            wattage: "44",
+            type: "USB C",
             originalPrice: 2999,
             discount: "71%",
             outputCurrent: "5A"
@@ -246,8 +239,8 @@ const accessoriesData = {
             title: "Pacificdeals 44 W Supercharge 4 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)",
             image: "images/accessories/chargers/PACIFIC.webp",
             brand: "Pacificdeals",
-            wattage: "44W",
-            type: "USB-C",
+            wattage: "44",
+            type: "USB C",
             originalPrice: 1999,
             discount: "63%",
             outputCurrent: "4A"
@@ -256,8 +249,8 @@ const accessoriesData = {
             title: "SB 80 W SuperVOOC 7.3 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)",
             image: "images/accessories/chargers/sb_80.webp",
             brand: "SB",
-            wattage: "80W",
-            type: "USB-C",
+            wattage: "80",
+            type: "USB C",
             originalPrice: 2499,
             discount: "86%",
             outputCurrent: "7.3A"
@@ -266,8 +259,8 @@ const accessoriesData = {
             title: "Apple Lightning Cable 2 m MW2R3ZM/A  (Compatible with Mobile, Tablet, White)",
             image: "images/accessories/chargers/apple_light.webp",
             brand: "Apple",
-            wattage: "20W",
-            type: "lightning ",
+            wattage: "20",
+            type: "lightning",
             originalPrice: 2900,
             discount: "0%",
             outputCurrent: "3A"
@@ -276,8 +269,8 @@ const accessoriesData = {
             title: "Avaxon 120 W 3 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)",
             image: "images/accessories/chargers/avaxon.webp",
             brand: "Avaxon",
-            wattage: "120W",
-            type: "USB-C",
+            wattage: "120",
+            type: "USB C",
             originalPrice: 3999,
             discount: "52%",
             outputCurrent: "3A"
@@ -286,8 +279,8 @@ const accessoriesData = {
             title: "Chias 65 W SuperVOOC 4 A Wall Charger for Mobile with Detachable Cable  (White, Red, Cable Included)",
             image: "images/accessories/chargers/chias.webp",
             brand: "Chias",
-            wattage: "65W",
-            type: "USB-C",
+            wattage: "65",
+            type: "USB C",
             originalPrice: 1599,
             discount: "62%",
             outputCurrent: "4A"
@@ -296,8 +289,8 @@ const accessoriesData = {
             title: "SB 12 W 3.4 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)",
             image: "images/accessories/chargers/sb_12.webp",
             brand: "SB",
-            wattage: "12W",
-            type: "USB-B",
+            wattage: "12",
+            type: "USB B",
             originalPrice: 799,
             discount: "62%",
             outputCurrent: "3.4A"
@@ -306,13 +299,22 @@ const accessoriesData = {
             title: "Infinix 10 W Quick Charge 2 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)",
             image: "images/accessories/chargers/infinix_10w.webp",
             brand: "Infinix",
-            wattage: "10W",
-            type: "USB-B",
+            wattage: "10",
+            type: "USB B",
             originalPrice: 599,
             discount: "36%",
             outputCurrent: "2A"
         },
-
+        {
+            title: "CMF by Nothing 33 W Quick Charge 3 A Wall Charger for Mobile  (White)",
+            image: "images/accessories/chargers/cmf.webp",
+            brand: "Nothing",
+            wattage: "33",
+            type: "USB C",
+            originalPrice: 1499,
+            discount: "33%",
+            outputCurrent: "3A"
+        },
 
         
 
@@ -327,9 +329,9 @@ const accessoriesData = {
             brand: "Apple",
             originalPrice: 55900,
             discount: "5%",
-            displaySize: "41 mm",
+            displaySize: "41",
             displayType: "Retina Display",
-            batteryRuntime: "18 hours"
+            batteryRuntime: "18"
             
         },
         {
@@ -338,9 +340,9 @@ const accessoriesData = {
             brand: "Apple",
             originalPrice: 49900,
             discount: "15%",
-            displaySize: "46 mm",
+            displaySize: "46",
             displayType: "Retina Display",
-            batteryRuntime: "18 hours"
+            batteryRuntime: "18"
         },
         {
             title: " Apple Watch Series 9 GPS 45mm Aluminium Case with Sport Band - S/M ",
@@ -348,9 +350,9 @@ const accessoriesData = {
             brand: "Apple",
             originalPrice: 59900,
             discount: "18%",
-            displaySize: "45 mm",
+            displaySize: "45",
             displayType: "Retina Display",
-            batteryRuntime: "18 hours"
+            batteryRuntime: "18"
         },
         {
             title: " Apple WatchSeries7(GPS+Cellular-41mm) (PRODUCT)RED AluminiumCase(PRODUCT) REDSportBand ",
@@ -358,9 +360,9 @@ const accessoriesData = {
             brand: "Apple",
             originalPrice: 60900,
             discount: "15%",
-            displaySize: "41 mm",
+            displaySize: "41",
             displayType: "OLED Retina Display",
-            batteryRuntime: "18 hours"
+            batteryRuntime: "18"
         },
         {
             title: " Apple Watch Ultra 2 GPS + Cellular 49mm Titanium Case with Green/Grey Trail Loop - M/L ",
@@ -368,9 +370,9 @@ const accessoriesData = {
             brand: "Apple",
             originalPrice: 99999,
             discount: "10%",
-            displaySize: "49 mm",
+            displaySize: "49",
             displayType: "Retina Display",
-            batteryRuntime: "36 hours"
+            batteryRuntime: "3"
         },
         {
             title: "Apple Watch SE GPS + Cellular 44mm Silver Aluminium Case with Winter Blue Sport Loop",
@@ -378,9 +380,9 @@ const accessoriesData = {
             brand: "Apple",
             originalPrice: 49999,
             discount: "5%",
-            displaySize: "44 mm",
+            displaySize: "44",
             displayType: "Retina LTPO OLED Display",
-            batteryRuntime: "18 hours"
+            batteryRuntime: "18"
         },
         {
             title: "Apple Watch Series 6 GPS + Cellular ",
@@ -388,9 +390,9 @@ const accessoriesData = {
             brand: "Apple",
             originalPrice: 79999,
             discount: "10%",
-            displaySize: "44 mm",
+            displaySize: "44",
             displayType: "Retina Display",
-            batteryRuntime: "18 hours"
+            batteryRuntime: "18"
         },
         {
             title: "Fire-Boltt Ninja Calling Pro Plus 46.5mm (1.83) Display Bluetooth Calling, AI Voice Smartwatch  ",
@@ -398,9 +400,9 @@ const accessoriesData = {
             brand: "Fire-Boltt",
             originalPrice: 1999,
             discount: "50%",
-            displaySize: "46.5 mm",
+            displaySize: "46.5",
             displayType: "HD Display",
-            batteryRuntime: "5 days"
+            batteryRuntime: "5"
         },
         {
             title: " Fire-Boltt Hurricane 33.02mm (1.3) Curved Glass Display with BT Calling, 100+ Sports Modes Smartwatch",
@@ -408,9 +410,9 @@ const accessoriesData = {
             brand: "Fire-Boltt",
             originalPrice: 8999,
             discount: "86%",
-            displaySize: "33.02 mm",
+            displaySize: "33.02",
             displayType: " Retina HD Color Display",
-            batteryRuntime: "15 days"
+            batteryRuntime: "15"
         },
         {
             title: " Fire-Boltt Rise Bluetooth Calling 47mm (1.85), Metal Bod & Rotating Crown, 123 Sports Smartwatch  ",
@@ -418,9 +420,9 @@ const accessoriesData = {
             brand: "Fire-Boltt",
             originalPrice: 11999,
             discount: "90%",
-            displaySize: "47 mm",
+            displaySize: "47",
             displayType: " Retina HD Display",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " Fire-Boltt Huntr 51.1mm (2.01) HD Display Buetooth Calling with Single Chipset, Metal Body Smartwatch  ",
@@ -428,9 +430,9 @@ const accessoriesData = {
             brand: "Fire-Boltt",
             originalPrice: 14999,
             discount: "90%",
-            displaySize: "51.1 mm",
+            displaySize: "51.1",
             displayType: " Largest HD Display ",
-            batteryRuntime: "5 days"
+            batteryRuntime: "5"
         },
         {
             title: " Fire-Boltt Blizzard 32.5mm (1.28) Luxury watch with BT Calling,Stainless Steel Body Smartwatch   ",
@@ -440,7 +442,7 @@ const accessoriesData = {
             discount: "93%",
             displaySize: "32.5 mm",
             displayType: " circular 1.28 inch HD display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " Fire-Boltt Gladiator 49.7mm Display, Stainless Steel, Bluetooth Call, 123 sports modes Smartwatch   ",
@@ -448,9 +450,9 @@ const accessoriesData = {
             brand: "Fire-Boltt",
             originalPrice: 9999,
             discount: "87%",
-            displaySize: "49.7 mm",
+            displaySize: "49.7",
             displayType: " HD display ",
-            batteryRuntime: "15 days"
+            batteryRuntime: "15"
         },
         {
             title: " Fire-Boltt Clickk 54.1mm (2.12 inch) AMOLED Display, Front Camera, Nano SIM Slot, 1000mAh Smartwatch  ",
@@ -458,9 +460,9 @@ const accessoriesData = {
             brand: "Fire-Boltt",
             originalPrice: 24999,
             discount: "84%",
-            displaySize: "54.1 mm",
+            displaySize: "54.1",
             displayType: " AMOLED display ",
-            batteryRuntime: "5 hours"
+            batteryRuntime: "5"
         },
         {
             title: " Fire-Boltt Lumos 48.5mm (1.91 inch) Display, BT Call, Steel Design, 100+ Sports Modes Smartwatch  ",
@@ -468,9 +470,9 @@ const accessoriesData = {
             brand: "Fire-Boltt",
             originalPrice: 14999,
             discount: "88%",
-            displaySize: "48.5 mm",
+            displaySize: "48.5",
             displayType: " TFT colour full touch display ",
-            batteryRuntime: "10 days"
+            batteryRuntime: "10"
         },
         {
             title: " boAt Wave Fury with 1.83'' HD Display, Bluetooth Calling & Functional Crown Smartwatch  ",
@@ -478,9 +480,9 @@ const accessoriesData = {
             brand: "boAt",
             originalPrice: 6999,
             discount: "64%",
-            displaySize: "1.83 inch",
+            displaySize: "48",
             displayType: " HD display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " boAt Storm Call 3 Plus w/ Turn by Turn Navigation, QR Tray, 4.97cm(1.96'') HD Display Smartwatch  ",
@@ -488,9 +490,9 @@ const accessoriesData = {
             brand: "boAt",
             originalPrice: 7499,
             discount: "84%",
-            displaySize: "1.96 inch",
+            displaySize: "49",
             displayType: " HD display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " boAt Lunar Discovery w/ Turn by Turn Navigation, 3.53 cm HD Display & BT Calling Smartwatch  ",
@@ -498,9 +500,9 @@ const accessoriesData = {
             brand: "boAt",
             originalPrice: 8499,
             discount: "83%",
-            displaySize: "35.3 mm",
+            displaySize: "35.3",
             displayType: " HD display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " boAt Wave Sigma 3 w/ Turn By Turn Navigation, 2.01 Screen, Crest App, QR Code Tray Smartwatch  ",
@@ -508,9 +510,9 @@ const accessoriesData = {
             brand: "boAt",
             originalPrice: 8999,
             discount: "86%",
-            displaySize: "51 mm",
+            displaySize: "51",
             displayType: " HD display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " boAt Ultima Prime w/ 1.43(3.68cm)AMOLED Display,Personalized Nudges,Functional Crown Smartwatch  ",
@@ -518,9 +520,9 @@ const accessoriesData = {
             brand: "boAt",
             originalPrice: 8999,
             discount: "77%",
-            displaySize: "36.6 mm",
+            displaySize: "36.6",
             displayType: " AMOLED display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " boAt Lunar Vista w/ 3.8 cm(1.52) HD & Always On Display,BT Calling, Functional Crown Smartwatch  ",
@@ -528,9 +530,9 @@ const accessoriesData = {
             brand: "boAt",
             originalPrice: 7999,
             discount: "81%",
-            displaySize: "1.52 inch",
+            displaySize: "44",
             displayType: " AMOLED display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " boAt Z20, 1.51 inch HD Display, Smartwatch  ",
@@ -538,9 +540,9 @@ const accessoriesData = {
             brand: "boAt",
             originalPrice: 9999,
             discount: "78%",
-            displaySize: "1.51 inch",
+            displaySize: "46",
             displayType: " HD display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " Noise Icon 2 1.8'' Display with Bluetooth Calling, Women's Edition, AI Voice Assistant Smartwatch  ",
@@ -548,9 +550,9 @@ const accessoriesData = {
             brand: "Noise",
             originalPrice: 5999,
             discount: "80%",
-            displaySize: "1.8 inch",
+            displaySize: "48",
             displayType: " HD display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " Noise Colorfit Icon 2 1.8'' Display with Bluetooth Calling, AI Voice Assistant Smartwatch  ",
@@ -558,9 +560,9 @@ const accessoriesData = {
             brand: "Noise",
             originalPrice: 5999,
             discount: "81%",
-            displaySize: "1.8 inch",
+            displaySize: "48",
             displayType: " HD display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " Noise Loop 1.85'' Display with Advanced Bluetooth Calling, 550 Nits Brightness Smartwatch  ",
@@ -568,9 +570,9 @@ const accessoriesData = {
             brand: "Noise",
             originalPrice: 6999,
             discount: "85%",
-            displaySize: "1.85 inch",
+            displaySize: "49",
             displayType: " TFT LCD display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " Noise Buzz 1.69 Display with Bluetooth Calling, Built-In Games, Voice Assistant Smartwatch  ",
@@ -578,9 +580,9 @@ const accessoriesData = {
             brand: "Noise",
             originalPrice: 4999,
             discount: "80%",
-            displaySize: "1.69 inch",
+            displaySize: "43",
             displayType: " TFT LCD display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " Noise Icon 4 with Stunning 1.96'' AMOLED Display, Metallic Finish, BT Calling Smartwatch  ",
@@ -588,9 +590,9 @@ const accessoriesData = {
             brand: "Noise",
             originalPrice: 6999,
             discount: "71%",
-            displaySize: "1.96 inch",
+            displaySize: "49",
             displayType: " AMOLED display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " Noise Crew 1.38'' Round Display with Bluetooth Calling, Metallic finish, IP68 Rating Smartwatch  ",
@@ -598,9 +600,9 @@ const accessoriesData = {
             brand: "Noise",
             originalPrice: 4999,
             discount: "76%",
-            displaySize: "1.38 inch",
+            displaySize: "42",
             displayType: " Round HD display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " Noise Icon 3 1.9'' Display with Bluetooth Calling, Metallic finish & Voice Assistant Smartwatch  ",
@@ -608,9 +610,9 @@ const accessoriesData = {
             brand: "Noise",
             originalPrice: 6999,
             discount: "82%",
-            displaySize: "1.91 inch",
-            displayType: " TFT display ",
-            batteryRuntime: "7 days"
+            displaySize: "48",
+            displayType: " TFT LCD display ",
+            batteryRuntime: "7"
         },
         {
             title: " Noise Caliber 2 Buzz 1.85'' Display with Bluetooth Calling, Long Battery & IP68 Rating Smartwatch  ",
@@ -618,9 +620,9 @@ const accessoriesData = {
             brand: "Noise",
             originalPrice: 5999,
             discount: "83%",
-            displaySize: "1.85 inch",
+            displaySize: "49",
             displayType: " TFT LCD display ",
-            batteryRuntime: "7 days"
+            batteryRuntime: "7"
         },
         {
             title: " SAMSUNG Galaxy Fit3 | AMOLED Display & Aluminium Body | Upto 13Day Battery | 5ATM & IP68  ",
@@ -628,9 +630,9 @@ const accessoriesData = {
             brand: "Samsung",
             originalPrice: 9999,
             discount: "65%",
-            displaySize: "40.64 mm",
+            displaySize: "40.64",
             displayType: " AMOLED display ",
-            batteryRuntime: "13 days"
+            batteryRuntime: "13"
         },
         {
             title: " SAMSUNG Galaxy Watch FE, 40mm BT, Sapphire Crystal Display, Sleep Coach, Fall Detection  ",
@@ -638,9 +640,9 @@ const accessoriesData = {
             brand: "Samsung",
             originalPrice: 29999,
             discount: "66%",
-            displaySize: "40 mm",
+            displaySize: "40",
             displayType: " Sapphire Crystal display ",
-            batteryRuntime: "40 hours"
+            batteryRuntime: "40"
         },
         {
             title: " SAMSUNG Watch7 40mm BT  ",
@@ -648,9 +650,9 @@ const accessoriesData = {
             brand: "Samsung",
             originalPrice: 32999,
             discount: "10%",
-            displaySize: "40 mm",
+            displaySize: "40",
             displayType: " AMOLED display ",
-            batteryRuntime: "100 hours"
+            batteryRuntime: "20"
         },
         {
             title: " SAMSUNG Galaxy Watch6 Bluetooth  ",
@@ -658,9 +660,9 @@ const accessoriesData = {
             brand: "Samsung",
             originalPrice: 36999,
             discount: "56%",
-            displaySize: "44 mm",
+            displaySize: "44",
             displayType: " AMOLED display ",
-            batteryRuntime: "40 hours"
+            batteryRuntime: "40"
         },
         {
             title: " SAMSUNG Galaxy Watch Ultra LTE  ",
@@ -668,9 +670,9 @@ const accessoriesData = {
             brand: "Samsung",
             originalPrice: 69999,
             discount: "14%",
-            displaySize: "47 mm",
+            displaySize: "47",
             displayType: " AMOLED display ",
-            batteryRuntime: "100 hours"
+            batteryRuntime: "20"
         },
         {
             title: " SAMSUNG Watch 5 44mmSuper AMOLED displayLTE calling & body composition tracking  ",
@@ -678,9 +680,9 @@ const accessoriesData = {
             brand: "Samsung",
             originalPrice: 39999,
             discount: "9%",
-            displaySize: "44 mm",
+            displaySize: "44",
             displayType: " AMOLED display ",
-            batteryRuntime: "40 hours"
+            batteryRuntime: "40"
         },
         {
             title: " SAMSUNG Watch 4, 44mm Super AMOLED LTE Calling with Body Composition Tracking  ",
@@ -688,9 +690,9 @@ const accessoriesData = {
             brand: "Samsung",
             originalPrice: 34999,
             discount: "8%",
-            displaySize: "44 mm",
+            displaySize: "44",
             displayType: " AMOLED display ",
-            batteryRuntime: "40 hours"
+            batteryRuntime: "40"
         }, 
     ],
 
@@ -703,7 +705,7 @@ const accessoriesData = {
             discount: "49%",
             type: "Wireless",
             connectivity: "USB",
-            resolution: "3000 DPI"
+            resolution: "3000"
         },
         {
             title: "Logitech M196 Wireless Optical Mouse with Bluetooth",
@@ -713,17 +715,17 @@ const accessoriesData = {
             discount: "20%",
             type: "Wireless",
             connectivity: "Bluetooth & USB",
-            resolution: "4600 DPI"
+            resolution: "4600"
         },
         {
             title: "Logitech G502 Hero / Hero 25K Sensor, Adj DPI Upto 25600, RGB, 11 Programmable Buttons Wired Optical Gaming Mouse",
-            image: "images/accessories/mouses/Logitech G502 Hero.webp",
+            image: "images/accessories/mouses/Logotech G502 Hero.webp",
             brand: "Logitech",
             originalPrice: 5495,
             discount: "25%",
             type: "Wired",
             connectivity: "USB",
-            resolution: "25600 DPI"
+            resolution: "5600"
         },
         {
             title: "Arctic Fox Breathing Lights and DPI Upto 3600 Wired Optical Gaming Mouse ",
@@ -733,7 +735,7 @@ const accessoriesData = {
             discount: "35%",
             type: "Wired",
             connectivity: "USB",
-            resolution: "3600 DPI"
+            resolution: "3600"
         },
         {
             title: "Arctic Fox Pureview Transparent Wireless and Bluetooth Rechargeable Mouse Wireless Optical Gaming Mouse  ",
@@ -743,7 +745,7 @@ const accessoriesData = {
             discount: "40%",
             type: "Wireless",
             connectivity: "Bluetooth & USB",
-            resolution: "2400 DPI"   
+            resolution: "2400"   
         },
         {
             title: " ZEBRONICS Zeb-Jaguar Wireless Optical Mouse",
@@ -753,7 +755,7 @@ const accessoriesData = {
             discount: "39%",
             type: "Wireless",
             connectivity: " USB",
-            resolution: "1700 DPI"   
+            resolution: "1700"   
         }, 
         {
             title: " ZEBRONICS ZEB-RISE Wired Optical Mouse ",
@@ -763,7 +765,7 @@ const accessoriesData = {
             discount: "19%",
             type: "Wired",
             connectivity: "USB",
-            resolution: "1200 DPI"   
+            resolution: "1200"   
         },   
         {
             title: " ZEBRONICS Zeb-Blanc /Dual Mode,Type C rechargeable built-in battery,upto 1600 DPI Wireless Optical Mouse ",
@@ -773,7 +775,7 @@ const accessoriesData = {
             discount: "15%",
             type: "Wireless",
             connectivity: "Bluetooth & USB",
-            resolution: "1600 DPI"   
+            resolution: "1600"   
         },    
         {
             title: " DELL MS 116-BK Wired Optical Mouse ",
@@ -783,7 +785,7 @@ const accessoriesData = {
             discount: "30%",
             type: "Wired",
             connectivity: "USB",
-            resolution: "1000 DPI"   
+            resolution: "1000"   
         },  
         {
             title: " HP M160 Wired Optical Gaming Mouse ",
@@ -793,7 +795,7 @@ const accessoriesData = {
             discount: "40%",
             type: "Wired",
             connectivity: "USB",
-            resolution: "1000 DPI"   
+            resolution: "1000"   
         },   
         {
             title: " HP Z3700 /Slim form with USB receiver,16 month battery life, 1200DPI Wireless Optical Mouse ",
@@ -803,7 +805,7 @@ const accessoriesData = {
             discount: "30%",
             type: "Wireless",
             connectivity: "USB",
-            resolution: "1200 DPI"   
+            resolution: "1200"   
         },
         {
             title: " HP X1000 Wired Optical Gaming Mouse ",
@@ -813,7 +815,8 @@ const accessoriesData = {
             discount: "10%",
             type: "Wired",
             connectivity: "USB",
-            resolution: "1300 DPI"   
+            resolution: "1300"   
         },   
     ]
 };
+export {accessoriesData};

@@ -44,6 +44,13 @@ body {
     border: 1px solid #ddd;
     padding: 10px;
     align-items: center;
+    transition: all 0.3s ease-in-out; /* Smooth transition */
+    will-change: transform, box-shadow; /* Optimize for smoother animations */
+}
+
+.product:hover {
+    transform: translateY(-5px) scale(1); /* Slight lift and scale */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* More depth */
 }
 .product img {
     width: 13vw;
@@ -180,3 +187,27 @@ body {
 .selected-filters .clear-all:hover {
     text-decoration: underline;
 }
+.add-to-cart-btn {
+    background-color: #388e3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+    display: block;
+    width: 150px;
+    text-align: center;
+}
+
+.add-to-cart-btn:hover {
+    background-color: #2a762e;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.add-to-cart-btn:active {
+    transform: scale(0.98);
+}
+

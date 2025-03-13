@@ -1,7 +1,7 @@
-const mobilePhones = [
+const ordered_mobilePhones = [
     // OnePlus
     {
-        id: 1,
+        "id": 1,
         brand: "OnePlus",
         model: "Nord 2",
         color: "Blue Haze",
@@ -23,7 +23,7 @@ const mobilePhones = [
         },
         
         {
-            id: 1,
+        "id": 2,
             brand: "OnePlus",
             model: " 8T 5G",
             color: "Lunar Silver",
@@ -45,7 +45,7 @@ const mobilePhones = [
         },
         
         {
-            id: 1,
+        "id": 3,
             brand: "OnePlus",
             model: "10T 5G",
             color: "Jade Green",
@@ -67,7 +67,7 @@ const mobilePhones = [
         },
         
         {
-            id: 1,
+        "id": 4,
             brand: "OnePlus",
             model: " 11 5G",
             color: "Eternal Green",
@@ -88,7 +88,7 @@ const mobilePhones = [
             condition: "Superb" 
         },
         {
-            id:1 ,
+        "id": 5,
             brand: "OnePlus",
             model: "8T 5G",
             color: "AquaMarine Green",
@@ -109,7 +109,7 @@ const mobilePhones = [
             condition: "Good" 
         },
         {
-            id: 1,
+        "id": 6,
             brand: "OnePlus",
             model: "Nord 2",
             color: "Gray Sierra",
@@ -131,7 +131,7 @@ const mobilePhones = [
             },
         
         {
-            id: 1,
+        "id": 7,
             brand: "OnePlus",
             model: "10R",
             color: "Sierra Black",
@@ -153,7 +153,7 @@ const mobilePhones = [
         },
         
         {
-            id: 1,
+        "id": 8,
             brand: "OnePlus",
             model: "10R",
             color: "Forest Green",
@@ -175,7 +175,7 @@ const mobilePhones = [
         },
                 
         {
-            id: 1,
+        "id": 9,
             brand: "OnePlus",
             model: "11R",
             color: "Sonic Black",
@@ -197,7 +197,7 @@ const mobilePhones = [
         },
         
         {
-            id:1 ,
+        "id": 10,
             brand: "OnePlus",
             model: "Nord CE 3 Lite",
             color: "Pastel Lime",
@@ -219,7 +219,7 @@ const mobilePhones = [
         },
         // Google
         {
-            id:2 ,
+        "id": 11,
             brand: "Google",
             model: "Pixel 7",
             color: "Lemon Grass",
@@ -241,7 +241,7 @@ const mobilePhones = [
         },
         
         {
-            id:2 ,
+        "id": 12,
             brand: "Google",
             model: "Pixel 7",
             color: "Obsidian",
@@ -263,7 +263,7 @@ const mobilePhones = [
             },
         
         {
-            id: 2,
+        "id": 13,
             brand: "Google",
             model: "Pixel 7a",
             color: "Charcoal",
@@ -285,7 +285,7 @@ const mobilePhones = [
         },
         
         {
-            id: 2,
+        "id": 14,
             brand: "Google",
             model: "Pixel 7a",
             color: "Sea",
@@ -307,7 +307,7 @@ const mobilePhones = [
         },
         
         {
-            id:2 ,
+        "id": 15,
             brand: "Google",
             model: "Pixel 7a",
             color: "Snow",
@@ -329,7 +329,7 @@ const mobilePhones = [
         },
         
         {
-            id: 2,
+        "id": 16,
             brand: "Google",
             model: "Pixel 7",
             color: "Snow",
@@ -351,7 +351,7 @@ const mobilePhones = [
             },
         
             {
-                id: 2,
+        "id": 17,
                 brand: "Google",
                 model: "Pixel 8",
                 color: "Hazel",
@@ -374,7 +374,7 @@ const mobilePhones = [
             
             
         {
-            id:2 ,
+        "id": 18,
             brand: "Google",
             model: "Pixel 8",
             color: "Mint",
@@ -396,7 +396,7 @@ const mobilePhones = [
         },
         
         {
-            id:2 ,
+        "id": 19,
             brand: "Google",
             model: "Pixel 8 Pro",
             color: "Bay",
@@ -418,7 +418,7 @@ const mobilePhones = [
         },
         
         {
-            id:2 ,
+        "id": 20,
             brand: "Google",
             model: "Pixel 8 Pro",
             color: "Obsidian",
@@ -440,7 +440,7 @@ const mobilePhones = [
         },
         
         {
-            id: 0,
+        "id": 21,
             brand: "Apple",
             model: "iPhone 16 (Black, 128 GB)",
             color: "Black",
@@ -461,7 +461,7 @@ const mobilePhones = [
             condition: "very Good" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 22,
             brand: "Apple",
             model: "iPhone 16 (White, 256 GB)",
             color: "white",
@@ -482,7 +482,7 @@ const mobilePhones = [
             condition: "Good" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 23,
             brand: "Apple",
             model: "iPhone 13 (Green, 512 GB)",
             color: "Green",
@@ -503,7 +503,7 @@ const mobilePhones = [
             condition: "Superb" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 24,
             brand: "Apple",
             model: "iPhone 15 Plus (Pink, 128 GB)",
             color: "Pink",
@@ -524,7 +524,7 @@ const mobilePhones = [
             condition: "Superb" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 25,
             brand: "Apple",
             model: "iPhone 15 Plus (Pink, 256 GB)",
             color: "Pink",
@@ -545,7 +545,7 @@ const mobilePhones = [
             condition: "Superb" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 26,
             brand: "Apple",
             model: "iPhone 15 Plus (Green, 128 GB)",
             color: "Green",
@@ -566,7 +566,7 @@ const mobilePhones = [
             condition: "Superb" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 27,
             brand: "Apple",
             model: "iPhone 14 (Starlight, 256 GB)",
             color: "Starlight",
@@ -587,7 +587,7 @@ const mobilePhones = [
             condition: "very Good" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 28,
             brand: "Apple",
             model: "iPhone 16e (White, 128 GB)",
             color: "White",
@@ -608,7 +608,7 @@ const mobilePhones = [
             condition: "Superb" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 29,
             brand: "Apple",
             model: "iPhone 16 Plus (White, 128 GB)",
             color: "White",
@@ -629,7 +629,7 @@ const mobilePhones = [
             condition: "Superb" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 30,
             brand: "Apple",
             model: "iPhone 16 Plus (Ultramarine, 128 GB)",
             color: "Ultramarine",
@@ -650,7 +650,7 @@ const mobilePhones = [
             condition: "Superb" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 31,
             brand: "Apple",
             model: "iPhone 14 (Red, 128 GB)",
             color: "Red",
@@ -671,7 +671,7 @@ const mobilePhones = [
             condition: "Good" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 32,
             brand: "Apple",
             model: "iPhone 12 (Blue, 64 GB)",
             color: "Blue",
@@ -693,7 +693,7 @@ const mobilePhones = [
         }
         //lenovo
         ,  {
-            id: 0,
+        "id": 33,
             brand: "Lenovo",
             model: "K8 Note (Venom Black, 64 GB)",
             color: "Venom Black",
@@ -714,7 +714,7 @@ const mobilePhones = [
             condition: "very Good" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 34,
             brand: "Lenovo",
             model: "K8 Note (Gold, 32 GB)",
             color: "Gold",
@@ -735,7 +735,7 @@ const mobilePhones = [
             condition: "very Good" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 35,
             brand: "Lenovo",
             model: "A6 Note  (Blue, 32 GB)",
             color: "Blue",
@@ -756,7 +756,7 @@ const mobilePhones = [
             condition: "Good" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 36,
             brand: "Lenovo",
             model: "Vibe K5 Plus (Gold, 16 GB)",
             color: "Gold",
@@ -777,7 +777,7 @@ const mobilePhones = [
             condition: "Good" // Condition added
         }
         ,  {
-            id: 0,
+        "id": 37,
             brand: "Lenovo",
             model: "K9 (Black, 32 GB)",
             color: "Black",
@@ -799,7 +799,7 @@ const mobilePhones = [
         }
 
     ,  {
-        id: 1,
+        "id": 38,
         brand: "Xiaomi",
         model: "14 CIVI",
         color: "Cruise Blue",
@@ -820,7 +820,7 @@ const mobilePhones = [
         condition: "Superb" 
     },
     {
-        id: 2,
+        "id": 39,
         brand: "Xiaomi",
         model: "14 CIVI",
         color: "Panda White",
@@ -841,7 +841,7 @@ const mobilePhones = [
         condition: "Very Good" 
     },
     {
-        id: 3,
+        "id": 40,
         brand: "Xiaomi",
         model: "11 Lite",
         color: "Vinyl Black",
@@ -862,7 +862,7 @@ const mobilePhones = [
         condition: "Good" 
     },
     {
-        id: 4,
+        "id": 41,
         brand: "Xiaomi",
         model: "10T",
         color: "Cosmic Black",
@@ -883,7 +883,7 @@ const mobilePhones = [
         condition: "Superb" 
     },
     {
-        id: 5,
+        "id": 42,
         brand: "Xiaomi",
         model: "11i Hypercharge 5G",
         color: "Purple Mist",
@@ -904,7 +904,7 @@ const mobilePhones = [
         condition: "Superb" 
     },
     {
-        id: 6,
+        "id": 43,
         brand: "Xiaomi",
         model: "A1",
         color: "Gold",
@@ -925,7 +925,7 @@ const mobilePhones = [
         condition: "Very Good" 
     },
     {
-        id: 7,
+        "id": 44,
         brand: "Xiaomi",
         model: "11T Pro 5G Hyperphone",
         color: "Moonlight White",
@@ -946,7 +946,7 @@ const mobilePhones = [
         condition: "Good" 
     },
     {
-        id: 8,
+        "id": 45,
         brand: "Vivo",
         model: "V20 Pro",
         color: "Midnight Jazz",
@@ -967,7 +967,7 @@ const mobilePhones = [
         condition: "Very Good" 
     },
     {
-        id: 9,
+        "id": 46,
         brand: "Vivo",
         model: "X50 Pro",
         color: "Alpha Grey",
@@ -988,7 +988,7 @@ const mobilePhones = [
         condition: "Superb" 
     },
     {
-        id: 10,
+        "id": 47,
         brand: "Vivo",
         model: "T3 Pro 5G",
         color: "Emerald Green",
@@ -1009,7 +1009,7 @@ const mobilePhones = [
         condition: "Superb" 
     },
     {
-        id: 11,
+        "id": 48,
         brand: "Vivo",
         model: "T3 Pro 5G",
         color: "Sandstone Orange",
@@ -1030,7 +1030,7 @@ const mobilePhones = [
         condition: "Good" 
     },
     {
-        id: 12,
+        "id": 49,
         brand: "Vivo",
         model: "Z1 Pro",
         color: "Sonic Blue",
@@ -1051,7 +1051,7 @@ const mobilePhones = [
         condition: "Very Good" 
     },
     {
-        id: 13,
+        "id": 50,
         brand: "Vivo",
         model: "Y58 5G",
         color: "Himalayan Blue",
@@ -1072,7 +1072,7 @@ const mobilePhones = [
         condition: "Superb" 
     },
     {
-        id: 14,
+        "id": 51,
         brand: "Vivo",
         model: "T2x 5G",
         color: "Aurora Gold",
@@ -1093,7 +1093,7 @@ const mobilePhones = [
         condition: "Good" 
     },
     {
-        id: 15,
+        "id": 52,
         brand: "Vivo",
         model: "Y29 5G",
         color: "Glacier Blue",
@@ -1114,7 +1114,7 @@ const mobilePhones = [
         condition: "Superb" 
     },
     {
-        id: 16,
+        "id": 53,
         brand: "Vivo",
         model: "T3 Lite 5G",
         color: "Vibrant Green",
@@ -1135,7 +1135,7 @@ const mobilePhones = [
         condition: "Very Good" 
     },
     {
-        id: 17,
+        "id": 54,
         brand: "Vivo",
         model: "Y18",
         color: "Gem Green",
@@ -1156,7 +1156,7 @@ const mobilePhones = [
         condition: "Good" 
     },
     {
-        id: 18,
+        "id": 55,
         brand: "Vivo",
         model: "Y02t",
         color: "Cosmic Grey",
@@ -1177,7 +1177,7 @@ const mobilePhones = [
         condition: "Very Good" 
     },
     {
-        id: 19,
+        "id": 56,
         brand: "Samsung",
         model: "Galaxy S10 Lite",
         color: "Prism White",
@@ -1198,7 +1198,7 @@ const mobilePhones = [
         condition: "Good" 
     },
     {
-        id: 20,
+        "id": 57,
         brand: "Samsung",
         model: "Galaxy Z Flip5",
         color: "Cream",
@@ -1219,7 +1219,7 @@ const mobilePhones = [
         condition: "Very Good" 
     },
     {
-        id: 21,
+        "id": 58,
         brand: "Samsung",
         model: "Galaxy S24 FE 5G",
         color: "Blue",
@@ -1240,7 +1240,7 @@ const mobilePhones = [
         condition: "Superb" 
     },
     {
-        id: 22,
+        "id": 59,
         brand: "Samsung",
         model: "Galaxy M35 5G",
         color: "Day Break Blue",
@@ -1261,7 +1261,7 @@ const mobilePhones = [
         condition: "Good" 
     },
     {
-        id: 23,
+        "id": 60,
         brand: "Samsung",
         model: "Galaxy F55 5G",
         color: "Apricot Crush",
@@ -1282,7 +1282,7 @@ const mobilePhones = [
         condition: "Very Good" 
     },
     {
-        "id": 1,
+        "id": 61,
         "brand": "Samsung",
         "model": "Galaxy A14 5G",
         "color": "Dark Red",
@@ -1303,7 +1303,7 @@ const mobilePhones = [
         "condition": "Superb" 
     },
     {
-        "id": 1,
+        "id": 62,
         "brand": "Samsung",
         "model": "Galaxy M15 5G",
         "color": "Blue Topaz",
@@ -1324,7 +1324,7 @@ const mobilePhones = [
         "condition": "Good" 
     },
     {
-        "id": 1,
+        "id": 63,
         "brand": "Samsung",
         "model": "Galaxy A16 5G",
         "color": "Light Green",
@@ -1345,7 +1345,7 @@ const mobilePhones = [
         "condition": "Very Good" 
     },
     {
-        "id": 1,
+        "id": 64,
         "brand": "Samsung",
         "model": "Galaxy F06 5G",
         "color": "Bahama Blue",
@@ -1366,7 +1366,7 @@ const mobilePhones = [
         "condition": "Good" 
     },
     {
-        "id": 1,
+        "id": 65,
         "brand": "Samsung",
         "model": "Galaxy A05",
         "color": "Light Green",
@@ -1387,7 +1387,7 @@ const mobilePhones = [
         "condition": "Superb" 
     },
     {
-        "id": 1,
+        "id": 66,
         "brand": "Samsung",
         "model": "Galaxy F13",
         "color": "Sunrise Copper",
@@ -1408,7 +1408,7 @@ const mobilePhones = [
         "condition": "Very Good" 
     }  
    ,   {
-    id: 0,
+        "id": 67,
     brand: "Realme",
     model: "C61 (Marble Black, 128 GB)  (6 GB RAM)",
     color: " Marble Black",
@@ -1429,7 +1429,7 @@ const mobilePhones = [
     condition: "Very Good" // Condition added
 },
 {
-    id: 0,
+        "id": 68,
     brand: "Realme",
     model: "C63 (Leather Blue, 64 GB)  (4 GB RAM)",
     color: "Leather Blue",
@@ -1449,7 +1449,7 @@ const mobilePhones = [
     discount: 15, // 15% off
     condition: "Good" // Condition added
 },{
-    id: 0,
+        "id": 69,
     brand: "Realme",
     model: "P2 Pro 5G (Parrot Green, 512 GB)  (12 GB RAM)",
     color: " Parrot Green",
@@ -1470,7 +1470,7 @@ const mobilePhones = [
     condition: "Good" // Condition added
 },
 {
-    id: 0,
+        "id": 70,
     brand: "Realme",
     model: "Narzo N65 5G (Amber Gold, 128 GB)  (6 GB RAM)",
     color: "Amber Gold",
@@ -1491,7 +1491,7 @@ const mobilePhones = [
     condition: "Superb" // Condition added
 },
 {
-    id: 0,
+        "id": 71,
     brand: "Realme",
     model: "14x 5G (Jewel Red, 128 GB)  (6 GB RAM)",
     color: "Jewel Red",
@@ -1512,7 +1512,7 @@ const mobilePhones = [
     condition: "Superb" // Condition added
 },
 {
-    id: 0,
+        "id": 72,
     brand: "Realme",
     model: "13+ 5G (Dark Purple, 128 GB)  (8 GB RAM)",
     color: "Dark Purple",
@@ -1533,7 +1533,7 @@ const mobilePhones = [
     condition: "Good" // Condition added
 },
 {
-    id: 0,
+        "id": 73,
     brand: "Realme",
     model: "P3x 5G (Lunar Silver, 128 GB)  (6 GB RAM)",
     color: "Lunar Silver",
@@ -1554,7 +1554,7 @@ const mobilePhones = [
     condition: "Superb" // Condition added
 },
 {
-    id: 0,
+        "id": 74,
     brand: "Realme",
     model: "70 TURBO 5G (Turbo Green, 128 GB)  (6 GB RAM)",
     color: "Turbo Green",
@@ -1575,7 +1575,7 @@ const mobilePhones = [
     condition: "Good" // Condition added
 },
 {
-    id: 0,
+        "id": 75,
     brand: "Realme",
     model: "GT 6 (Razor Green, 512 GB)  (16 GB RAM)",
     color: "Razor Green",
@@ -1596,7 +1596,7 @@ const mobilePhones = [
     condition: "Very Good" // Condition added
 },
 {
-    id: 0,
+        "id": 76,
     brand: "Realme",
     model: "9 (Sunburst Gold, 128 GB)  (8 GB RAM)",
     color: "Sunburst Gold",
@@ -1617,7 +1617,7 @@ const mobilePhones = [
     condition: "Good" // Condition added
 },
 {
-    id: 1,
+        "id": 77,
     brand: "Motorola",
     model: "G73 5G (Lucent White, 128 GB) (8 GB RAM)",
     color: "Lucent White",
@@ -1638,7 +1638,7 @@ const mobilePhones = [
     condition: "VVery Good"
 },
 {
-    id: 2,
+        "id": 78,
     brand: "Motorola",
     model: "G62 5G (Midnight Gray, 128 GB) (6 GB RAM)",
     color: "Midnight Gray",
@@ -1659,7 +1659,7 @@ const mobilePhones = [
     condition: "Superb"
 },
 {
-    id: 3,
+        "id": 79,
     brand: "Motorola",
     model: "G82 5G (Meteorite Gray, 128 GB) (6 GB RAM)",
     color: "Meteorite Gray",
@@ -1680,7 +1680,7 @@ const mobilePhones = [
     condition: "Good"
 },
 {
-    id: 4,
+        "id": 80,
     brand: "Motorola",
     model: "Edge 30 Ultra 5G (Interstellar Black, 256 GB) (12 GB RAM)",
     color: "Interstellar Black",
@@ -1701,7 +1701,7 @@ const mobilePhones = [
     condition: "Superb"
 },
 {
-    id: 5,
+        "id": 81,
     brand: "Motorola",
     model: "G32 (Mineral Gray, 128 GB) (6 GB RAM)",
     color: "Mineral Gray",
@@ -1722,7 +1722,7 @@ const mobilePhones = [
     condition: "Superb"
 },
 {
-    id: 6,
+        "id": 82,
     brand: "Motorola",
     model: "Edge 40 5G (Eclipse Black, 256 GB) (8 GB RAM)",
     color: "Eclipse Black",
@@ -1743,7 +1743,7 @@ const mobilePhones = [
     condition: "Superb"
 },
 {
-    id: 7,
+        "id": 83,
     brand: "Motorola",
     model: "G71 5G (Neptune Green, 128 GB) (6 GB RAM)",
     color: "Neptune Green",
@@ -1764,7 +1764,7 @@ const mobilePhones = [
     condition: "Superb"
 },
 {
-    id: 8,
+        "id": 84,
     brand: "Motorola",
     model: "G52 (Charcoal Gray, 128 GB) (6 GB RAM)",
     color: "Charcoal Gray",
@@ -1785,7 +1785,7 @@ const mobilePhones = [
     condition: "Very Good"
 },
 {
-    id: 9,
+        "id": 85,
     brand: "Motorola",
     model: "E40 (Carbon Gray, 64 GB) (4 GB RAM)",
     color: "Carbon Gray",
@@ -1806,7 +1806,7 @@ const mobilePhones = [
     condition: "Very Good"
 },
 {
-    id: 10,
+        "id": 86,
 brand: "Motorola",
 model: "G51 5G (Indigo Blue, 128 GB) (6 GB RAM)",
 color: "Indigo Blue",
@@ -1827,7 +1827,7 @@ discount: 18,
 condition: "Good"
 },
 {
-    id: 1,
+        "id": 87,
     brand: "Nothing",
     model: "Phone 2 (White, 256 GB) (12 GB RAM)",
     color: "White",
@@ -1848,7 +1848,7 @@ condition: "Good"
     condition: "Very Good"
 },
 {
-    id: 2,
+        "id": 88,
     brand: "Nothing",
     model: "Phone 1 (Black, 128 GB) (8 GB RAM)",
     color: "Black",
@@ -1869,7 +1869,7 @@ condition: "Good"
     condition: "Good"
 },
 {
-    id: 3,
+        "id": 89,
     brand: "Nothing",
     model: "Phone 2 (Dark Gray, 512 GB) (12 GB RAM)",
     color: "Dark Gray",
@@ -1890,7 +1890,7 @@ condition: "Good"
     condition: "Good"
 },
 {
-    id: 4,
+        "id": 90,
     brand: "Nothing",
     model: "Phone 1 (White, 256 GB) (12 GB RAM)",
     color: "White",
@@ -1911,7 +1911,7 @@ condition: "Good"
     condition: "Superb"
 },
 {
-    id: 5,
+        "id": 91,
     brand: "Nothing",
     model: "Phone 3a (Black, 128 GB)  (8 GB RAM)",
     color: "Black",
@@ -1932,7 +1932,7 @@ condition: "Good"
     condition: "Very Good"
 },
 {
-    id: 6,
+        "id": 92,
     brand: "Nothing",
     model: "Phone 3a (Black, 128 GB)  (8 GB RAM)",
     color: "black",
@@ -1953,7 +1953,7 @@ condition: "Good"
     condition: "superb"
 },
 {
-    id: 7,
+        "id": 93,
     brand: "Nothing",
     model: "Phone 3a (Black, 256 GB)  (12 GB RAM)",
     color: "black",
@@ -1974,7 +1974,7 @@ condition: "Good"
     condition: "Good"
 },
 {
-    id: 8,
+        "id": 94,
     brand: "Nothing",
     model: "Phone 3a (gray, 256 GB)  (12 GB RAM)",
     color: "gray",
@@ -1995,7 +1995,7 @@ condition: "Good"
     condition: "Good"
 },
 {
-    id: 9,
+        "id": 95,
     brand: "Nothing",
     model: "Phone 3a (blue, 128 GB)  (8 GB RAM)",
     color: "blue",
@@ -2016,7 +2016,7 @@ condition: "Good"
     condition: "Very Good"
 },
 {
-    id: 10,
+        "id": 96,
     brand: "Nothing",
     model: "Phone 3a (white, 128 GB)  (8 GB RAM)",
     color: "white",
@@ -2037,5 +2037,14 @@ condition: "Good"
     condition: "Superb"
 },    
 ];
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+const mobilePhones = shuffleArray(ordered_mobilePhones);
 
 export default mobilePhones;

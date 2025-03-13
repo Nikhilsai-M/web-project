@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart | Mobile Shop</title>
+    <link rel="stylesheet" href="/styles/cart.css">
+</head>
+<body>
+    <%- include('partials/header') %> 
+    
+    <div class="cart-container">
+        <h1>Your Shopping Cart</h1>
+        
+        <div class="cart-content">
+            <div class="cart-items" id="cart-items">
+            </div>
+            
+            <div class="cart-summary">
+                <h3>Order Summary</h3>
+                <div class="summary-row">
+                    <span>Items:</span>
+                    <span id="items-count">0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">₹0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping:</span>
+                    <span id="shipping">₹0</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <span id="total">₹0</span>
+                </div>
+                <button class="checkout-btn">Proceed to Checkout</button>
+                <button class="continue-shopping">Continue Shopping</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/scripts/cart.js"></script>
+</body>
+</html>

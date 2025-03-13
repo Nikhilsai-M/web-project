@@ -194,3 +194,30 @@ body {
     border-radius: 8px;
 }  
 
+.fltr-link{
+    display: flex;
+    justify-content: flex-end; /* Moves content to the right */
+    padding-right: 6vw;
+    padding-bottom: 5vh; /* Adjust padding as needed */
+}
+
+.filter-buyphone-link{
+    cursor: pointer;
+    color: blue;
+    position: absolute; /* Positions it relative to the page */
+    right: 5vw; /* Moves it to the right side */
+    text-decoration: none;
+}
+.filter-buyphone-link::after {
+    content: " →"; /* Adds a right arrow */
+    font-size: 20px;
+    transition: margin-left 0.2s ease-in-out; /* Smooth transition */
+}
+
+.filter-buyphone-link:hover {
+    opacity: 0.8;
+}
+
+.filter-buyphone-link:hover::after {
+    margin-left: 5px; /* Moves the arrow slightly on hover */
+}

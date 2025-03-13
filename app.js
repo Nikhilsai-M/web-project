@@ -30,16 +30,5 @@ app.get('/sell-phone-models',(req,res) => {
 app.get('/buy-phone',(req,res) => {
   res.render("buy_phone")
 })
-app.get('/chargers',(req,res)=>{
-  res.render("chargers")
-})
-app.get('/earbuds',(req,res)=>{
-  res.render("earpods")
-})
-app.get('/mouses',(req,res)=>{
-  res.render("mouse")
-})
-app.get('/smartwatches',(req,res)=>{
-  res.render("smartwatch")
-})
+
 app.listen(port);

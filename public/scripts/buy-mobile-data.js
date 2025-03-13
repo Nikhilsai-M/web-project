@@ -3,7 +3,7 @@ const mobilePhones = [
     {
         id: 1,
         brand: "OnePlus",
-        model: "OnePlus Nord 2",
+        model: "Nord 2",
         color: "Blue Haze",
         image: "/images/buy-page-phones/OnePlus/img1.webp",
         specs: {
@@ -25,7 +25,7 @@ const mobilePhones = [
         {
             id: 1,
             brand: "OnePlus",
-            model: " OnePlus 8T 5G",
+            model: " 8T 5G",
             color: "Lunar Silver",
             image: "/images/buy-page-phones/OnePlus/img2.webp",
             specs: {
@@ -41,13 +41,13 @@ const mobilePhones = [
             rom: "128GB",
             price: 19999,
             discount: 53, 
-            condition: "Good" 
+            condition: "Very Good" 
         },
         
         {
             id: 1,
             brand: "OnePlus",
-            model: " OnePlus 10T 5G",
+            model: "10T 5G",
             color: "Jade Green",
             image: "/images/buy-page-phones/OnePlus/img3.webp",
             specs: {
@@ -69,7 +69,7 @@ const mobilePhones = [
         {
             id: 1,
             brand: "OnePlus",
-            model: " OnePlus 11 5G",
+            model: " 11 5G",
             color: "Eternal Green",
             image: "/images/buy-page-phones/OnePlus/img4.webp",
             specs: {
@@ -90,7 +90,7 @@ const mobilePhones = [
         {
             id:1 ,
             brand: "OnePlus",
-            model: " OnePlus 8T 5G",
+            model: "8T 5G",
             color: "AquaMarine Green",
             image: "/images/buy-page-phones/OnePlus/img5.webp",
             specs: {
@@ -111,7 +111,7 @@ const mobilePhones = [
         {
             id: 1,
             brand: "OnePlus",
-            model: "OnePlus Nord 2",
+            model: "Nord 2",
             color: "Gray Sierra",
             image: "/images/buy-page-phones/OnePlus/img6.webp",
             specs: {
@@ -133,13 +133,13 @@ const mobilePhones = [
         {
             id: 1,
             brand: "OnePlus",
-            model: "OnePlus 10R",
+            model: "10R",
             color: "Sierra Black",
             image: "/images/buy-page-phones/OnePlus/img7.webp",
             specs: {
                 processor: "Snapdragon 8 Gen 1",
                 display: "6.7-inch Fluid AMOLED display",
-                battery: 5000,
+                battery: 5700,
                 camera: "48MP + 8MP + 50MP | 32MP Front Camera",
                 os: "Android 12",
                 network: "5G",
@@ -155,7 +155,7 @@ const mobilePhones = [
         {
             id: 1,
             brand: "OnePlus",
-            model: "OnePlus 10R",
+            model: "10R",
             color: "Forest Green",
             image: "/images/buy-page-phones/OnePlus/img8.webp",
             specs: {
@@ -177,7 +177,7 @@ const mobilePhones = [
         {
             id: 1,
             brand: "OnePlus",
-            model: "OnePlus 11R",
+            model: "11R",
             color: "Sonic Black",
             image: "/images/buy-page-phones/OnePlus/img9.webp",
             specs: {
@@ -199,7 +199,7 @@ const mobilePhones = [
         {
             id:1 ,
             brand: "OnePlus",
-            model: "OnePlus  Nord CE 3 Lite",
+            model: "Nord CE 3 Lite",
             color: "Pastel Lime",
             image: "/images/buy-page-phones/OnePlus/img10.webp",
             specs: {
@@ -221,7 +221,7 @@ const mobilePhones = [
         {
             id:2 ,
             brand: "Google",
-            model: "Google Pixel 7",
+            model: "Pixel 7",
             color: "Lemon Grass",
             image: "/images/buy-page-phones/Google/img1.webp",
             specs: {
@@ -243,7 +243,7 @@ const mobilePhones = [
         {
             id:2 ,
             brand: "Google",
-            model: "Google Pixel 7",
+            model: "Pixel 7",
             color: "Obsidian",
             image: "/images/buy-page-phones/Google/img2.webp",
             specs: {
@@ -265,7 +265,7 @@ const mobilePhones = [
         {
             id: 2,
             brand: "Google",
-            model: "Google Pixel 7a",
+            model: "Pixel 7a",
             color: "Charcoal",
             image: "/images/buy-page-phones/Google/img3.webp",
             specs: {
@@ -287,7 +287,7 @@ const mobilePhones = [
         {
             id: 2,
             brand: "Google",
-            model: "Google Pixel 7a",
+            model: "Pixel 7a",
             color: "Sea",
             image: "/images/buy-page-phones/Google/img4.webp",
             specs: {
@@ -309,7 +309,7 @@ const mobilePhones = [
         {
             id:2 ,
             brand: "Google",
-            model: "Google Pixel 7a",
+            model: "Pixel 7a",
             color: "Snow",
             image: "/images/buy-page-phones/Google/img5.webp",
             specs: {
@@ -331,7 +331,7 @@ const mobilePhones = [
         {
             id: 2,
             brand: "Google",
-            model: "Google Pixel 7",
+            model: "Pixel 7",
             color: "Snow",
             image: "/images/buy-page-phones/Google/img6.webp",
             specs: {
@@ -353,7 +353,7 @@ const mobilePhones = [
             {
                 id: 2,
                 brand: "Google",
-                model: "Google Pixel 8",
+                model: "Pixel 8",
                 color: "Hazel",
                 image: "/images/buy-page-phones/Google/img7.webp",
                 specs: {
@@ -376,7 +376,7 @@ const mobilePhones = [
         {
             id:2 ,
             brand: "Google",
-            model: "Google Pixel 8",
+            model: "Pixel 8",
             color: "Mint",
             image: "/images/buy-page-phones/Google/img8.webp",
             specs: {
@@ -398,7 +398,7 @@ const mobilePhones = [
         {
             id:2 ,
             brand: "Google",
-            model: "Google Pixel 8 Pro",
+            model: "Pixel 8 Pro",
             color: "Bay",
             image: "/images/buy-page-phones/Google/img9.webp",
             specs: {
@@ -420,7 +420,7 @@ const mobilePhones = [
         {
             id:2 ,
             brand: "Google",
-            model: "Google Pixel 8 Pro",
+            model: "Pixel 8 Pro",
             color: "Obsidian",
             image: "/images/buy-page-phones/Google/img10.webp",
             specs: {
@@ -697,7 +697,7 @@ const mobilePhones = [
             brand: "Lenovo",
             model: "K8 Note (Venom Black, 64 GB)",
             color: "Venom Black",
-            image: "images/buy-page-phones/l-k8.webp",
+            image: "images/buy-page-phones/l-k8.jpeg",
             specs: {
                 processor: "Mediatek MTK X23",
                 display: "13.97 cm (5.5 inch) IPS Display",
@@ -1410,7 +1410,7 @@ const mobilePhones = [
    ,   {
     id: 0,
     brand: "Realme",
-    model: "realme C61 (Marble Black, 128 GB)  (6 GB RAM)",
+    model: "C61 (Marble Black, 128 GB)  (6 GB RAM)",
     color: " Marble Black",
     image: "images/buy-page-phones/realmec61.webp",
     specs: {
@@ -1426,12 +1426,12 @@ const mobilePhones = [
     rom: "128GB",
     price: 10999,
     discount: 25, // 25% off
-    condition: "Good" // Condition added
+    condition: "Very Good" // Condition added
 },
 {
     id: 0,
     brand: "Realme",
-    model: "realme C63 (Leather Blue, 64 GB)  (4 GB RAM)",
+    model: "C63 (Leather Blue, 64 GB)  (4 GB RAM)",
     color: "Leather Blue",
     image: "images/buy-page-phones/realmec63.webp",
     specs: {
@@ -1451,7 +1451,7 @@ const mobilePhones = [
 },{
     id: 0,
     brand: "Realme",
-    model: "realme P2 Pro 5G (Parrot Green, 512 GB)  (12 GB RAM)",
+    model: "P2 Pro 5G (Parrot Green, 512 GB)  (12 GB RAM)",
     color: " Parrot Green",
     image: "images/buy-page-phones/realmep2pro.webp",
     specs: {
@@ -1472,7 +1472,7 @@ const mobilePhones = [
 {
     id: 0,
     brand: "Realme",
-    model: "realme Narzo N65 5G (Amber Gold, 128 GB)  (6 GB RAM)",
+    model: "Narzo N65 5G (Amber Gold, 128 GB)  (6 GB RAM)",
     color: "Amber Gold",
     image: "images/buy-page-phones/realmenarzon65.webp",
     specs: {
@@ -1488,13 +1488,13 @@ const mobilePhones = [
     rom: "128GB",
     price: 14999,
     discount: 23, // 23% off
-    condition: "Good" // Condition added
+    condition: "Superb" // Condition added
 },
 {
     id: 0,
     brand: "Realme",
-    model: "realme 14x 5G (Jewel Red, 128 GB)  (6 GB RAM)",
-    color: " Jewel Red",
+    model: "14x 5G (Jewel Red, 128 GB)  (6 GB RAM)",
+    color: "Jewel Red",
     image: "images/buy-page-phones/realme14x.webp",
     specs: {
         processor: "mediatek dimensity 6300 octacore processor",
@@ -1509,12 +1509,12 @@ const mobilePhones = [
     rom: "128GB",
     price: 16999,
     discount: 11, // 11% off
-    condition: "Good" // Condition added
+    condition: "Superb" // Condition added
 },
 {
     id: 0,
     brand: "Realme",
-    model: "realme 13+ 5G (Dark Purple, 128 GB)  (8 GB RAM)",
+    model: "13+ 5G (Dark Purple, 128 GB)  (8 GB RAM)",
     color: "Dark Purple",
     image: "images/buy-page-phones/realme13+.webp",
     specs: {
@@ -1535,7 +1535,7 @@ const mobilePhones = [
 {
     id: 0,
     brand: "Realme",
-    model: "realme P3x 5G (Lunar Silver, 128 GB)  (6 GB RAM)",
+    model: "P3x 5G (Lunar Silver, 128 GB)  (6 GB RAM)",
     color: "Lunar Silver",
     image: "images/buy-page-phones/realmep3x.webp",
     specs: {
@@ -1551,12 +1551,12 @@ const mobilePhones = [
     rom: "128GB",
     price: 16999,
     discount: 11, // 11% off
-    condition: "Good" // Condition added
+    condition: "Superb" // Condition added
 },
 {
     id: 0,
     brand: "Realme",
-    model: "realme 70 TURBO 5G (Turbo Green, 128 GB)  (6 GB RAM)",
+    model: "70 TURBO 5G (Turbo Green, 128 GB)  (6 GB RAM)",
     color: "Turbo Green",
     image: "images/buy-page-phones/realmeturbo.webp",
     specs: {
@@ -1577,7 +1577,7 @@ const mobilePhones = [
 {
     id: 0,
     brand: "Realme",
-    model: "realme GT 6 (Razor Green, 512 GB)  (16 GB RAM)",
+    model: "GT 6 (Razor Green, 512 GB)  (16 GB RAM)",
     color: "Razor Green",
     image: "images/buy-page-phones/realmegt6.webp",
     specs: {
@@ -1593,12 +1593,12 @@ const mobilePhones = [
     rom: "512GB",
     price: 51999,
     discount: 26, // 26% off
-    condition: "Good" // Condition added
+    condition: "Very Good" // Condition added
 },
 {
     id: 0,
     brand: "Realme",
-    model: "realme 9 (Sunburst Gold, 128 GB)  (8 GB RAM)",
+    model: "9 (Sunburst Gold, 128 GB)  (8 GB RAM)",
     color: "Sunburst Gold",
     image: "images/buy-page-phones/realme9.webp",
     specs: {
@@ -1619,7 +1619,7 @@ const mobilePhones = [
 {
     id: 1,
     brand: "Motorola",
-    model: "Moto G73 5G (Lucent White, 128 GB) (8 GB RAM)",
+    model: "G73 5G (Lucent White, 128 GB) (8 GB RAM)",
     color: "Lucent White",
     image: "images/buy-page-phones/motog73.webp",
     specs: {
@@ -1635,12 +1635,12 @@ const mobilePhones = [
     rom: "128GB",
     price: 18999,
     discount: 20,
-    condition: "Good"
+    condition: "VVery Good"
 },
 {
     id: 2,
     brand: "Motorola",
-    model: "Moto G62 5G (Midnight Gray, 128 GB) (6 GB RAM)",
+    model: "G62 5G (Midnight Gray, 128 GB) (6 GB RAM)",
     color: "Midnight Gray",
     image: "images/buy-page-phones/motog62.webp",
     specs: {
@@ -1656,12 +1656,12 @@ const mobilePhones = [
     rom: "128GB",
     price: 17999,
     discount: 22,
-    condition: "Good"
+    condition: "Superb"
 },
 {
     id: 3,
     brand: "Motorola",
-    model: "Moto G82 5G (Meteorite Gray, 128 GB) (6 GB RAM)",
+    model: "G82 5G (Meteorite Gray, 128 GB) (6 GB RAM)",
     color: "Meteorite Gray",
     image: "images/buy-page-phones/motog82.webp",
     specs: {
@@ -1682,7 +1682,7 @@ const mobilePhones = [
 {
     id: 4,
     brand: "Motorola",
-    model: "Moto Edge 30 Ultra 5G (Interstellar Black, 256 GB) (12 GB RAM)",
+    model: "Edge 30 Ultra 5G (Interstellar Black, 256 GB) (12 GB RAM)",
     color: "Interstellar Black",
     image: "images/buy-page-phones/motoedge30ultra.webp",
     specs: {
@@ -1698,12 +1698,12 @@ const mobilePhones = [
     rom: "256GB",
     price: 59999,
     discount: 25,
-    condition: "Good"
+    condition: "Superb"
 },
 {
     id: 5,
     brand: "Motorola",
-    model: "Moto G32 (Mineral Gray, 128 GB) (6 GB RAM)",
+    model: "G32 (Mineral Gray, 128 GB) (6 GB RAM)",
     color: "Mineral Gray",
     image: "images/buy-page-phones/motog32.webp",
     specs: {
@@ -1719,12 +1719,12 @@ const mobilePhones = [
     rom: "128GB",
     price: 12999,
     discount: 20,
-    condition: "Good"
+    condition: "Superb"
 },
 {
     id: 6,
     brand: "Motorola",
-    model: "Moto Edge 40 5G (Eclipse Black, 256 GB) (8 GB RAM)",
+    model: "Edge 40 5G (Eclipse Black, 256 GB) (8 GB RAM)",
     color: "Eclipse Black",
     image: "images/buy-page-phones/motoedge40.webp",
     specs: {
@@ -1740,12 +1740,12 @@ const mobilePhones = [
     rom: "256GB",
     price: 29999,
     discount: 15,
-    condition: "Good"
+    condition: "Superb"
 },
 {
     id: 7,
     brand: "Motorola",
-    model: "Moto G71 5G (Neptune Green, 128 GB) (6 GB RAM)",
+    model: "G71 5G (Neptune Green, 128 GB) (6 GB RAM)",
     color: "Neptune Green",
     image: "images/buy-page-phones/motog71.webp",
     specs: {
@@ -1761,12 +1761,12 @@ const mobilePhones = [
     rom: "128GB",
     price: 19999,
     discount: 18,
-    condition: "Good"
+    condition: "Superb"
 },
 {
     id: 8,
     brand: "Motorola",
-    model: "Moto G52 (Charcoal Gray, 128 GB) (6 GB RAM)",
+    model: "G52 (Charcoal Gray, 128 GB) (6 GB RAM)",
     color: "Charcoal Gray",
     image: "images/buy-page-phones/motog52.webp",
     specs: {
@@ -1782,12 +1782,12 @@ const mobilePhones = [
     rom: "128GB",
     price: 14999,
     discount: 22,
-    condition: "Good"
+    condition: "Very Good"
 },
 {
     id: 9,
     brand: "Motorola",
-    model: "Moto E40 (Carbon Gray, 64 GB) (4 GB RAM)",
+    model: "E40 (Carbon Gray, 64 GB) (4 GB RAM)",
     color: "Carbon Gray",
     image: "images/buy-page-phones/motoe40.webp",
     specs: {
@@ -1803,12 +1803,12 @@ const mobilePhones = [
     rom: "64GB",
     price: 9999,
     discount: 10,
-    condition: "Good"
+    condition: "Very Good"
 },
 {
     id: 10,
 brand: "Motorola",
-model: "Moto G51 5G (Indigo Blue, 128 GB) (6 GB RAM)",
+model: "G51 5G (Indigo Blue, 128 GB) (6 GB RAM)",
 color: "Indigo Blue",
 image: "images/buy-page-phones/motog51.webp",
 specs: {
@@ -1829,7 +1829,7 @@ condition: "Good"
 {
     id: 1,
     brand: "Nothing",
-    model: "Nothing Phone (2) (White, 256 GB) (12 GB RAM)",
+    model: "Phone 2 (White, 256 GB) (12 GB RAM)",
     color: "White",
     image: "images/buy-page-phones/nothingphone2.webp",
     specs: {
@@ -1845,12 +1845,12 @@ condition: "Good"
     rom: "256GB",
     price: 44999,
     discount: 15,
-    condition: "Good"
+    condition: "Very Good"
 },
 {
     id: 2,
     brand: "Nothing",
-    model: "Nothing Phone (1) (Black, 128 GB) (8 GB RAM)",
+    model: "Phone 1 (Black, 128 GB) (8 GB RAM)",
     color: "Black",
     image: "images/buy-page-phones/nothingphone1.webp",
     specs: {
@@ -1871,7 +1871,7 @@ condition: "Good"
 {
     id: 3,
     brand: "Nothing",
-    model: "Nothing Phone (2) (Dark Gray, 512 GB) (12 GB RAM)",
+    model: "Phone 2 (Dark Gray, 512 GB) (12 GB RAM)",
     color: "Dark Gray",
     image: "images/buy-page-phones/nothingphone2gray.webp",
     specs: {
@@ -1892,7 +1892,7 @@ condition: "Good"
 {
     id: 4,
     brand: "Nothing",
-    model: "Nothing Phone (1) (White, 256 GB) (12 GB RAM)",
+    model: "Phone 1 (White, 256 GB) (12 GB RAM)",
     color: "White",
     image: "images/buy-page-phones/nothingphone1white.webp",
     specs: {
@@ -1908,18 +1908,18 @@ condition: "Good"
     rom: "256GB",
     price: 34999,
     discount: 18,
-    condition: "Good"
+    condition: "Superb"
 },
 {
     id: 5,
     brand: "Nothing",
-    model: "Nothing Phone (3a) (Black, 128 GB)  (8 GB RAM)",
+    model: "Phone 3a (Black, 128 GB)  (8 GB RAM)",
     color: "Black",
     image: "images/buy-page-phones/nothingphone3a.webp",
     specs: {
         processor: "Qualcomm Snapdragon 8+ Gen 1 Processor",
         display: "17.02 cm (6.7 inch) Full HD+ LTPO OLED Display",
-        battery: 4700,
+        battery: 5000,
         camera: "50MP + 50MP | 32MP Front Camera",
         os: "Android 14",
         network: "5G",
@@ -1929,12 +1929,12 @@ condition: "Good"
     rom: "128GB",
     price: 27999,
     discount: 12,
-    condition: "Good"
+    condition: "Very Good"
 },
 {
     id: 6,
     brand: "Nothing",
-    model: "Nothing Phone (3a) (Black, 128 GB)  (8 GB RAM)",
+    model: "Phone 3a (Black, 128 GB)  (8 GB RAM)",
     color: "black",
     image: "images/buy-page-phones/nothingphone3apro.webp",
     specs: {
@@ -1950,12 +1950,12 @@ condition: "Good"
     rom: "128GB",
     price: 32999,
     discount: 20,
-    condition: "Good"
+    condition: "superb"
 },
 {
     id: 7,
     brand: "Nothing",
-    model: "Nothing Phone (3a) (Black, 256 GB)  (12 GB RAM)",
+    model: "Phone 3a (Black, 256 GB)  (12 GB RAM)",
     color: "black",
     image: "images/buy-page-phones/nothingphone3apro.webp",
     specs: {
@@ -1976,7 +1976,7 @@ condition: "Good"
 {
     id: 8,
     brand: "Nothing",
-    model: "Nothing Phone (3a) (gray, 256 GB)  (12 GB RAM)",
+    model: "Phone 3a (gray, 256 GB)  (12 GB RAM)",
     color: "gray",
     image: "images/buy-page-phones/nothingphone3aprogray.webp",
     specs: {
@@ -1997,7 +1997,7 @@ condition: "Good"
 {
     id: 9,
     brand: "Nothing",
-    model: "Nothing Phone (3a) (blue, 128 GB)  (8 GB RAM)",
+    model: "Phone 3a (blue, 128 GB)  (8 GB RAM)",
     color: "blue",
     image: "images/buy-page-phones/nothingphone3ablue.webp",
     specs: {
@@ -2013,12 +2013,12 @@ condition: "Good"
     rom: "128GB",
     price: 27999,
     discount: 12,
-    condition: "Good"
+    condition: "Very Good"
 },
 {
     id: 10,
     brand: "Nothing",
-    model: "Nothing Phone (3a) (white, 128 GB)  (8 GB RAM)",
+    model: "Phone 3a (white, 128 GB)  (8 GB RAM)",
     color: "white",
     image: "images/buy-page-phones/nothingphone3awhite.webp",
     specs: {
@@ -2034,8 +2034,8 @@ condition: "Good"
     rom: "128GB",
     price: 27999,
     discount: 12,
-    condition: "Good"
+    condition: "Superb"
 },    
-
-  
 ];
+
+export default mobilePhones;

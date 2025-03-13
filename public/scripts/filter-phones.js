@@ -105,14 +105,30 @@ function updateSelectedFilters() {
     selectedFilters.conditions.forEach(condition => addFilterTag("condition", condition, condition));
     selectedFilters.discounts.forEach(discount => addFilterTag("discount", discount, `${discount}% off`));
 
+    // Add price range filter tag if it's not at default values
+    const minPrice = parseInt(document.getElementById("min-value").value) || 0;
+    const maxPrice = parseInt(document.getElementById("max-value").value) || 150000;
+    
+    if (minPrice > 0 || maxPrice < 150000) {
+        addFilterTag("price", "range", `₹${minPrice} - ₹${maxPrice}`);
+    }
+
     document.querySelector(".selected-filters").style.display = selectedFiltersList.innerHTML ? "block" : "none";
 }
 
 // Function to remove a specific filter
 function removeFilter(type, value) {
-    const checkbox = document.querySelector(`.${type}[value="${value}"]`);
-    if (checkbox) {
-        checkbox.checked = false;
+    if (type === "price") {
+        document.getElementById("min-price").value = 0;
+        document.getElementById("max-price").value = 150000;
+        document.getElementById("min-value").value = 0;
+        document.getElementById("max-value").value = 150000;
+        updateSliderBackground();
+    } else {
+        const checkbox = document.querySelector(`.${type}[value="${value}"]`);
+        if (checkbox) {
+            checkbox.checked = false;
+        }
     }
     updateFiltersAndStore();
 }
@@ -121,14 +137,17 @@ function removeFilter(type, value) {
 function updateSliderBackground() {
     const minSlider = document.getElementById("min-price");
     const maxSlider = document.getElementById("max-price");
+    const minValue = document.getElementById("min-value");
+    const maxValue = document.getElementById("max-value");
 
-    document.getElementById("min-value").value = minSlider.value;
-    document.getElementById("max-value").value = maxSlider.value;
+    minValue.value = minSlider.value;
+    maxValue.value = maxSlider.value;
 }
 
 // Function to filter products based on selected filters
 function filterProducts() {
     const selectedFilters = getSelectedFilters();
+    console.log("Filtering with price range:", selectedFilters.minPrice, "to", selectedFilters.maxPrice);
 
     const filteredProducts = mobileModels.filter(product => {
         const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
@@ -146,6 +165,8 @@ function filterProducts() {
 
     displayProducts(filteredProducts);
     updateSelectedFilters();
+    
+    console.log(`Filtered to ${filteredProducts.length} products`);
 }
 
 // Function to clear all filters
@@ -159,6 +180,9 @@ function clearAllFilters() {
     localStorage.removeItem("selectedFilters");
     updateSliderBackground();
     filterProducts();
+
+    // Remove URL parameters and reset to `/filter-buy-phone`
+    window.history.replaceState(null, "", "/filter-buy-phone");
 }
 
 // Load filters and set event listeners when DOM is ready
@@ -171,20 +195,55 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const urlParams = new URLSearchParams(window.location.search);
     const selectedBrand = urlParams.get("brand");
+    const maxPrice = urlParams.get("maxPrice");
 
     if (selectedBrand) {
         localStorage.removeItem("selectedFilters");
         const brandCheckbox = document.querySelector(`.brand[value="${selectedBrand}"]`);
         if (brandCheckbox) {
             brandCheckbox.checked = true;
-            updateFiltersAndStore();
         }
     }
+
+    if (maxPrice) {
+        const maxPriceValue = parseInt(maxPrice);
+        document.getElementById("max-price").value = maxPriceValue;
+        document.getElementById("max-value").value = maxPriceValue;
+    }
+
+    // Add event listeners for price sliders
+    const minPriceSlider = document.getElementById("min-price");
+    const maxPriceSlider = document.getElementById("max-price");
+    
+    minPriceSlider.addEventListener("input", function() {
+        updateSliderBackground();
+    });
+    
+    maxPriceSlider.addEventListener("input", function() {
+        updateSliderBackground();
+    });
+    
+    minPriceSlider.addEventListener("change", updateFiltersAndStore);
+    maxPriceSlider.addEventListener("change", updateFiltersAndStore);
+    
+    // Add event listeners for price input fields
+    const minValueInput = document.getElementById("min-value");
+    const maxValueInput = document.getElementById("max-value");
+    
+    minValueInput.addEventListener("change", function() {
+        minPriceSlider.value = this.value;
+        updateFiltersAndStore();
+    });
+    
+    maxValueInput.addEventListener("change", function() {
+        maxPriceSlider.value = this.value;
+        updateFiltersAndStore();
+    });
 
     document.querySelector(".clear-all").addEventListener("click", clearAllFilters);
     document.querySelectorAll(".filters input[type='checkbox']").forEach(checkbox => 
         checkbox.addEventListener("change", updateFiltersAndStore)
     );
 
-    filterProducts();
+    updateFiltersAndStore();
 });

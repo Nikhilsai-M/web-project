@@ -147,43 +147,42 @@
     </div>
 </div>
 </div>
-
 <div class="container1">  
-    <div class="card1" style="background-color: #e0f7fa;">  
+    <div class="card1" style="background-color: #e0f7fa;" value="10000" onclick="redirectToFilterPageWithPrice(this)">
         <h2>Best-Selling Phones</h2>  
         <p>UNDER</p>  
         <h3>₹10,000</h3>  
         <img src="/images/buy_phone/img4.webp" alt="Phone 1">  
-       
     </div>  
-    <div class="card1" style="background-color: #ffecb3;">  
+    <div class="card1" style="background-color: #ffecb3;" value="20000" onclick="redirectToFilterPageWithPrice(this)">
         <h2>Best-Selling Phones</h2>  
         <p>UNDER</p>  
         <h3>₹20,000</h3>  
         <img src="/images/buy_phone/img5.webp" alt="Phone 2">  
-         
     </div>  
-    <div class="card1" style="background-color: #bbdefb;">  
+    <div class="card1" style="background-color: #bbdefb;" value="30000" onclick="redirectToFilterPageWithPrice(this)">
         <h2>Best-Selling Phones</h2>  
         <p>UNDER</p>  
         <h3>₹30,000</h3>  
         <img src="/images/buy_phone/img6.webp" alt="Phone 3">  
-       
     </div>  
-    <div class="card1" style="background-color: #c8e6c9;">  
+    <div class="card1" style="background-color: #c8e6c9;" value="50000" onclick="redirectToFilterPageWithPrice(this)">
         <h2>Best-Selling Phones</h2>  
         <p>UNDER</p>  
         <h3>₹50,000</h3>  
         <img src="/images/buy_phone/img7.webp" alt="Phone 4">  
-      
     </div>  
- </div>  
-    </div> 
-    
-    <script>
-        function redirectToFilterPage(brand) {
-            window.location.href = `/filter-buy-phone?brand=${encodeURIComponent(brand)}`;
-        }
-    </script>
+</div>
+
+<script>
+    function redirectToFilterPage(brand) {
+        window.location.href = `/filter-buy-phone?brand=${encodeURIComponent(brand)}`;
+    }
+
+    function redirectToFilterPageWithPrice(card) {
+        const maxPrice = card.getAttribute("value");
+        window.location.href = `/filter-buy-phone?maxPrice=${maxPrice}`;
+    }
+</script>
     </body>
 </html>

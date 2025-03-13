@@ -33,4 +33,7 @@ app.get('/buy-phone',(req,res) => {
 app.get('/filter-buy-phone',(req,res) => {
   res.render("filter-buy-phone")
 })
+app.get('/cart',(req,res) => {
+  res.render("cart")
+})
 app.listen(port);

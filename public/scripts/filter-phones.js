@@ -13,8 +13,8 @@ function displayProducts(filteredProducts) {
         const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
         
         container.innerHTML += `
-            <div class="product">
-                <img src="${product.image}" alt="${product.model}">
+            <div class="product" data-id="${product.id}">
+                <img src="${product.image}" alt="${product.brand} ${product.model}">
                 <div class="product-details">
                     <h4>${product.brand} ${product.model}</h4>
                     <p class="discounted-price">₹${discountedPrice}</p>
@@ -30,6 +30,82 @@ function displayProducts(filteredProducts) {
             </div>
         `;
     });
+    
+    // Add event listeners for "Add to Cart" buttons
+    document.querySelectorAll(".add-to-cart-btn").forEach(button => {
+        button.addEventListener("click", function(e) {
+            const productDiv = e.target.closest(".product");
+            const productId = productDiv.dataset.id;
+            const product = filteredProducts.find(p => p.id == productId);
+            
+            if (product) {
+                addToCart(product);
+                showAddedToCartMessage(product.brand + " " + product.model);
+            }
+        });
+    });
+}
+
+// Function to show "Added to Cart" message
+function showAddedToCartMessage(productName) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = "cart-message";
+    messageDiv.innerHTML = `
+        <p>${productName} added to cart! <a href="/cart">View Cart</a></p>
+    `;
+    document.body.appendChild(messageDiv);
+    
+    // Remove the message after 3 seconds
+    setTimeout(() => {
+        messageDiv.classList.add("fade-out");
+        setTimeout(() => {
+            document.body.removeChild(messageDiv);
+        }, 500);
+    }, 3000);
+}
+
+// Function to add a product to cart
+function addToCart(product) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    
+    // Check if product already exists in cart
+    const existingProductIndex = cart.findIndex(item => item.id === product.id);
+    
+    if (existingProductIndex !== -1) {
+        // If product exists, increase quantity
+        cart[existingProductIndex].quantity += 1;
+    } else {
+        // Add new product with quantity 1
+        const cartItem = {
+            id: product.id,
+            brand: product.brand,
+            model: product.model,
+            ram: product.ram,
+            rom: product.rom,
+            condition: product.condition,
+            image: product.image,
+            price: product.price,
+            discount: product.discount,
+            quantity: 1
+        };
+        cart.push(cartItem);
+    }
+    
+    // Update cart count indicator if exists
+    updateCartCount(cart);
+    
+    // Save cart to localStorage
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+// Function to update cart count indicator
+function updateCartCount(cart) {
+    const cartCountElement = document.querySelector(".cart-count");
+    if (cartCountElement) {
+        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+        cartCountElement.textContent = totalItems;
+        cartCountElement.style.display = totalItems > 0 ? "flex" : "none";
+    }
 }
 
 // Function to get selected filters
@@ -244,6 +320,59 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".filters input[type='checkbox']").forEach(checkbox => 
         checkbox.addEventListener("change", updateFiltersAndStore)
     );
+    
+    // Initialize cart count on page load
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    updateCartCount(cart);
 
     updateFiltersAndStore();
 });
+
+// Add some basic CSS for the cart message
+document.head.insertAdjacentHTML("beforeend", `
+<style>
+.cart-message {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+    animation: slideIn 0.5s ease-out;
+}
+
+.cart-message a {
+    color: white;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.cart-message.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.cart-count {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #ff4500;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    justify-content: center;
+    align-items: center;
+}
+</style>
+`);

@@ -1,35 +1,5 @@
 const laptopSchema = [
-    {
-    id: "1", // Unique identifier for each laptop
-    brand: "Dell", // Brand name (Dell, HP, Lenovo, etc.)
-    series : "Vostro", 
-    processor: {
-      name: "Intel Core i7", // Processor type/name
-      generation: "11th Gen", // Processor generation
-    },
-    pricing: {
-      basePrice: 89999, // Original price before discount
-      discount: 15, // Discount percentage
-    },
-    memory: {
-      ram: "16GB", // RAM capacity
-      storage: {
-        type: "SSD", // Storage type (SSD, HDD, Hybrid)
-        capacity: "512GB" // Storage capacity
-      }
-    },
-    displaysize: "13.3", // Display size in inches
-     
-    weight: 1.4,
-    condition: "Superb", // Condition grade (Superb, VeryGood, Good)
-    os: "Windows 11", // Operating system installed
-    image: "/images/buy-laptops/image.png", // Path to laptop image
-  },
-
-
-
-
-  {
+   {
     id: 1,
     brand: "Acer",
     series: "Aspire 3",
@@ -864,4 +834,758 @@ const laptopSchema = [
     image: "/images/buy-laptops/v14.webp"
   },
 
+  {
+    id: "1", 
+    brand: "Dell", 
+    series : "Vostro", 
+    processor: {
+      name: "Intel Core i5", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 68718, 
+      discount: 24, 
+    },
+    memory: {
+      ram: "16GB",
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 1.4,
+    condition: "Superb", 
+    os: "Windows 11", 
+    image: "/images/laptops/dell-vostro-i5-12thgen.webp",
+  },
+  {
+    id: "1", 
+    brand: "Dell", 
+    series : "Inspiron", 
+    processor: {
+      name: "Intel Core i5", 
+      generation: "13th Gen", 
+    },
+    pricing: {
+      basePrice: 68990, 
+      discount: 19, 
+    },
+    memory: {
+      ram: "16GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "1TB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 1.62,
+    condition: "Very Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/dell-inspiron.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Dell", 
+    series : "Vostro", 
+    processor: {
+      name: "Intel Core i3", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 49198, 
+      discount: 35, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 1.69,
+    condition: "Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/dell-vostro-i3.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Dell", 
+    series: "Latitude 14", 
+    processor: {
+      name: "Intel Core i5", 
+      generation: "11th Gen", 
+    },
+    pricing: {
+      basePrice: 85000, 
+      discount: 40, 
+    },
+    memory: {
+      ram: "16GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "14", 
+     
+    weight: 1.7,
+    condition: "Superb", 
+    os: "Windows 10", 
+    image: "/images/laptops/dell-latitude14.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Dell", 
+    series : "MSO 2021", 
+    processor: {
+      name: "Intel Core i3", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 58990, 
+      discount: 45, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.5", 
+     
+    weight: 1.65,
+    condition: "Very Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/dell-mso2021.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Dell", 
+    series : "Vostro", 
+    processor: {
+      name: "Intel Core i5", 
+      generation: "11th Gen", 
+    },
+    pricing: {
+      basePrice: 56722, 
+      discount: 23, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 1.83,
+    condition: "Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/dell-vostro-i5-11thgen.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Dell", 
+    series : "G15", 
+    processor: {
+      name: "Intel Core i5", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 100259, 
+      discount: 33, 
+    },
+    memory: {
+      ram: "16GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "14.9", 
+     
+    weight: 2.57,
+    condition: "Very Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/dell-g15.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Dell", 
+    series : "Inspiron 3530", 
+    processor: {
+      name: "Intel Core i7", 
+      generation: "13th Gen", 
+    },
+    pricing: {
+      basePrice: 79990, 
+      discount: 17, 
+    },
+    memory: {
+      ram: "16GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 1.67,
+    condition: "Very Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/dell-inspiron3530.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Asus", 
+    series : "Chromebook Plus", 
+    processor: {
+      name: "Intel Core i3", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 55990, 
+      discount: 51, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "UFS", 
+        capacity: "128GB" 
+      }
+    },
+    displaysize: "14", 
+     
+    weight: 1.44,
+    condition: "Very Good", 
+    os: "Chrome", 
+    image: "/images/laptops/asus-chromebook-plus.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Asus", 
+    series : "ExpertBook B14", 
+    processor: {
+      name: "Intel Core i3", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 50990, 
+      discount: 43, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "14", 
+     
+    weight: 1.49,
+    condition: "Superb", 
+    os: "Windows 11", 
+    image: "/images/laptops/asus-expertbook-b14.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Asus", 
+    series : "ROG Strix G16", 
+    processor: {
+      name: "Intel Core i7", 
+      generation: "13th Gen", 
+    },
+    pricing: {
+      basePrice: 143990, 
+      discount: 25, 
+    },
+    memory: {
+      ram: "16GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "1tB" 
+      }
+    },
+    displaysize: "16", 
+     
+    weight: 2.5,
+    condition: "Superb", 
+    os: "Windows 11", 
+    image: "/images/laptops/asus-rog-strix.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Asus", 
+    series : "TUF Gaming F15", 
+    processor: {
+      name: "Intel Core i5", 
+      generation: "11th Gen", 
+    },
+    pricing: {
+      basePrice: 75990, 
+      discount: 40, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 2.3,
+    condition: "Very Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/asus-tuf-f15.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Asus", 
+    series : "TUF Gaming F17", 
+    processor: {
+      name: "Intel Core i7", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 147990, 
+      discount: 39, 
+    },
+    memory: {
+      ram: "16GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "1TB" 
+      }
+    },
+    displaysize: "17.3", 
+     
+    weight: 2.6,
+    condition: "Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/asus-tuf-f17.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Asus", 
+    series : "Vivobook 15", 
+    processor: {
+      name: "Intel Core i5", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 69990, 
+      discount: 44, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 1.7,
+    condition: "Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/asus-vivobook15.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Asus", 
+    series : "Vivobook 16x", 
+    processor: {
+      name: "Intel Core i5", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 86990, 
+      discount: 37, 
+    },
+    memory: {
+      ram: "16GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "16", 
+     
+    weight: 1.8,
+    condition: "Superb", 
+    os: "Windows 11", 
+    image: "/images/laptops/asus-vivobook16x.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Asus", 
+    series : "Vivobook Go 15", 
+    processor: {
+      name: "Ryzen 3 Quad core", 
+      generation: "No", 
+    },
+    pricing: {
+      basePrice: 50990, 
+      discount: 45, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 1.63,
+    condition: "Superb", 
+    os: "Windows 11", 
+    image: "/images/laptops/asus-vivobook-go15.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Asus", 
+    series : "Vivobook Go 15 OLED", 
+    processor: {
+      name: "Ryzen 3 Quad core", 
+      generation: "No", 
+    },
+    pricing: {
+      basePrice: 61990, 
+      discount: 29, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 1.63,
+    condition: "Very Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/asus-vivobook-go15oled.webp", 
+  },
+  {
+    id: "1", 
+    brand: "Asus", 
+    series : "Zenbook 14", 
+    processor: {
+      name: "Intel Core i5", 
+      generation: "8th Gen", 
+    },
+    pricing: {
+      basePrice: 79999, 
+      discount: 36, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "14", 
+     
+    weight: 1.19,
+    condition: "Good", 
+    os: "Windows 10", 
+    image: "/images/laptops/asus-zenbook.webp", 
+  },
+  {
+    id: "1", 
+    brand: "HP", 
+    series : "14s", 
+    processor: {
+      name: "Intel Core i3", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 51265, 
+      discount: 31, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "14", 
+     
+    weight: 1.41,
+    condition: "Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/hp-14s.webp", 
+  },
+  {
+    id: "1", 
+    brand: "HP", 
+    series : "15s", 
+    processor: {
+      name: "Intel Core i3", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 51266, 
+      discount: 38, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 1.69,
+    condition: "Superb", 
+    os: "Windows 11", 
+    image: "/images/laptops/hp-15s.webp", 
+  },
+  {
+    id: "1", 
+    brand: "HP", 
+    series : "Chromebook", 
+    processor: {
+      name: "Celeron Dual Core", 
+      generation: "No", 
+    },
+    pricing: {
+      basePrice: 32295, 
+      discount: 23, 
+    },
+    memory: {
+      ram: "4GB", 
+      storage: {
+        type: "EMMC", 
+        capacity: "64GB" 
+      }
+    },
+    displaysize: "14", 
+     
+    weight: 1.49,
+    condition: "Good", 
+    os: "Chrome", 
+    image: "/images/laptops/hp-chromebook.webp", 
+  },
+  {
+    id: "1", 
+    brand: "HP", 
+    series : "Elitebook", 
+    processor: {
+      name: "Intel Core i5", 
+      generation: "8th Gen", 
+    },
+    pricing: {
+      basePrice: 124990, 
+      discount: 35, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "256GB" 
+      }
+    },
+    displaysize: "14", 
+     
+    weight: 1.48,
+    condition: "Very Good", 
+    os: "Windows 10", 
+    image: "/images/laptops/hp-elitebook.webp", 
+  },
+  {
+    id: "1", 
+    brand: "HP", 
+    series : "Envy", 
+    processor: {
+      name: "Intel Core i7", 
+      generation: "11th Gen", 
+    },
+    pricing: {
+      basePrice: 132990, 
+      discount: 45, 
+    },
+    memory: {
+      ram: "16GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "1TB" 
+      }
+    },
+    displaysize: "14", 
+     
+    weight: 1.59,
+    condition: "Superb", 
+    os: "Windows 11", 
+    image: "/images/laptops/hp-envy.webp", 
+  },
+  {
+    id: "1", 
+    brand: "HP", 
+    series : "250R G9", 
+    processor: {
+      name: "Intel Core i3", 
+      generation: "13th Gen", 
+    },
+    pricing: {
+      basePrice: 54999, 
+      discount: 41, 
+    },
+    memory: {
+      ram: "16GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 1.57,
+    condition: "Very Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/hp-250r-g9.webp", 
+  },
+  {
+    id: "1", 
+    brand: "HP", 
+    series : "Pavilion", 
+    processor: {
+      name: "Intel Core i7", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 93261, 
+      discount: 25, 
+    },
+    memory: {
+      ram: "16GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "1TB" 
+      }
+    },
+    displaysize: "14", 
+     
+    weight: 1.41,
+    condition: "Superb", 
+    os: "Windows 11", 
+    image: "/images/laptops/hp-pavilion.webp", 
+  },
+  {
+    id: "1", 
+    brand: "HP", 
+    series : "Probook", 
+    processor: {
+      name: "Intel Core i5", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 89990, 
+      discount: 25, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 1.75,
+    condition: "Good", 
+    os: "DOS", 
+    image: "/images/laptops/hp-probook.webp", 
+  },
+  {
+    id: "1", 
+    brand: "HP", 
+    series : "Spectre", 
+    processor: {
+      name: "Intel Core i7", 
+      generation: "13th Gen", 
+    },
+    pricing: {
+      basePrice: 168000, 
+      discount: 15, 
+    },
+    memory: {
+      ram: "32GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "1TB" 
+      }
+    },
+    displaysize: "13.5", 
+     
+    weight: 1.34,
+    condition: "Superb", 
+    os: "Windows 11", 
+    image: "/images/laptops/hp-spectre.webp", 
+  },
+  {
+    id: "1", 
+    brand: "HP", 
+    series : "Victus", 
+    processor: {
+      name: "Ryzen 5 Hexa Core", 
+      generation: "No", 
+    },
+    pricing: {
+      basePrice: 69999, 
+      discount: 34, 
+    },
+    memory: {
+      ram: "8GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "512GB" 
+      }
+    },
+    displaysize: "15.6", 
+     
+    weight: 2.37,
+    condition: "Very Good", 
+    os: "Windows 11", 
+    image: "/images/laptops/hp-victus.webp", 
+  },
+  {
+    id: "1", 
+    brand: "HP", 
+    series : "Zbook Studio", 
+    processor: {
+      name: "Intel Core i9", 
+      generation: "12th Gen", 
+    },
+    pricing: {
+      basePrice: 51265, 
+      discount: 31, 
+    },
+    memory: {
+      ram: "32GB", 
+      storage: {
+        type: "SSD", 
+        capacity: "1TB" 
+      }
+    },
+    displaysize: "16", 
+     
+    weight: 1.73,
+    condition: "Superb", 
+    os: "Windows 11", 
+    image: "/images/laptops/hp-zbook.webp", 
+  },
 ];

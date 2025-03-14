@@ -11,7 +11,7 @@
     z-index: 100; 
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
     min-width: 800px; /* Header refuses to shrink below 900px */
-    overflow: hidden; /* Prevents unwanted visual breaks */
+    overflow: visible; /* Prevents unwanted visual breaks */
 }
 
 
@@ -85,9 +85,38 @@
     color: black;
 }
 
-#username-display {
-    font-size: 14px;
-    font-weight: bold;
+.user-profile-container {
+    position: relative;
+    display: inline-block;
+}
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 200; /* Ensure it appears above everything */
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+
+.user-dropdown a {
     color: black;
-    margin-left: -1px;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.user-dropdown a:hover {
+    background-color: #f1f1f1;
+}
+
+/* Show dropdown on hover */
+.user-profile-container:hover .user-dropdown {
+    display: block;
 }

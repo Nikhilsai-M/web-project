@@ -1,0 +1,67 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>SmartExchange:Buy SmartWatches</title>  
+    <link rel="stylesheet" href="/styles/smartwatch.css">  
+</head>  
+<body>  
+    <%- include('partials/header') %> 
+    <div class="page-container">  
+        <aside class="filters">  
+            <h2>Filters</h2>  
+            <div class="selected-filters">  
+                <h3>Brand</h3>  
+                <label><input type="checkbox" class="brand-filter" value="Apple">Apple</label>  
+                <label><input type="checkbox" class="brand-filter" value="Fire-Boltt">FireBoltt</label>  
+                <label><input type="checkbox" class="brand-filter" value="boAt">Boat</label>  
+                <label><input type="checkbox" class="brand-filter" value="Samsung">Samsung</label>  
+                <label><input type="checkbox" class="brand-filter" value="Noise">Noise</label>  
+               
+            </div>  
+            <div class="filter-group">  
+                <h3>Type</h3>  
+                <label><input type="checkbox" class="displaytype-filter" value=" HD display ">HD Display</label>  
+                <label><input type="checkbox" class="displaytype-filter" value=" AMOLED display ">AMOLED Display</label>  
+                <label><input type="checkbox" class="displaytype-filter" value=" TFT LCD display ">TFT LCD Display</label>  
+                <label><input type="checkbox" class="displaytype-filter" value=" Round HD display ">Round HD Display</label>  
+                <label><input type="checkbox" class="displaytype-filter" value=" Sapphire Crystal display ">Sapphire Crystal Display</label>   
+                <label><input type="checkbox" class="displaytype-filter" value="Retina Display">Retina Display</label>  
+                <label><input type="checkbox" class="displaytype-filter" value="OLED Retina Display ">OLED Retina Display</label>    
+                <label><input type="checkbox" class="displaytype-filter" value="Retina LTPO OLED Display">Retina LTPO OLED Display</label>   
+                <label><input type="checkbox" class="displaytype-filter" value=" Largest HD Display ">Largest HD Display</label>   
+                <label><input type="checkbox" class="displaytype-filter" value=" circular 1.28 inch HD display ">Circular 1.28 inch HD Display</label>   
+            </div>  
+            
+            <div class="filter-group">  
+                <h3>DisplaySize</h3>  
+                <label><input type="checkbox" class="displaysize-filter" value="40"> 40 mm & above</label>  
+                <label><input type="checkbox" class="displaysize-filter" value="45"> 45 mm & above</label>  
+         
+            </div> 
+            <div class="filter-group">  
+                <h3>Battery RunTime</h3>  
+                <label><input type="checkbox" class="battery-filter" value="5"> 5 days & above</label>  
+                <label><input type="checkbox" class="battery-filter" value="10"> 10 days & above</label>  
+                <label><input type="checkbox" class="battery-filter" value="20"> 20 days & above</label> 
+            </div>  
+            <div class="filter-group">  
+                <h3>Discount</h3>  
+                <label><input type="checkbox" class="discount-filter" value="5"> 5% & above</label>  
+                <label><input type="checkbox" class="discount-filter" value="10"> 10% & above</label>  
+                <label><input type="checkbox" class="discount-filter" value="50"> 50% & above</label>  
+                <label><input type="checkbox" class="discount-filter" value="80"> 80% & above</label>  
+            </div>  
+        </aside>  
+        
+         
+             
+            <div id="product-list" class="products"></div>  
+    
+    </div>  
+
+    <script src="/scripts/smartwatch.js" type="module"></script>  
+    
+</body>  
+</html>  

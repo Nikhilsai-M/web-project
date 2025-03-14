@@ -1,0 +1,55 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>SmartExchange:Buy Earbuds</title>  
+    <link rel="stylesheet" href="/styles/earbuds.css">  
+</head>  
+<body>  
+    <%- include('partials/header') %> 
+    <div class="page-container">  
+        <aside class="filters">  
+            <h2>Filters</h2>  
+            <div class="selected-filters">  
+                <h3>Brand</h3>  
+                <label><input type="checkbox" class="brand-filter" value="Boat"> Boat</label>  
+                <label><input type="checkbox" class="brand-filter" value="SAMSUNG"> Samsung</label>  
+                <label><input type="checkbox" class="brand-filter" value="Portronics"> portronics</label>  
+                <label><input type="checkbox" class="brand-filter" value="JBL"> JBL</label>  
+                <label><input type="checkbox" class="brand-filter" value="Noise"> Noise</label>  
+                <label><input type="checkbox" class="brand-filter" value="realme">Realme</label>  
+                <label><input type="checkbox" class="brand-filter" value="Boult">Boult</label>  
+                <label><input type="checkbox" class="brand-filter" value="OnePlus">OnePlus</label>  
+            </div>  
+            <div class="filter-group">  
+                <h3>Battery Life</h3>  
+                <label><input type="checkbox" class="battery-filter" value="20">20 hours & above</label>  
+                <label><input type="checkbox" class="battery-filter" value="30">30 hours & above</label>  
+                <label><input type="checkbox" class="battery-filter" value="40">40 hours & above</label>  
+                <label><input type="checkbox" class="battery-filter" value="50">50 hours & above</label>  
+            </div>  
+            <div class="filter-group">  
+                <h3>Design</h3>  
+                <label><input type="checkbox" class="design-filter" value="Earbuds">Earbuds</label>  
+                <label><input type="checkbox" class="design-filter" value="behind the neck">Behind the neck</label> 
+                 
+            </div>  
+            <div class="filter-group">  
+                <h3>Discount</h3>  
+                <label><input type="checkbox" class="discount-filter" value="60"> 60% & above</label>  
+                <label><input type="checkbox" class="discount-filter" value="71"> 71% & above</label>  
+                <label><input type="checkbox" class="discount-filter" value="85"> 85% & above</label>  
+            </div>  
+        </aside>  
+        
+         
+             
+            <div id="product-list" class="products"></div>  
+    
+    </div>  
+
+    <script src="/scripts/earpods.js" type="module"></script>  
+    
+</body>  
+</html>  

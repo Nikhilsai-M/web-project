@@ -29,19 +29,27 @@
 
         <!-- Right Section with Cart and Sign In/Profile -->
         <div class="header-right-section">
-            <a class="" href="checkout.html">
+            <a class="cart-link" href="#" id="cart-link">
                 <img class="icons" src="/images/header/cart-icon.png" alt="Cart">
-                <div class="cart-text">Cart</div>
+                <div class="cart-text">Cart</span></div>
             </a>
-            <div id="user-section">
-                <a class="" href="login.html">
-                    <img class="icons" style="display: inline;" src="/images/header/profile-icon.png" alt="Profile">
-                    <a href="login.html" id="login-link">Sign in</a>
+        
+            <!-- User Section -->
+            <div id="user-section" class="user-profile-container">
+                <a id="profile-link" href="/login">
+                    <img class="icons" src="/images/header/profile-icon.png" alt="Profile">
+                    <span id="login-link">Sign in</span>
                 </a>
+                <div id="user-dropdown" class="user-dropdown">
+                    <a href="/profile">User Profile</a>
+                    <a href="/orders">My Orders</a>
+                    <a href="/cart">Cart</a>
+                    <a href="#" id="logout-button">Logout</a>
+                </div>
             </div>
-            
         </div>
     </div>
+ 
 
     <!-- Navigation Menu -->
     <div class="navbar">
@@ -83,14 +91,14 @@
         <div class="nav-item"> <a href="/buy-phone" class="text-decoration">Buy Phones</a>
             <div class="dropdown">
                 <a  class="dropdown-heading">Top brands</a>
-                <a href="#">Apple</a>
-                <a href="#">Samsung</a>
-                <a href="#">Xiaomi</a>
-                <a href="#">One plus</a>
-                <a href="#">Realme</a>
-                <a href="#">Motorola</a>
-                <a href="#">Google</a>
-                <a href="#">Vivo</a>
+                <a class="top-buy-phone-dropdown">Apple</a>
+                <a class="top-buy-phone-dropdown">Samsung</a>
+                <a class="top-buy-phone-dropdown">Xiaomi</a>
+                <a class="top-buy-phone-dropdown">One plus</a>
+                <a class="top-buy-phone-dropdown">Realme</a>
+                <a class="top-buy-phone-dropdown">Motorola</a>
+                <a class="top-buy-phone-dropdown">Google</a>
+                <a class="top-buy-phone-dropdown">Vivo</a>
             </div>
         </div>
         <div class="nav-item">Buy Laptop
@@ -109,14 +117,31 @@
         <div class="nav-item"> <a href="/Accessories" class="text-decoration">Accessories</a>
             <div class="dropdown">
                 <a class="dropdown-heading">Categories</a>
-                <a href="#">Smart Watches</a>
-                <a href="#">Ear Phones</a>
-                <a href="#">Chargers</a>
-                <a href="#">Mouses</a>
+                <a href="/smartwatches">Smart Watches</a>
+                <a href="/earbuds">Ear Phones</a>
+                <a href="/chargers">Chargers</a>
+                <a href="/mouses">Mouses</a>
             </div>
         </div>  
     </div>
 
     <script src="scripts/index.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const session = JSON.parse(localStorage.getItem("currentSession"));
+        
+            // If logged in, set profile and cart link
+            if (session && session.loggedIn) {
+                document.getElementById("profile-link").href = "/profile";
+                document.getElementById("login-link").textContent = session.name;
+                document.getElementById("cart-link").href = "/cart"; // Allow access to cart
+            } else {
+                document.getElementById("cart-link").addEventListener("click", function(event) {
+                    event.preventDefault(); // Prevent default navigation
+                    window.location.href = "/login"; // Redirect to login
+                });
+            }
+        });
+        </script>
 </body>  
 </html>  

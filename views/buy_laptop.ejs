@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartExchange:Buy Laptops</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/buy-laptop.css">
+</head>
+<body>  
+    <%- include('partials/header') %> 
+    <div class="d-flex flex-row justify-content-center mt-4 carousel">
+      <div id="carouselExampleAutoplaying" class="carousel slide width" data-bs-ride="carousel" data-bs-interval="2000">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <img src="/images/buy_phone/img1.jpeg" class="d-block w-100 height">
+        </div>
+        <div class="carousel-item">
+          <img src="/images/buy_phone/img1.jpeg" class="d-block w-100 height">
+        </div>
+        <div class="carousel-item">
+          <img src="/images/buy_phone/img1.jpeg" class="d-block w-100 height">
+        </div>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div> 
+  </div>
+  </div>
+
+  <h2 class="top_brands_heading">Top Brands</h2>
+<div class="bg_top_brands">
+<div class="brands-section">
+    <div class="brands-container">
+        <div class="brand-card" onclick="redirectToFilterPage('Dell')">
+            <img src="/images/topbrands/iphone.webp" alt="Dell">
+            <div class="brand-name">Dell</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('HP')">
+            <img src="/images/topbrands/iphone.webp" alt="HP">
+            <div class="brand-name">HP</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('Lenovo')">
+            <img src="/images/topbrands/iphone.webp" alt="Lenovo">
+            <div class="brand-name">Lenovo</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('Apple')">
+            <img src="/images/topbrands/iphone.webp" alt="Apple">
+            <div class="brand-name">Apple</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('Asus')">
+            <img src="/images/topbrands/iphone.webp" alt="Asus">
+            <div class="brand-name">Asus</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('Acer')">
+            <img src="/images/topbrands/iphone.webp" alt="Acer">
+            <div class="brand-name">Acer</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('MSI')">
+            <img src="/images/topbrands/iphone.webp" alt="MSI">
+            <div class="brand-name">MSI</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('Microsoft')">
+            <img src="/images/topbrands/iphone.webp" alt="Microsoft">
+            <div class="brand-name">Microsoft</div>
+        </div>
+    </div>    
+</div>
+</div>
+
+<div class=" text-center" >
+    <img src="/images/buy_phone/img3.jpeg" class="width">
+</div>
+
+<h2 class="best_in_value_heading">Trending</h2>
+<div class="fltr-link">
+    <a href="/filter-buy-laptop" class="filter-buylaptop-link">View All</a>
+</div>
+<div class="bg-best">
+<div class="container">
+    <div class="grid">
+        <div class="card">
+            <img src="/images/best_in_value/dell_xps13.webp" alt="Dell XPS 13">
+            <p class="best_in_value_laptop_name">Dell XPS 13 Refurbished</p>
+            <p class="price">₹64,999 <span class="old-price">₹92,900</span></p>
+            <p class="discount">30% off</p>
+            <p>Grade : Good</p>
+            <p>FREE 6 Months Warranty</p>
+        </div>
+        <div class="card">
+            <img src="/images/best_in_value/macbook_air.webp" alt="MacBook Air" class="best_in_value_img">
+            <p class="best_in_value_laptop_name">Apple MacBook Air <br>M1 Refurbished</p>
+            <p class="price">₹68,499 <span class="old-price">₹92,900</span></p>
+            <p class="discount">26% off</p>
+            <p>Grade : Good</p>
+            <p>FREE 6 Months Warranty</p>
+        </div>
+        <div class="card">
+            <img src="/images/best_in_value/hp_pavilion.webp" alt="HP Pavilion">
+            <p class="best_in_value_laptop_name">HP Pavilion 15 Refurbished</p>
+            <p class="price">₹39,899 <span class="old-price">₹59,999</span></p>
+            <p class="discount">33% off</p>
+            <p>Grade : Very good</p>
+            <p>FREE 6 Months Warranty</p>
+        </div>
+        
+        <div class="card">
+            <img src="/images/best_in_value/lenovo_thinkpad.webp" alt="Lenovo ThinkPad">
+            <p class="best_in_value_laptop_name">Lenovo ThinkPad X1 Refurbished</p>
+            <p class="price">₹53,999 <span class="old-price">₹89,999</span></p>
+            <p class="discount">40% off</p>
+            <p>Grade : Superb</p>
+            <p>FREE 6 Months Warranty</p>
+        </div>
+        <div class="card">
+            <img src="/images/best_in_value/asus_zenbook.webp" alt="Asus ZenBook">
+            <p class="best_in_value_laptop_name">Asus ZenBook 14 <br>Refurbished</p>
+            <p class="price">₹48,299 <span class="old-price">₹79,999</span></p>
+            <p class="discount">40% off</p>
+            <p>Grade : Superb</p>
+            <p>FREE 6 Months Warranty</p>
+        </div>
+        <div class="card">
+            <img src="/images/best_in_value/acer_swift.webp" alt="Acer Swift">
+            <p class="best_in_value_laptop_name">Acer Swift 3 <br>Refurbished</p>
+            <p class="price">₹41,749 <span class="old-price">₹64,990</span></p>
+            <p class="discount">36% off</p>
+            <p>Grade : Good</p>
+            <p>FREE 6 Months Warranty</p>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="container1">  
+    <div class="card1" style="background-color: #e0f7fa;" value="30000" onclick="redirectToFilterPageWithPrice(this)">
+        <h2>Best-Selling Laptops</h2>  
+        <p>UNDER</p>  
+        <h3>₹30,000</h3>  
+        <img src="/images/buy_phone/img4.webp" alt="laptop 1">  
+    </div>  
+    <div class="card1" style="background-color: #ffecb3;" value="40000" onclick="redirectToFilterPageWithPrice(this)">
+        <h2>Best-Selling Laptops</h2>  
+        <p>UNDER</p>  
+        <h3>₹40,000</h3>  
+        <img src="/images/buy_phone/img4.webp" alt="laptop 2">  
+    </div>  
+    <div class="card1" style="background-color: #bbdefb;" value="50000" onclick="redirectToFilterPageWithPrice(this)">
+        <h2>Best-Selling Laptops</h2>  
+        <p>UNDER</p>  
+        <h3>₹50,000</h3>  
+        <img src="/images/buy_phone/img4.webp" alt="laptop 3">  
+    </div>  
+    <div class="card1" style="background-color: #c8e6c9;" value="60000" onclick="redirectToFilterPageWithPrice(this)">
+        <h2>Best-Selling Laptops</h2>  
+        <p>UNDER</p>  
+        <h3>₹60,000</h3>  
+        <img src="/images/buy_phone/img4.webp" alt="laptop 4">  
+    </div>  
+</div>
+
+<script>
+    function redirectToFilterPage(brand) {
+        window.location.href = `/filter-buy-laptop?brand=${encodeURIComponent(brand)}`;
+    }
+
+    function redirectToFilterPageWithPrice(card) {
+        const maxPrice = card.getAttribute("value");
+        window.location.href = `/filter-buy-laptop?maxPrice=${maxPrice}`;
+    }
+</script>
+</body>
+</html>
+```

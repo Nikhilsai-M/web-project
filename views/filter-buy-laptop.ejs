@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laptop Buying Page</title>
+    <link rel="stylesheet" href="/styles/filter-buy-laptop.css">
+</head>
+<body>
+    <%- include('partials/header') %> 
+    <div class="page-container">
+    <div class="filters">
+        <h3>Filters</h3>
+
+        <!-- Selected Filters Section -->
+        <div class="selected-filters">
+            <h4>Selected Filters</h4>
+            <div id="selected-filters-list"></div>
+            <div class="clear-all">CLEAR ALL</div>
+        </div>
+
+        <!-- Brand Filter -->
+        <h4>Brand</h4>
+        <label><input type="checkbox" class="brand" value="Acer"> Acer</label>
+        <label><input type="checkbox" class="brand" value="Dell"> Dell</label>
+        <label><input type="checkbox" class="brand" value="HP"> HP</label>
+        <label><input type="checkbox" class="brand" value="Lenovo"> Lenovo</label>
+        <label><input type="checkbox" class="brand" value="Apple"> Apple</label>
+        <label><input type="checkbox" class="brand" value="ASUS"> ASUS</label>
+        <label><input type="checkbox" class="brand" value="Microsoft"> Microsoft</label>
+        <label><input type="checkbox" class="brand" value="MSI"> MSI</label>
+
+        <!-- Price Range Slider -->
+        <h4>Price Range</h4>
+        <div class="price-range">
+            <div class="slider-container">
+                <div class="slider"></div>
+                <input type="range" id="min-price" min="0" max="200000" value="0">
+                <input type="range" id="max-price" min="0" max="200000" value="200000">
+            </div>
+            <div class="values">
+                <span style="font-weight: bold;">From: </span>
+                <input type="text" id="min-value" value="0">
+                <span style="font-weight: bold;"> To: </span>
+                <input type="text" id="max-value" value="200000">
+            </div>
+        </div>
+
+        <!-- Processor Filter -->
+        <h4>Processor</h4>
+        <label><input type="checkbox" class="processor" value="Intel Core i3"> Intel Core i3</label>
+        <label><input type="checkbox" class="processor" value="Intel Core i5"> Intel Core i5</label>
+        <label><input type="checkbox" class="processor" value="Intel Core i7"> Intel Core i7</label>
+        <label><input type="checkbox" class="processor" value="Intel Core i9"> Intel Core i9</label>
+        <label><input type="checkbox" class="processor" value="AMD Ryzen 3"> AMD Ryzen 3</label>
+        <label><input type="checkbox" class="processor" value="AMD Ryzen 5"> AMD Ryzen 5</label>
+        <label><input type="checkbox" class="processor" value="AMD Ryzen 7"> AMD Ryzen 7</label>
+        <label><input type="checkbox" class="processor" value="AMD Ryzen 9"> AMD Ryzen 9</label>
+        <label><input type="checkbox" class="processor" value="Apple M1"> Apple M1</label>
+        <label><input type="checkbox" class="processor" value="Apple M2"> Apple M2</label>
+
+        <!-- Processor Generation -->
+        <h4>Processor Generation</h4>
+        <label><input type="checkbox" class="generation" value="11th Gen"> 11th Gen</label>
+        <label><input type="checkbox" class="generation" value="12th Gen"> 12th Gen</label>
+        <label><input type="checkbox" class="generation" value="13th Gen"> 13th Gen</label>
+        <label><input type="checkbox" class="generation" value="14th Gen"> 14th Gen</label>
+
+        <!-- RAM Filter -->
+        <h4>RAM</h4>
+        <label><input type="checkbox" class="ram" value="4"> 4GB</label>
+        <label><input type="checkbox" class="ram" value="8"> 8GB</label>
+        <label><input type="checkbox" class="ram" value="16"> 16GB</label>
+        <label><input type="checkbox" class="ram" value="32"> 32GB</label>
+        <label><input type="checkbox" class="ram" value="64"> 64GB</label>
+
+        <!-- Storage Type Filter -->
+        <h4>Storage Type</h4>
+        <label><input type="checkbox" class="storage-type" value="SSD"> SSD</label>
+        <label><input type="checkbox" class="storage-type" value="HDD"> HDD</label>
+        <label><input type="checkbox" class="storage-type" value="Hybrid"> Hybrid</label>
+
+        <!-- Storage Capacity Filter -->
+        <h4>Storage Capacity</h4>
+        <label><input type="checkbox" class="storage" value="256"> 256GB</label>
+        <label><input type="checkbox" class="storage" value="512"> 512GB</label>
+        <label><input type="checkbox" class="storage" value="1"> 1TB</label>
+        <label><input type="checkbox" class="storage" value="2"> 2TB</label>
+
+        <!-- Display Size Filter -->
+        <h4>Display Size</h4>
+        <label><input type="checkbox" class="display" value="11-12.9"> 11 - 12.9</label>
+        <label><input type="checkbox" class="display" value="13-14.9"> 13 - 14.9</label>
+        <label><input type="checkbox" class="display" value="15-16.9"> 15 - 16.9</label>
+        <label><input type="checkbox" class="display" value="17-20"> 17 and above</label>
+
+        <!-- Operating System Filter -->
+        <h4>Operating System</h4>
+        <label><input type="checkbox" class="os" value="Windows 11"> Windows 11</label>
+        <label><input type="checkbox" class="os" value="Windows 10"> Windows 10</label>
+        <label><input type="checkbox" class="os" value="macOS"> macOS</label>
+        <label><input type="checkbox" class="os" value="ChromeOS"> ChromeOS</label>
+        <label><input type="checkbox" class="os" value="Linux"> Linux</label>
+
+        <!-- Weight Filter -->
+        <h4>Weight</h4>
+        <label><input type="checkbox" class="weight" value="0-1.5"> Under 1.5 kg</label>
+        <label><input type="checkbox" class="weight" value="1.5-2"> 1.5 kg - 2 kg</label>
+        <label><input type="checkbox" class="weight" value="2-2.5"> 2 kg - 2.5 kg</label>
+        <label><input type="checkbox" class="weight" value="2.5"> Above 2.5 kg</label>
+
+        <!-- Condition Filter -->
+        <h4>Condition</h4>
+        <label><input type="checkbox" class="condition" value="Superb"> Superb</label>
+        <label><input type="checkbox" class="condition" value="Very Good"> Very Good</label>
+        <label><input type="checkbox" class="condition" value="Good"> Good</label>
+
+        <!-- Discount Filter -->
+        <h4>Discount</h4>
+        <label><input type="checkbox" class="discount" value="10"> 10% off and more</label>
+        <label><input type="checkbox" class="discount" value="20"> 20% off and more</label>
+        <label><input type="checkbox" class="discount" value="30"> 30% off and more</label>
+        <label><input type="checkbox" class="discount" value="40"> 40% off and more</label>
+        <label><input type="checkbox" class="discount" value="50"> 50% off and more</label>
+    </div>
+
+    <!-- Products Section -->
+    <div class="products" id="product-list"></div>
+
+    <script src="/scripts/filter-laptops.js" type="module"></script>
+</div>
+</body>
+</html>

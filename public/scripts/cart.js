@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function() {
             // Navigate back to the previous page if it's from the same origin
             window.history.back();
         } else {
-            // Fallback to the phones page if there's no previous page or it's from a different origin
+            // Fallback to the home page if there's no previous page or it's from a different origin
             window.location.href = "/";
         }
     });
@@ -63,26 +63,58 @@ function displayCartItems(cart) {
     
     // Add each item to the cart container
     cart.forEach((item, index) => {
-        const discountedPrice = calculateDiscountedPrice(item.price, item.discount);
+        // Determine if the item is a laptop or phone based on its properties
+        const isLaptop = item.hasOwnProperty('series') && item.hasOwnProperty('processor');
+        
+        let discountedPrice;
+        if (isLaptop) {
+            discountedPrice = calculateDiscountedPrice(item.price, item.discount);
+        } else {
+            discountedPrice = calculateDiscountedPrice(item.price, item.discount);
+        }
+        
         const itemTotal = discountedPrice * item.quantity;
         
-        cartItemsContainer.innerHTML += `
-            <div class="cart-item" data-id="${item.id}">
-                <img src="${item.image}" alt="${item.brand} ${item.model}">
-                <div class="item-details">
-                    <h3>${item.brand} ${item.model}</h3>
-                    <p>${item.ram} RAM | ${item.rom} Storage</p>
-                    <p>Condition: ${item.condition}</p>
+        if (isLaptop) {
+            // Laptop display format
+            cartItemsContainer.innerHTML += `
+                <div class="cart-item" data-id="${item.id}">
+                    <img src="${item.image}" alt="${item.brand} ${item.series}">
+                    <div class="item-details">
+                        <h3>${item.brand} ${item.series}</h3>
+                        <p>${item.processor.name} ${item.processor.generation} | ${item.memory.ram} RAM | ${item.memory.storage.type} ${item.memory.storage.capacity}</p>
+                        <p>${item.displaysize}" Display | ${item.os}</p>
+                        <p>Condition: ${item.condition}</p>
+                    </div>
+                    <div class="item-quantity">
+                        <button class="qty-btn minus" data-index="${index}">-</button>
+                        <input type="number" min="1" value="${item.quantity}" data-index="${index}">
+                        <button class="qty-btn plus" data-index="${index}">+</button>
+                    </div>
+                    <div class="item-price">₹${itemTotal.toLocaleString('en-IN')}</div>
+                    <button class="remove-btn" data-index="${index}">✖</button>
                 </div>
-                <div class="item-quantity">
-                    <button class="qty-btn minus" data-index="${index}">-</button>
-                    <input type="number" min="1" value="${item.quantity}" data-index="${index}">
-                    <button class="qty-btn plus" data-index="${index}">+</button>
+            `;
+        } else {
+            // Phone display format (original)
+            cartItemsContainer.innerHTML += `
+                <div class="cart-item" data-id="${item.id}">
+                    <img src="${item.image}" alt="${item.brand} ${item.model}">
+                    <div class="item-details">
+                        <h3>${item.brand} ${item.model}</h3>
+                        <p>${item.ram} RAM | ${item.rom} Storage</p>
+                        <p>Condition: ${item.condition}</p>
+                    </div>
+                    <div class="item-quantity">
+                        <button class="qty-btn minus" data-index="${index}">-</button>
+                        <input type="number" min="1" value="${item.quantity}" data-index="${index}">
+                        <button class="qty-btn plus" data-index="${index}">+</button>
+                    </div>
+                    <div class="item-price">₹${itemTotal.toLocaleString('en-IN')}</div>
+                    <button class="remove-btn" data-index="${index}">✖</button>
                 </div>
-                <div class="item-price">₹${itemTotal.toLocaleString('en-IN')}</div>
-                <button class="remove-btn" data-index="${index}">✖</button>
-            </div>
-        `;
+            `;
+        }
     });
 }
 
@@ -225,4 +257,14 @@ function updateCartSummary(cart) {
     
     // Disable checkout button if cart is empty
     document.querySelector(".checkout-btn").disabled = cart.length === 0;
+}
+
+// Function to update cart count in the header
+function updateCartCount(cart) {
+    const cartCountElement = document.querySelector(".cart-count");
+    if (cartCountElement) {
+        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+        cartCountElement.textContent = totalItems;
+        cartCountElement.style.display = totalItems > 0 ? "flex" : "none";
+    }
 }

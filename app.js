@@ -30,6 +30,9 @@ app.get('/sell-phone-models',(req,res) => {
 app.get('/buy-phone',(req,res) => {
   res.render("buy_phone")
 })
+app.get('/buy-laptop',(req,res) => {
+  res.render("buy_laptop")
+})
 app.get('/chargers',(req,res)=>{
   res.render("chargers")
 })
@@ -44,6 +47,9 @@ app.get('/smartwatches',(req,res)=>{
 })
 app.get('/filter-buy-phone',(req,res) => {
   res.render("filter-buy-phone")
+})
+app.get('/filter-buy-laptop',(req,res) => {
+  res.render("filter-buy-laptop")
 })
 app.get('/cart',(req,res) => {
   res.render("cart")

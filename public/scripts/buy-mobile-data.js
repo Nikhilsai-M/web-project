@@ -2047,4 +2047,4 @@ function shuffleArray(array) {
 }
 const mobilePhones = shuffleArray(ordered_mobilePhones);
 
-export default mobilePhones;
+export {mobilePhones,shuffleArray};

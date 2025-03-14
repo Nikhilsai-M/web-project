@@ -63,40 +63,26 @@ function displayCartItems(cart) {
     
     // Add each item to the cart container
     cart.forEach((item, index) => {
-        // Determine if the item is a laptop or phone based on its properties
-        const isLaptop = item.hasOwnProperty('series') && item.hasOwnProperty('processor');
+        // Determine item type based on attributes
+        const isPhone = item.hasOwnProperty('model') && item.hasOwnProperty('ram') && item.hasOwnProperty('rom');
+        const isCharger = item.hasOwnProperty('title') && item.hasOwnProperty('wattage') && item.hasOwnProperty('outputCurrent');
+        const isEarphone = item.hasOwnProperty('design') && item.hasOwnProperty('batteryLife');
+        const isSmartwatch = item.hasOwnProperty('displaySize') && item.hasOwnProperty('displayType') && item.hasOwnProperty('batteryRuntime');
+        const isMouse = item.hasOwnProperty('resolution') && item.hasOwnProperty('connectivity') && item.hasOwnProperty('type');
         
-        let discountedPrice;
-        if (isLaptop) {
+        // Calculate correct price based on item type
+        let discountedPrice = 0;
+        if (isPhone) {
             discountedPrice = calculateDiscountedPrice(item.price, item.discount);
-        } else {
-            discountedPrice = calculateDiscountedPrice(item.price, item.discount);
+        } else if (isCharger || isEarphone || isMouse || isSmartwatch) {
+            discountedPrice = calculateDiscountedPrice(item.originalPrice, item.discount);
         }
         
         const itemTotal = discountedPrice * item.quantity;
         
-        if (isLaptop) {
-            // Laptop display format
-            cartItemsContainer.innerHTML += `
-                <div class="cart-item" data-id="${item.id}">
-                    <img src="${item.image}" alt="${item.brand} ${item.series}">
-                    <div class="item-details">
-                        <h3>${item.brand} ${item.series}</h3>
-                        <p>${item.processor.name} ${item.processor.generation} | ${item.memory.ram} RAM | ${item.memory.storage.type} ${item.memory.storage.capacity}</p>
-                        <p>${item.displaysize}" Display | ${item.os}</p>
-                        <p>Condition: ${item.condition}</p>
-                    </div>
-                    <div class="item-quantity">
-                        <button class="qty-btn minus" data-index="${index}">-</button>
-                        <input type="number" min="1" value="${item.quantity}" data-index="${index}">
-                        <button class="qty-btn plus" data-index="${index}">+</button>
-                    </div>
-                    <div class="item-price">₹${itemTotal.toLocaleString('en-IN')}</div>
-                    <button class="remove-btn" data-index="${index}">✖</button>
-                </div>
-            `;
-        } else {
-            // Phone display format (original)
+        // Display item based on type
+        if (isPhone) {
+            // Display phone item
             cartItemsContainer.innerHTML += `
                 <div class="cart-item" data-id="${item.id}">
                     <img src="${item.image}" alt="${item.brand} ${item.model}">
@@ -114,12 +100,94 @@ function displayCartItems(cart) {
                     <button class="remove-btn" data-index="${index}">✖</button>
                 </div>
             `;
+        } else if (isCharger) {
+            // Display charger item
+            cartItemsContainer.innerHTML += `
+                <div class="cart-item" data-id="${item.id}">
+                    <img src="${item.image}" alt="${item.title}">
+                    <div class="item-details">
+                        <h3>${item.title}</h3>
+                        <p>Brand: ${item.brand}</p>
+                        <p>Wattage: ${item.wattage}W</p>
+                        <p>Output Current: ${item.outputCurrent}</p>
+                    </div>
+                    <div class="item-quantity">
+                        <button class="qty-btn minus" data-index="${index}">-</button>
+                        <input type="number" min="1" value="${item.quantity}" data-index="${index}">
+                        <button class="qty-btn plus" data-index="${index}">+</button>
+                    </div>
+                    <div class="item-price">₹${itemTotal.toLocaleString('en-IN')}</div>
+                    <button class="remove-btn" data-index="${index}">✖</button>
+                </div>
+            `;
+        } else if (isEarphone) {
+            // Display earphone item
+            cartItemsContainer.innerHTML += `
+                <div class="cart-item" data-id="${item.id}">
+                    <img src="${item.image}" alt="${item.brand} ${item.model}">
+                    <div class="item-details">
+                        <h3>${item.brand}</h3>
+                        <p>Design: ${item.design}</p>
+                        <p>Battery Life: ${item.batteryLife}</p>
+                    </div>
+                    <div class="item-quantity">
+                        <button class="qty-btn minus" data-index="${index}">-</button>
+                        <input type="number" min="1" value="${item.quantity}" data-index="${index}">
+                        <button class="qty-btn plus" data-index="${index}">+</button>
+                    </div>
+                    <div class="item-price">₹${itemTotal.toLocaleString('en-IN')}</div>
+                    <button class="remove-btn" data-index="${index}">✖</button>
+                </div>
+            `;
+        } else if (isSmartwatch) {
+            // Display smartwatch item
+            cartItemsContainer.innerHTML += `
+                <div class="cart-item" data-id="${item.id}">
+                    <img src="${item.image}" alt="${item.brand} ${item.model}">
+                    <div class="item-details">
+                        <h3>${item.brand}</h3>
+                        <p>Display Size: ${item.displaySize}</p>
+                        <p>Display Type: ${item.displayType}</p>
+                        <p>Battery Runtime: ${item.batteryRuntime}</p>
+                    </div>
+                    <div class="item-quantity">
+                        <button class="qty-btn minus" data-index="${index}">-</button>
+                        <input type="number" min="1" value="${item.quantity}" data-index="${index}">
+                        <button class="qty-btn plus" data-index="${index}">+</button>
+                    </div>
+                    <div class="item-price">₹${itemTotal.toLocaleString('en-IN')}</div>
+                    <button class="remove-btn" data-index="${index}">✖</button>
+                </div>
+            `;
+        } else if (isMouse) {
+            // Display mouse item
+            cartItemsContainer.innerHTML += `
+                <div class="cart-item" data-id="${item.id}">
+                    <img src="${item.image}" alt="${item.brand} ${item.model}">
+                    <div class="item-details">
+                        <h3>${item.brand}</h3>
+                        <p>Resolution: ${item.resolution}</p>
+                        <p>Connectivity: ${item.connectivity}</p>
+                        <p>Type: ${item.type}</p>
+                    </div>
+                    <div class="item-quantity">
+                        <button class="qty-btn minus" data-index="${index}">-</button>
+                        <input type="number" min="1" value="${item.quantity}" data-index="${index}">
+                        <button class="qty-btn plus" data-index="${index}">+</button>
+                    </div>
+                    <div class="item-price">₹${itemTotal.toLocaleString('en-IN')}</div>
+                    <button class="remove-btn" data-index="${index}">✖</button>
+                </div>
+            `;
         }
     });
 }
 
 // Function to calculate discounted price
 function calculateDiscountedPrice(price, discount) {
+    // Ensure price and discount are treated as numbers
+    price = parseFloat(price);
+    discount = parseFloat(discount);
     return price - (price * discount / 100);
 }
 
@@ -239,8 +307,21 @@ function updateCartSummary(cart) {
     // Calculate totals
     const itemsCount = cart.reduce((total, item) => total + item.quantity, 0);
     const subtotal = cart.reduce((total, item) => {
-        const discountedPrice = calculateDiscountedPrice(item.price, item.discount);
-        return total + (discountedPrice * item.quantity);
+        // Check if item is a phone, earphone, smartwatch, or mouse
+        const isPhone = item.hasOwnProperty('model') && item.hasOwnProperty('ram') && item.hasOwnProperty('rom');
+        const isCharger = item.hasOwnProperty('title') && item.hasOwnProperty('wattage') && item.hasOwnProperty('outputCurrent');
+        const isEarphone = item.hasOwnProperty('design') && item.hasOwnProperty('batteryLife');
+        const isSmartwatch = item.hasOwnProperty('displaySize') && item.hasOwnProperty('displayType') && item.hasOwnProperty('batteryRuntime');
+        const isMouse = item.hasOwnProperty('resolution') && item.hasOwnProperty('connectivity') && item.hasOwnProperty('type');
+        
+        let itemPrice = 0;
+        if (isPhone) {
+            itemPrice = calculateDiscountedPrice(item.price, item.discount);
+        } else if (isCharger  || isEarphone || isSmartwatch || isMouse) {
+            itemPrice = calculateDiscountedPrice(item.originalPrice, item.discount);
+        }
+        
+        return total + (itemPrice * item.quantity);
     }, 0);
     
     // Calculate shipping (free for orders over ₹10,000, otherwise ₹99)

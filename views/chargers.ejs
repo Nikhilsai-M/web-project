@@ -4,7 +4,7 @@
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">  
     <title>SmartExchange:Buy Chargers</title>  
-    <link rel="stylesheet" href="/styles/chargers.css">  
+    <link rel="stylesheet" href="/styles/accessories-data.css">  
 </head>  
 <body>  
     <%- include('partials/header') %> 
@@ -25,6 +25,9 @@
                 <label><input type="checkbox" class="wattage-filter" value="25"> 25W</label>  
                 <label><input type="checkbox" class="wattage-filter" value="33"> 33W</label>  
                 <label><input type="checkbox" class="wattage-filter" value="44"> 44W</label>  
+                <label><input type="checkbox" class="wattage-filter" value="65"> 65W</label>  
+                <label><input type="checkbox" class="wattage-filter" value="80"> 80W</label>  
+                <label><input type="checkbox" class="wattage-filter" value="120"> 120W</label>  
             </div>  
             <div class="filter-group">  
                 <h3>Type</h3>  
@@ -49,5 +52,6 @@
 
     <script src="/scripts/chargers.js" type="module"></script>  
     
-</body>  
+</body> 
+<footer><%- include('partials/footer') %> </footer> 
 </html>  

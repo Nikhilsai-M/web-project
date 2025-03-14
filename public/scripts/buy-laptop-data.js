@@ -254,331 +254,331 @@ const laptopSchema = [
 
 
 
-  {
-    id: 1,
-    brand: "MSI",
-    series: "Crosshair 16 HX",
-    processor: {
-      name: "Intel Core i7",
-      generation: "13th Gen"
-    },
-    pricing: {
-      basePrice: 129999,
-      discount: 15
-    },
-    memory: {
-      ram: "16GB",
-      storage: {
-        type: "SSD",
-        capacity: "1TB"
-      }
-    },
-    displaysize: 16,
-    weight: 2.3,
-    condition: "good",
-    os: "Windows 11",
-    image: "/images/buy-laptops/crosshair16hx.webp"
+{
+  id: 1,
+  brand: "MSI",
+  series: "Crosshair 16 HX",
+  processor: {
+    name: "Intel Core i7",
+    generation: "13th Gen"
   },
-  {
-    id: 2,
-    brand: "MSI",
-    series: "Cyborg 15",
-    processor: {
-      name: "Intel Core i5",
-      generation: "12th Gen"
-    },
-    pricing: {
-      basePrice: 89999,
-      discount: 10
-    },
-    memory: {
-      ram: "16GB",
-      storage: {
-        type: "SSD",
-        capacity: "512GB"
-      }
-    },
-    displaysize: 15.6,
-    weight: 2.0,
-    condition: "superb",
-    os: "Windows 11",
-    image: "/images/buy-laptops/cyborg15.webp"
+  pricing: {
+    basePrice: 129999,
+    discount: 15
   },
-  {
-    id: 3,
-    brand: "MSI",
-    series: "GL Series",
-    processor: {
-      name: "Intel Core i7",
-      generation: "11th Gen"
-    },
-    pricing: {
-      basePrice: 79999,
-      discount: 8
-    },
-    memory: {
-      ram: "8GB",
-      storage: {
-        type: "SSD",
-        capacity: "512GB"
-      }
-    },
-    displaysize: 15.6,
-    weight: 2.2,
-    condition: "Excellent",
-    os: "Windows 10",
-    image: "/images/buy-laptops/glseries.webp"
+  memory: {
+    ram: "16GB",
+    storage: {
+      type: "SSD",
+      capacity: "1TB"
+    }
   },
-  {
-    id: 4,
-    brand: "MSI",
-    series: "GP66 Leopard",
-    processor: {
-      name: "Intel Core i7",
-      generation: "12th Gen"
-    },
-    pricing: {
-      basePrice: 149999,
-      discount: 12
-    },
-    memory: {
-      ram: "16GB",
-      storage: {
-        type: "SSD",
-        capacity: "1TB"
-      }
-    },
-    displaysize: 15.6,
-    weight: 2.3,
-    condition: "superb",
-    os: "Windows 11",
-    image: "/images/buy-laptops/gp66leopard.webp"
+  displaysize: 16,
+  weight: 2.3,
+  condition: "good",
+  os: "Windows 11",
+  image: "/images/buy-laptops/crosshair16hx.webp"
+},
+{
+  id: 2,
+  brand: "MSI",
+  series: "Cyborg 15",
+  processor: {
+    name: "Intel Core i5",
+    generation: "12th Gen"
   },
-  {
-    id: 5,
-    brand: "MSI",
-    series: "Katana A15",
-    processor: {
-      name: "AMD Ryzen 7",
-      generation: "6000 Series"
-    },
-    pricing: {
-      basePrice: 99999,
-      discount: 10
-    },
-    memory: {
-      ram: "16GB",
-      storage: {
-        type: "SSD",
-        capacity: "512GB"
-      }
-    },
-    displaysize: 15.6,
-    weight: 2.1,
-    condition: "very good",
-    os: "Windows 11",
-    image: "/images/buy-laptops/katanaa15.webp"
+  pricing: {
+    basePrice: 89999,
+    discount: 10
   },
-  {
-    id: 6,
-    brand: "MSI",
-    series: "Modern 14",
-    processor: {
-      name: "Intel Core i5",
-      generation: "12th Gen"
-    },
-    pricing: {
-      basePrice: 74999,
-      discount: 5
-    },
-    memory: {
-      ram: "8GB",
-      storage: {
-        type: "SSD",
-        capacity: "512GB"
-      }
-    },
-    displaysize: 14,
-    weight: 1.4,
-    condition: "good",
-    os: "Windows 11",
-    image: "/images/buy-laptops/modern14.webp"
+  memory: {
+    ram: "16GB",
+    storage: {
+      type: "SSD",
+      capacity: "512GB"
+    }
   },
-  {
-    id: 7,
-    brand: "MSI",
-    series: "Modern 15H",
-    processor: {
-      name: "Intel Core i7",
-      generation: "13th Gen"
-    },
-    pricing: {
-      basePrice: 89999,
-      discount: 8
-    },
-    memory: {
-      ram: "16GB",
-      storage: {
-        type: "SSD",
-        capacity: "512GB"
-      }
-    },
-    displaysize: 15.6,
-    weight: 1.6,
-    condition: "Excellent",
-    os: "Windows 11",
-    image: "/images/buy-laptops/modern15h.webp"
+  displaysize: 15.6,
+  weight: 2.0,
+  condition: "superb",
+  os: "Windows 11",
+  image: "/images/buy-laptops/cyborg15.webp"
+},
+{
+  id: 3,
+  brand: "MSI",
+  series: "GL Series",
+  processor: {
+    name: "Intel Core i7",
+    generation: "11th Gen"
   },
-  {
-    id: 8,
-    brand: "MSI",
-    series: "Prestige 14",
-    processor: {
-      name: "Intel Core i5",
-      generation: "12th Gen"
-    },
-    pricing: {
-      basePrice: 84999,
-      discount: 7
-    },
-    memory: {
-      ram: "16GB",
-      storage: {
-        type: "SSD",
-        capacity: "512GB"
-      }
-    },
-    displaysize: 14,
-    weight: 1.3,
-    condition: "Superb",
-    os: "Windows 11",
-    image: "/images/buy-laptops/prestige14.webp"
+  pricing: {
+    basePrice: 79999,
+    discount: 8
   },
-  {
-    id: 9,
-    brand: "MSI",
-    series: "Pulse GL66",
-    processor: {
-      name: "Intel Core i7",
-      generation: "11th Gen"
-    },
-    pricing: {
-      basePrice: 119999,
-      discount: 10
-    },
-    memory: {
-      ram: "16GB",
-      storage: {
-        type: "SSD",
-        capacity: "1TB"
-      }
-    },
-    displaysize: 15.6,
-    weight: 2.2,
-    condition: "very good",
-    os: "Windows 11",
-    image: "/images/buy-laptops/pulsegl66.webp"
+  memory: {
+    ram: "8GB",
+    storage: {
+      type: "SSD",
+      capacity: "512GB"
+    }
   },
-  {
-    id: 10,
-    brand: "MSI",
-    series: "Stealth 15",
-    processor: {
-      name: "Intel Core i9",
-      generation: "13th Gen"
-    },
-    pricing: {
-      basePrice: 159999,
-      discount: 12
-    },
-    memory: {
-      ram: "32GB",
-      storage: {
-        type: "SSD",
-        capacity: "1TB"
-      }
-    },
-    displaysize: 15.6,
-    weight: 1.8,
-    condition: "superb",
-    os: "Windows 11",
-    image: "/images/buy-laptops/stealth15.webp"
+  displaysize: 15.6,
+  weight: 2.2,
+  condition: "Excellent",
+  os: "Windows 10",
+  image: "/images/buy-laptops/glseries.webp"
+},
+{
+  id: 4,
+  brand: "MSI",
+  series: "GP66 Leopard",
+  processor: {
+    name: "Intel Core i7",
+    generation: "12th Gen"
   },
-  {
-    id: 11,
-    brand: "MSI",
-    series: "Summit E14",
-    processor: {
-      name: "Intel Core i7",
-      generation: "12th Gen"
-    },
-    pricing: {
-      basePrice: 109999,
-      discount: 9
-    },
-    memory: {
-      ram: "16GB",
-      storage: {
-        type: "SSD",
-        capacity: "1TB"
-      }
-    },
-    displaysize: 14,
-    weight: 1.2,
-    condition: "good",
-    os: "Windows 11",
-    image: "/images/buy-laptops/summite14.webp"
+  pricing: {
+    basePrice: 149999,
+    discount: 12
   },
-  {
-    id: 12,
-    brand: "MSI",
-    series: "Sword 16 HX",
-    processor: {
-      name: "Intel Core i7",
-      generation: "13th Gen"
-    },
-    pricing: {
-      basePrice: 139999,
-      discount: 11
-    },
-    memory: {
-      ram: "32GB",
-      storage: {
-        type: "SSD",
-        capacity: "1TB"
-      }
-    },
-    displaysize: 16,
-    weight: 2.5,
-    condition: "very good",
-    os: "Windows 11",
-    image: "/images/buy-laptops/sword16hx.webp"
+  memory: {
+    ram: "16GB",
+    storage: {
+      type: "SSD",
+      capacity: "1TB"
+    }
   },
-  {
-    id: 13,
-    brand: "MSI",
-    series: "Titan GT77",
-    processor: {
-      name: "Intel Core i9",
-      generation: "13th Gen"
-    },
-    pricing: {
-      basePrice: 299999,
-      discount: 10
-    },
-    memory: {
-      ram: "64GB",
-      storage: {
-        type: "SSD",
-        capacity: "2TB"
-      }
-    },
-    displaysize: 17.3,
-    weight: 3.3,
-    condition: "good",
-    os: "Windows 11",
-    image: "/images/buy-laptops/titangt77.webp"
+  displaysize: 15.6,
+  weight: 2.3,
+  condition: "superb",
+  os: "Windows 11",
+  image: "/images/buy-laptops/gp66leopard.webp"
+},
+{
+  id: 5,
+  brand: "MSI",
+  series: "Katana A15",
+  processor: {
+    name: "AMD Ryzen 7",
+    generation: "6000 Series"
   },
+  pricing: {
+    basePrice: 99999,
+    discount: 10
+  },
+  memory: {
+    ram: "16GB",
+    storage: {
+      type: "SSD",
+      capacity: "512GB"
+    }
+  },
+  displaysize: 15.6,
+  weight: 2.1,
+  condition: "very good",
+  os: "Windows 11",
+  image: "/images/buy-laptops/katanaa15.webp"
+},
+{
+  id: 6,
+  brand: "MSI",
+  series: "Modern 14",
+  processor: {
+    name: "Intel Core i5",
+    generation: "12th Gen"
+  },
+  pricing: {
+    basePrice: 74999,
+    discount: 5
+  },
+  memory: {
+    ram: "8GB",
+    storage: {
+      type: "SSD",
+      capacity: "512GB"
+    }
+  },
+  displaysize: 14,
+  weight: 1.4,
+  condition: "good",
+  os: "Windows 11",
+  image: "/images/buy-laptops/modern14.webp"
+},
+{
+  id: 7,
+  brand: "MSI",
+  series: "Modern 15H",
+  processor: {
+    name: "Intel Core i7",
+    generation: "13th Gen"
+  },
+  pricing: {
+    basePrice: 89999,
+    discount: 8
+  },
+  memory: {
+    ram: "16GB",
+    storage: {
+      type: "SSD",
+      capacity: "512GB"
+    }
+  },
+  displaysize: 15.6,
+  weight: 1.6,
+  condition: "Excellent",
+  os: "Windows 11",
+  image: "/images/buy-laptops/modern15h.webp"
+},
+{
+  id: 8,
+  brand: "MSI",
+  series: "Prestige 14",
+  processor: {
+    name: "Intel Core i5",
+    generation: "12th Gen"
+  },
+  pricing: {
+    basePrice: 84999,
+    discount: 7
+  },
+  memory: {
+    ram: "16GB",
+    storage: {
+      type: "SSD",
+      capacity: "512GB"
+    }
+  },
+  displaysize: 14,
+  weight: 1.3,
+  condition: "Superb",
+  os: "Windows 11",
+  image: "/images/buy-laptops/prestige14.webp"
+},
+{
+  id: 9,
+  brand: "MSI",
+  series: "Pulse GL66",
+  processor: {
+    name: "Intel Core i7",
+    generation: "11th Gen"
+  },
+  pricing: {
+    basePrice: 119999,
+    discount: 10
+  },
+  memory: {
+    ram: "16GB",
+    storage: {
+      type: "SSD",
+      capacity: "1TB"
+    }
+  },
+  displaysize: 15.6,
+  weight: 2.2,
+  condition: "very good",
+  os: "Windows 11",
+  image: "/images/buy-laptops/pulsegl66.webp"
+},
+{
+  id: 10,
+  brand: "MSI",
+  series: "Stealth 15",
+  processor: {
+    name: "Intel Core i9",
+    generation: "13th Gen"
+  },
+  pricing: {
+    basePrice: 159999,
+    discount: 12
+  },
+  memory: {
+    ram: "32GB",
+    storage: {
+      type: "SSD",
+      capacity: "1TB"
+    }
+  },
+  displaysize: 15.6,
+  weight: 1.8,
+  condition: "superb",
+  os: "Windows 11",
+  image: "/images/buy-laptops/stealth15.webp"
+},
+{
+  id: 11,
+  brand: "MSI",
+  series: "Summit E14",
+  processor: {
+    name: "Intel Core i7",
+    generation: "12th Gen"
+  },
+  pricing: {
+    basePrice: 109999,
+    discount: 9
+  },
+  memory: {
+    ram: "16GB",
+    storage: {
+      type: "SSD",
+      capacity: "1TB"
+    }
+  },
+  displaysize: 14,
+  weight: 1.2,
+  condition: "good",
+  os: "Windows 11",
+  image: "/images/buy-laptops/summite14.webp"
+},
+{
+  id: 12,
+  brand: "MSI",
+  series: "Sword 16 HX",
+  processor: {
+    name: "Intel Core i7",
+    generation: "13th Gen"
+  },
+  pricing: {
+    basePrice: 139999,
+    discount: 11
+  },
+  memory: {
+    ram: "32GB",
+    storage: {
+      type: "SSD",
+      capacity: "1TB"
+    }
+  },
+  displaysize: 16,
+  weight: 2.5,
+  condition: "very good",
+  os: "Windows 11",
+  image: "/images/buy-laptops/sword16hx.webp"
+},
+{
+  id: 13,
+  brand: "MSI",
+  series: "Titan GT77",
+  processor: {
+    name: "Intel Core i9",
+    generation: "13th Gen"
+  },
+  pricing: {
+    basePrice: 299999,
+    discount: 10
+  },
+  memory: {
+    ram: "64GB",
+    storage: {
+      type: "SSD",
+      capacity: "2TB"
+    }
+  },
+  displaysize: 17.3,
+  weight: 3.3,
+  condition: "good",
+  os: "Windows 11",
+  image: "/images/buy-laptops/titangt77.webp"
+},
 
 
 

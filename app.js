@@ -45,4 +45,13 @@ app.get('/smartwatches',(req,res)=>{
 app.get('/filter-buy-phone',(req,res) => {
   res.render("filter-buy-phone")
 })
+app.get('/cart',(req,res) => {
+  res.render("cart")
+})
+app.get('/login',(req,res) => {
+  res.render("login")
+})
+app.get('/signup',(req,res) => {
+  res.render("signup")
+})
 app.listen(port);

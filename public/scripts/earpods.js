@@ -24,7 +24,7 @@ function displayEarphones(filteredEarphones) {
                 <li>Battery Life: ${earphones.batteryLife} hours</li>  
                 <li>Design: ${earphones.design}</li>  
                 </ul>
-                <button style="background-color:green ;color:white;padding:5px 5px 5px 5px;border:none ;display:inline-block">Add to Cart</button>
+                <button style="background-color:green ;color:white;padding:10px 10px 10px 10px;border:none; width:20%; border-radius:5px;margin-top:5px">Add to Cart</button>
                 </div>
             </div>  
         `;  

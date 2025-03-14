@@ -48,4 +48,10 @@ app.get('/filter-buy-phone',(req,res) => {
 app.get('/cart',(req,res) => {
   res.render("cart")
 })
+app.get('/login',(req,res) => {
+  res.render("login")
+})
+app.get('/signup',(req,res) => {
+  res.render("signup")
+})
 app.listen(port);

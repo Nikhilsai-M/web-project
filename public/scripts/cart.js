@@ -1,6 +1,17 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Get cart items from localStorage
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    // Check if user is logged in
+    const session = JSON.parse(localStorage.getItem("currentSession"));
+
+    if (!session || !session.loggedIn) {
+        window.location.href = "/login"; // Redirect non-logged-in users
+        return;
+    }
+
+    let userId = session.userId; // Get logged-in user's ID
+    let userCartKey = `cart_${userId}`; // Unique cart for each user
+
+    // Get cart items from localStorage using the user-specific key
+    const cart = JSON.parse(localStorage.getItem(userCartKey)) || [];
     
     // Display cart items
     displayCartItems(cart);
@@ -124,29 +135,43 @@ function setupCartEventListeners() {
 
 // Function to remove an item from cart
 function removeCartItem(index) {
-    // Get current cart
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const session = JSON.parse(localStorage.getItem("currentSession"));
     
-    // Remove the item at the specified index
-    cart.splice(index, 1);
-    
-    // Save updated cart back to localStorage
-    localStorage.setItem("cart", JSON.stringify(cart));
-    
-    // Update the cart display
-    displayCartItems(cart);
-    
-    // Update the cart summary
-    updateCartSummary(cart);
-    
-    // Update cart count in the header if it exists
-    updateCartCount(cart);
+    if (!session || !session.loggedIn) {
+        window.location.href = "/login"; // Redirect non-logged-in users
+        return;
+    }
+
+    let userId = session.userId;
+    let userCartKey = `cart_${userId}`; // Ensure we modify the correct user's cart
+    let cart = JSON.parse(localStorage.getItem(userCartKey)) || [];
+
+    if (index >= 0 && index < cart.length) {
+        cart.splice(index, 1); // Remove only the selected item
+    }
+
+    localStorage.setItem(userCartKey, JSON.stringify(cart)); // Save updated cart
+
+    displayCartItems(cart);  // Refresh the cart display
+    updateCartSummary(cart); // Update subtotal and total
+    updateCartCount(cart);   // Update cart count in the header
 }
 
 // Function to update an item's quantity
 function updateCartItemQuantity(index, action, newQuantity) {
-    // Get current cart
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    // Get user session
+    const session = JSON.parse(localStorage.getItem("currentSession"));
+    
+    if (!session || !session.loggedIn) {
+        window.location.href = "/login"; // Redirect non-logged-in users
+        return;
+    }
+
+    let userId = session.userId;
+    let userCartKey = `cart_${userId}`; // Ensure we modify the correct user's cart
+    
+    // Get current cart using the user-specific key
+    let cart = JSON.parse(localStorage.getItem(userCartKey)) || [];
     
     // Get the current item
     const item = cart[index];
@@ -164,8 +189,8 @@ function updateCartItemQuantity(index, action, newQuantity) {
         item.quantity = newQuantity;
     }
     
-    // Save updated cart back to localStorage
-    localStorage.setItem("cart", JSON.stringify(cart));
+    // Save updated cart back to localStorage with the user-specific key
+    localStorage.setItem(userCartKey, JSON.stringify(cart));
     
     // Update the cart display
     displayCartItems(cart);
@@ -200,14 +225,4 @@ function updateCartSummary(cart) {
     
     // Disable checkout button if cart is empty
     document.querySelector(".checkout-btn").disabled = cart.length === 0;
-}
-
-// Function to update cart count indicator in header
-function updateCartCount(cart) {
-    const cartCountElement = document.querySelector(".cart-count");
-    if (cartCountElement) {
-        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-        cartCountElement.textContent = totalItems;
-        cartCountElement.style.display = totalItems > 0 ? "flex" : "none";
-    }
 }

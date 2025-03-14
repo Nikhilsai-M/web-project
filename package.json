@@ -12,6 +12,7 @@
   },
   "keywords": [],
   "author": "",
+  "type": "module",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Nikhilsai-M/web-project/issues"

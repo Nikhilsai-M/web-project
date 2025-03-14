@@ -69,13 +69,16 @@ function displayCartItems(cart) {
         const isEarphone = item.hasOwnProperty('design') && item.hasOwnProperty('batteryLife');
         const isSmartwatch = item.hasOwnProperty('displaySize') && item.hasOwnProperty('displayType') && item.hasOwnProperty('batteryRuntime');
         const isMouse = item.hasOwnProperty('resolution') && item.hasOwnProperty('connectivity') && item.hasOwnProperty('type');
+        const isLaptop = item.hasOwnProperty('series') && item.hasOwnProperty('processor') && item.hasOwnProperty('memory');
         
         // Calculate correct price based on item type
         let discountedPrice = 0;
         if (isPhone) {
             discountedPrice = calculateDiscountedPrice(item.price, item.discount);
-        } else if (isCharger || isEarphone || isMouse || isSmartwatch) {
+        } else if (isCharger || isEarphone || isMouse || isSmartwatch ) {
             discountedPrice = calculateDiscountedPrice(item.originalPrice, item.discount);
+        }else if(isLaptop){
+            discountedPrice = calculateDiscountedPrice(item.price, item.discount);
         }
         
         const itemTotal = discountedPrice * item.quantity;
@@ -179,6 +182,26 @@ function displayCartItems(cart) {
                     <button class="remove-btn" data-index="${index}">✖</button>
                 </div>
             `;
+        } else if (isLaptop) {
+            cartItemsContainer.innerHTML += `
+                <div class="cart-item" data-id="${item.id}">
+                    <img src="${item.image}" alt="${item.brand} ${item.series}">
+                    <div class="item-details">
+                        <h3>${item.brand} ${item.series}</h3>
+                        <p>Processor: ${item.processor.name || ''} ${item.processor.generation || ''}</p>
+                        <p>Memory: ${item.memory.ram || ''} RAM | ${item.memory.storage && item.memory.storage.type ? item.memory.storage.type : ''} ${item.memory.storage && item.memory.storage.capacity ? item.memory.storage.capacity : ''}</p>
+                        <p>Display: ${item.displaysize || ''}${item.displaysize ? '"' : ''} ${item.os ? '| OS: ' + item.os : ''}</p>
+                        <p>Condition: ${item.condition || ''}</p>
+                    </div>
+                    <div class="item-quantity">
+                        <button class="qty-btn minus" data-index="${index}">-</button>
+                        <input type="number" min="1" value="${item.quantity}" data-index="${index}">
+                        <button class="qty-btn plus" data-index="${index}">+</button>
+                    </div>
+                    <div class="item-price">₹${itemTotal.toLocaleString('en-IN')}</div>
+                    <button class="remove-btn" data-index="${index}">✖</button>
+                </div>
+            `;
         }
     });
 }
@@ -254,7 +277,6 @@ function removeCartItem(index) {
 
     displayCartItems(cart);  // Refresh the cart display
     updateCartSummary(cart); // Update subtotal and total
-    updateCartCount(cart);   // Update cart count in the header
 }
 
 // Function to update an item's quantity
@@ -298,8 +320,6 @@ function updateCartItemQuantity(index, action, newQuantity) {
     // Update the cart summary
     updateCartSummary(cart);
     
-    // Update cart count in the header if it exists
-    updateCartCount(cart);
 }
 
 // Function to update cart summary (subtotal, shipping, total)
@@ -307,18 +327,21 @@ function updateCartSummary(cart) {
     // Calculate totals
     const itemsCount = cart.reduce((total, item) => total + item.quantity, 0);
     const subtotal = cart.reduce((total, item) => {
-        // Check if item is a phone, earphone, smartwatch, or mouse
+        // Check if item is a phone, earphone, smartwatch, mouse, or laptop
         const isPhone = item.hasOwnProperty('model') && item.hasOwnProperty('ram') && item.hasOwnProperty('rom');
         const isCharger = item.hasOwnProperty('title') && item.hasOwnProperty('wattage') && item.hasOwnProperty('outputCurrent');
         const isEarphone = item.hasOwnProperty('design') && item.hasOwnProperty('batteryLife');
         const isSmartwatch = item.hasOwnProperty('displaySize') && item.hasOwnProperty('displayType') && item.hasOwnProperty('batteryRuntime');
         const isMouse = item.hasOwnProperty('resolution') && item.hasOwnProperty('connectivity') && item.hasOwnProperty('type');
+        const isLaptop = item.hasOwnProperty('series') && item.hasOwnProperty('processor') && item.hasOwnProperty('memory');
         
         let itemPrice = 0;
         if (isPhone) {
             itemPrice = calculateDiscountedPrice(item.price, item.discount);
-        } else if (isCharger  || isEarphone || isSmartwatch || isMouse) {
+        } else if (isCharger || isEarphone || isSmartwatch || isMouse ) {
             itemPrice = calculateDiscountedPrice(item.originalPrice, item.discount);
+        }else if(isLaptop){
+            itemPrice = calculateDiscountedPrice(item.price, item.discount);
         }
         
         return total + (itemPrice * item.quantity);
@@ -338,14 +361,4 @@ function updateCartSummary(cart) {
     
     // Disable checkout button if cart is empty
     document.querySelector(".checkout-btn").disabled = cart.length === 0;
-}
-
-// Function to update cart count in the header
-function updateCartCount(cart) {
-    const cartCountElement = document.querySelector(".cart-count");
-    if (cartCountElement) {
-        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-        cartCountElement.textContent = totalItems;
-        cartCountElement.style.display = totalItems > 0 ? "flex" : "none";
-    }
 }

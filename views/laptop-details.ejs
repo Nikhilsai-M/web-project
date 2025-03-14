@@ -1,0 +1,86 @@
+<!-- views/laptop-details.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= laptop.brand %> <%= laptop.series %> | Your Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/product-details.css">
+</head>
+<body>
+    <%- include('partials/header') %> 
+    <div class="container">
+        <div class="product-details-container">
+            <div class="product-image">
+                <img src="/<%= laptop.image %>" alt="<%= laptop.brand %> <%= laptop.series %>">
+            </div>
+            <div class="product-info">
+                <h1 class="product-title"><%= laptop.brand %> <%= laptop.series %></h1>
+                <span class="product-condition"><%= laptop.condition %></span>
+                
+                <div class="product-price-container">
+                    <span class="discounted-price">₹<%= (laptop.pricing.basePrice - (laptop.pricing.basePrice * laptop.pricing.discount / 100)).toLocaleString('en-IN') %></span>
+                    <span class="original-price">₹<%= laptop.pricing.basePrice.toLocaleString('en-IN') %></span>
+                    <span class="discount"><%= laptop.pricing.discount %>% Off</span>
+                </div>
+                
+                <div class="product-actions">
+                    <button id="add-to-cart" class="btn btn-primary" data-id="<%= laptop.id %>">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                    <button id="buy-now" class="btn btn-success" data-id="<%= laptop.id %>">
+                        <i class="fas fa-bolt"></i> Buy Now
+                    </button>
+                </div>
+                <div class="product-specifications">
+                    <h3>Key Specifications</h3>
+                    <ul>
+                        <li><i class="fas fa-microchip"></i> <strong>Processor: </strong><%= laptop.processor.name %> <%= laptop.processor.generation %></li>
+                        <li><i class="fas fa-laptop"></i> <strong>Display: </strong> <%= laptop.displaysize %>"</li>
+                        <li><i class="fab fa-windows"></i> <strong>OS: </strong> <%= laptop.os %></li>
+                        <li><i class="fas fa-weight"></i> <strong>Weight: </strong> <%= laptop.weight %> kg</li>
+                        <li><i class="fas fa-memory"></i> <strong>RAM: </strong> <%= laptop.memory.ram %></li>
+                        <li><i class="fas fa-hdd"></i> <strong>Storage: </strong> <%= laptop.memory.storage.type %> <%= laptop.memory.storage.capacity %></li>
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <h2>Product Description</h2>
+            <p>Experience the power and performance of the <%= laptop.brand %> <%= laptop.series %>. This <%= laptop.condition %> condition laptop features <%= laptop.processor.name %> <%= laptop.processor.generation %> processor, <%= laptop.memory.ram %> RAM and <%= laptop.memory.storage.type %> <%= laptop.memory.storage.capacity %> storage, making it perfect for multitasking and all your computing needs.</p>
+            
+            <div class="highlight-features">
+                <h3>Highlight Features</h3>
+                <div class="features-grid">
+                    <div class="feature">
+                        <i class="fas fa-microchip"></i>
+                        <h4>Powerful Processor</h4>
+                        <p><%= laptop.processor.name %> <%= laptop.processor.generation %></p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-laptop"></i>
+                        <h4>Stunning Display</h4>
+                        <p><%= laptop.displaysize %>" display</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-weight-hanging"></i>
+                        <h4>Lightweight Design</h4>
+                        <p><%= laptop.weight %> kg</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-memory"></i>
+                        <h4>Fast Performance</h4>
+                        <p><%= laptop.memory.ram %> RAM with <%= laptop.memory.storage.type %> <%= laptop.memory.storage.capacity %> storage</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/scripts/laptop-details.js"></script>
+</body>
+<footer><%- include('partials/footer') %> </footer>
+</html>

@@ -1,11 +1,10 @@
-import mobileModels from "./buy-mobile-data.js";
+import {mobileModels} from "./buy-mobile-data.js";
 
 // Function to calculate discounted price
 function calculateDiscountedPrice(price, discount) {
     return price - (price * discount / 100);
 }
 
-// Function to display products
 function displayProducts(filteredProducts) {
     const container = document.getElementById("product-list");
     container.innerHTML = "";
@@ -28,29 +27,39 @@ function displayProducts(filteredProducts) {
     
     filteredProducts.forEach(product => {
         const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
+        const productElement = document.createElement('div');
+        productElement.className = 'product';
+        productElement.dataset.id = product.id;
         
-        container.innerHTML += `
-            <div class="product" data-id="${product.id}">
-                <img src="${product.image}" alt="${product.brand} ${product.model}">
-                <div class="product-details">
-                    <h4>${product.brand} ${product.model}</h4>
-                    <p class="discounted-price">₹${discountedPrice}</p>
-                    <span class="original-price">₹${product.price}</span>
-                    <span class="discount">${product.discount}% Off</span>
-                    <ul>
-                        <li>${product.ram} RAM | ${product.rom} Storage</li>
-                        <li>${product.specs.battery}mAh Battery</li>
-                        <li>Condition: ${product.condition}</li>
-                    </ul>
-                    <button class="add-to-cart-btn">Add to Cart</button>
+        productElement.innerHTML = `
+            <a href="/product/${product.id}" class="product-link">
+                <div class="product-container">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.brand} ${product.model}">
+                    </div>
+                    <div class="product-details">
+                        <h4>${product.brand} ${product.model}</h4>
+                        <p class="discounted-price">₹${discountedPrice}</p>
+                        <span class="original-price">₹${product.price}</span>
+                        <span class="discount">${product.discount}% Off</span>
+                        <ul>
+                            <li>${product.ram} RAM | ${product.rom} Storage</li>
+                            <li>${product.specs.battery}mAh Battery</li>
+                            <li>Condition: ${product.condition}</li>
+                        </ul>
+                        <button class="add-to-cart-btn">Add to Cart</button>
+                    </div>
                 </div>
-            </div>
+            </a>
         `;
+        
+        container.appendChild(productElement);
     });
     
     // Add event listeners for "Add to Cart" buttons
     document.querySelectorAll(".add-to-cart-btn").forEach(button => {
         button.addEventListener("click", function(e) {
+            e.preventDefault(); // Prevent navigating to product page when clicking Add to Cart
             const productDiv = e.target.closest(".product");
             const productId = productDiv.dataset.id;
             const product = filteredProducts.find(p => p.id == productId);

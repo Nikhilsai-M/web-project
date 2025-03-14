@@ -5,7 +5,6 @@ function calculateDiscountedPrice(price, discount) {
     return price - (price * discount / 100);
 }
 
-// Function to display products
 function displayProducts(filteredProducts) {
     const container = document.getElementById("product-list");
     container.innerHTML = "";
@@ -29,9 +28,16 @@ function displayProducts(filteredProducts) {
     filteredProducts.forEach(product => {
         const discountedPrice = calculateDiscountedPrice(product.pricing.basePrice, product.pricing.discount);
         
-        container.innerHTML += `
-            <div class="product" data-id="${product.id}">
-                <img src="${product.image}" alt="${product.brand} ${product.series}">
+        const productElement = document.createElement('div');
+        productElement.className = 'product';
+        productElement.dataset.id = product.id;
+        
+        productElement.innerHTML = `
+        <a href="/laptop/${product.id}" class="product-link">
+            <div class="product-container">
+                <div class="product-image">
+                    <img src="${product.image}" alt="${product.brand} ${product.series}">
+                </div>
                 <div class="product-details">
                     <h4>${product.brand} ${product.series}</h4>
                     <p class="discounted-price">₹${discountedPrice.toFixed(0)}</p>
@@ -43,17 +49,21 @@ function displayProducts(filteredProducts) {
                         <li>${product.displaysize}" Display | ${product.os}</li>
                         <li>Condition: ${product.condition}</li>
                     </ul>
-                    <button class="add-to-cart-btn">Add to Cart</button>
+                    <button class="add-to-cart-btn" data-product-id="${product.id}">Add to Cart</button>
                 </div>
             </div>
-        `;
+        </a>`;
+        
+        container.appendChild(productElement);
     });
     
     // Add event listeners for "Add to Cart" buttons
     document.querySelectorAll(".add-to-cart-btn").forEach(button => {
         button.addEventListener("click", function(e) {
-            const productDiv = e.target.closest(".product");
-            const productId = productDiv.dataset.id;
+            e.preventDefault(); // Prevent the anchor link from activating
+            e.stopPropagation(); // Stop event from bubbling up
+            
+            const productId = this.getAttribute('data-product-id');
             const product = filteredProducts.find(p => p.id == productId);
             
             if (product) {
@@ -62,7 +72,6 @@ function displayProducts(filteredProducts) {
         });
     });
 }
-
 // Function to show "Added to Cart" message
 function showAddedToCartMessage(productName) {
     const messageDiv = document.createElement("div");

@@ -4,17 +4,31 @@ document.addEventListener("DOMContentLoaded", function () {
     const laptopBrandCards = document.querySelectorAll(".sell-laptop-brand");
     const topLaptopBrandLinks = document.querySelectorAll(".top-sell-laptop-dropdown");
     const topBuyPhoneLinks = document.querySelectorAll(".top-buy-phone-dropdown");
+    const topBuyLaptopLinks = document.querySelectorAll(".top-buy-laptop-dropdown");
     
-    function goToFilterPage(brand) {
+    function goToPhoneFilterPage(brand) {
         window.location.href = `/filter-buy-phone?brand=${encodeURIComponent(brand)}`;
     }
+
+    function goToLaptopFilterPage(brand) {
+        window.location.href = `/filter-buy-laptop?brand=${encodeURIComponent(brand)}`;
+    }
+
     
     // Attach event listeners to dropdown links
     topBuyPhoneLinks.forEach(link => {
         link.addEventListener("click", function (event) {
             event.preventDefault();
             const selectedBrand = this.innerText.trim();
-            goToFilterPage(selectedBrand);
+            goToPhoneFilterPage(selectedBrand);
+        });
+    });
+
+    topBuyLaptopLinks.forEach(link => {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            const selectedBrand = this.innerText.trim();
+            goToLaptopFilterPage(selectedBrand);
         });
     });
 

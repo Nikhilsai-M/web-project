@@ -5,7 +5,7 @@ const ordered_mobilePhones = [
         brand: "OnePlus",
         model: "Nord 2",
         color: "Blue Haze",
-        image: "/images/buy-page-phones/OnePlus/img1.webp",
+        image: "images/buy-page-phones/img11.webp",
         specs: {
             processor: "Snapdragon 8 Gen 1",
             display: "6.43-inch Fluid AMOLED display",
@@ -27,7 +27,7 @@ const ordered_mobilePhones = [
             brand: "OnePlus",
             model: " 8T 5G",
             color: "Lunar Silver",
-            image: "/images/buy-page-phones/OnePlus/img2.webp",
+            image: "images/buy-page-phones/img12.webp",
             specs: {
                 processor: "Snapdragon 8 Gen 1",
                 display: "6.55-inch Fluid AMOLED display",
@@ -49,7 +49,7 @@ const ordered_mobilePhones = [
             brand: "OnePlus",
             model: "10T 5G",
             color: "Jade Green",
-            image: "/images/buy-page-phones/OnePlus/img3.webp",
+            image: "images/buy-page-phones/img13.webp",
             specs: {
                 processor: "Snapdragon 8 Gen 1",
                 display: "6.7-inch Fluid AMOLED display",
@@ -71,7 +71,7 @@ const ordered_mobilePhones = [
             brand: "OnePlus",
             model: " 11 5G",
             color: "Eternal Green",
-            image: "/images/buy-page-phones/OnePlus/img4.webp",
+            image: "images/buy-page-phones/img14.webp",
             specs: {
                 processor: "Snapdragon 8 Gen 1",
                 display: "6.7-inch Fluid AMOLED display",
@@ -92,7 +92,7 @@ const ordered_mobilePhones = [
             brand: "OnePlus",
             model: "8T 5G",
             color: "AquaMarine Green",
-            image: "/images/buy-page-phones/OnePlus/img5.webp",
+            image: "images/buy-page-phones/img15.webp",
             specs: {
                 processor: "Snapdragon 8 Gen 1",
                 display: "6.55-inch Fluid AMOLED display",
@@ -113,7 +113,7 @@ const ordered_mobilePhones = [
             brand: "OnePlus",
             model: "Nord 2",
             color: "Gray Sierra",
-            image: "/images/buy-page-phones/OnePlus/img6.webp",
+            image: "images/buy-page-phones/img16.webp",
             specs: {
                 processor: "Snapdragon 8 Gen 1",
                 display: "6.43-inch Fluid AMOLED display",
@@ -135,7 +135,7 @@ const ordered_mobilePhones = [
             brand: "OnePlus",
             model: "10R",
             color: "Sierra Black",
-            image: "/images/buy-page-phones/OnePlus/img7.webp",
+            image: "images/buy-page-phones/img17.webp",
             specs: {
                 processor: "Snapdragon 8 Gen 1",
                 display: "6.7-inch Fluid AMOLED display",
@@ -157,7 +157,7 @@ const ordered_mobilePhones = [
             brand: "OnePlus",
             model: "10R",
             color: "Forest Green",
-            image: "/images/buy-page-phones/OnePlus/img8.webp",
+            image: "images/buy-page-phones/img18.webp",
             specs: {
                 processor: "Snapdragon 8 Gen 1",
                 display: "6.7-inch Fluid AMOLED display",
@@ -179,7 +179,7 @@ const ordered_mobilePhones = [
             brand: "OnePlus",
             model: "11R",
             color: "Sonic Black",
-            image: "/images/buy-page-phones/OnePlus/img9.webp",
+            image: "images/buy-page-phones/img19.webp",
             specs: {
                 processor: "Snapdragon 8 Gen 1",
                 display: "6.7-inch Fluid AMOLED display",
@@ -201,7 +201,7 @@ const ordered_mobilePhones = [
             brand: "OnePlus",
             model: "Nord CE 3 Lite",
             color: "Pastel Lime",
-            image: "/images/buy-page-phones/OnePlus/img10.webp",
+            image: "images/buy-page-phones/img20.webp",
             specs: {
                 processor: "Snapdragon 8 Gen 1",
                 display: "6.72-inch Fluid AMOLED display",
@@ -223,7 +223,7 @@ const ordered_mobilePhones = [
             brand: "Google",
             model: "Pixel 7",
             color: "Lemon Grass",
-            image: "/images/buy-page-phones/Google/img1.webp",
+            image: "images/buy-page-phones/img1.webp",
             specs: {
             processor: "Google Tensor G2",
             display: "6.3-inch Full HD Plus display",
@@ -245,7 +245,7 @@ const ordered_mobilePhones = [
             brand: "Google",
             model: "Pixel 7",
             color: "Obsidian",
-            image: "/images/buy-page-phones/Google/img2.webp",
+            image: "images/buy-page-phones/img2.webp",
             specs: {
                 processor: "Google Tensor G2",
                 display: "6.3-inch Full HD Plus display",
@@ -267,7 +267,7 @@ const ordered_mobilePhones = [
             brand: "Google",
             model: "Pixel 7a",
             color: "Charcoal",
-            image: "/images/buy-page-phones/Google/img3.webp",
+            image: "images/buy-page-phones/img3.webp",
             specs: {
                 processor: "Google Tensor G2",
                 display: "6.1-inch Full HD Plus display",
@@ -289,7 +289,7 @@ const ordered_mobilePhones = [
             brand: "Google",
             model: "Pixel 7a",
             color: "Sea",
-            image: "/images/buy-page-phones/Google/img4.webp",
+            image: "images/buy-page-phones/img4.webp",
             specs: {
                 processor: "Google Tensor G2",
                 display: "6.1-inch Full HD Plus display",
@@ -311,7 +311,7 @@ const ordered_mobilePhones = [
             brand: "Google",
             model: "Pixel 7a",
             color: "Snow",
-            image: "/images/buy-page-phones/Google/img5.webp",
+            image: "images/buy-page-phones/img5.webp",
             specs: {
                 processor: "Google Tensor G2",
                 display: "6.1-inch Full HD Plus display",
@@ -333,7 +333,7 @@ const ordered_mobilePhones = [
             brand: "Google",
             model: "Pixel 7",
             color: "Snow",
-            image: "/images/buy-page-phones/Google/img6.webp",
+            image: "images/buy-page-phones/img6.webp",
             specs: {
                 processor: "Google Tensor G2",
                 display: "6.3-inch Full HD Plus display",
@@ -355,7 +355,7 @@ const ordered_mobilePhones = [
                 brand: "Google",
                 model: "Pixel 8",
                 color: "Hazel",
-                image: "/images/buy-page-phones/Google/img7.webp",
+                image: "images/buy-page-phones/img7.webp",
                 specs: {
                     processor: "Google Tensor G3",
                     display: "6.2-inch Full HD Plus display",
@@ -378,7 +378,7 @@ const ordered_mobilePhones = [
             brand: "Google",
             model: "Pixel 8",
             color: "Mint",
-            image: "/images/buy-page-phones/Google/img8.webp",
+            image: "images/buy-page-phones/img8.webp",
             specs: {
                 processor: "Google Tensor G3",
                 display: "6.2-inch Full HD Plus display",
@@ -400,7 +400,7 @@ const ordered_mobilePhones = [
             brand: "Google",
             model: "Pixel 8 Pro",
             color: "Bay",
-            image: "/images/buy-page-phones/Google/img9.webp",
+            image: "images/buy-page-phones/img9.webp",
             specs: {
                 processor: "Google Tensor G3",
                 display: "6.7-inch Full HD Plus display",
@@ -422,7 +422,7 @@ const ordered_mobilePhones = [
             brand: "Google",
             model: "Pixel 8 Pro",
             color: "Obsidian",
-            image: "/images/buy-page-phones/Google/img10.webp",
+            image: "images/buy-page-phones/img10.webp",
             specs: {
                 processor: "Google Tensor G3",
                 display: "6.7-inch Full HD Plus display",
@@ -2045,6 +2045,6 @@ function shuffleArray(array) {
     }
     return array;
 }
-const mobilePhones = shuffleArray(ordered_mobilePhones);
+const mobileModels = shuffleArray(ordered_mobilePhones);
 
-export default mobilePhones;
+export {mobileModels,shuffleArray};

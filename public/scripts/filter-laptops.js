@@ -1,4 +1,4 @@
-import {mobileModels} from "./buy-mobile-data.js";
+import laptopModels from "./buy-laptop-data.js";
 
 // Function to calculate discounted price
 function calculateDiscountedPrice(price, discount) {
@@ -26,32 +26,33 @@ function displayProducts(filteredProducts) {
     }
     
     filteredProducts.forEach(product => {
-        const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
+        const discountedPrice = calculateDiscountedPrice(product.pricing.basePrice, product.pricing.discount);
+        
         const productElement = document.createElement('div');
         productElement.className = 'product';
         productElement.dataset.id = product.id;
         
         productElement.innerHTML = `
-            <a href="/product/${product.id}" class="product-link">
-                <div class="product-container">
-                    <div class="product-image">
-                        <img src="${product.image}" alt="${product.brand} ${product.model}">
-                    </div>
-                    <div class="product-details">
-                        <h4>${product.brand} ${product.model}</h4>
-                        <p class="discounted-price">₹${discountedPrice}</p>
-                        <span class="original-price">₹${product.price}</span>
-                        <span class="discount">${product.discount}% Off</span>
-                        <ul>
-                            <li>${product.ram} RAM | ${product.rom} Storage</li>
-                            <li>${product.specs.battery}mAh Battery</li>
-                            <li>Condition: ${product.condition}</li>
-                        </ul>
-                        <button class="add-to-cart-btn">Add to Cart</button>
-                    </div>
+        <a href="/laptop/${product.id}" class="product-link">
+            <div class="product-container">
+                <div class="product-image">
+                    <img src="${product.image}" alt="${product.brand} ${product.series}">
                 </div>
-            </a>
-        `;
+                <div class="product-details">
+                    <h4>${product.brand} ${product.series}</h4>
+                    <p class="discounted-price">₹${discountedPrice.toFixed(0)}</p>
+                    <span class="original-price">₹${product.pricing.basePrice}</span>
+                    <span class="discount">${product.pricing.discount}% Off</span>
+                    <ul>
+                        <li>${product.processor.name} ${product.processor.generation}</li>
+                        <li>${product.memory.ram} RAM | ${product.memory.storage.type} ${product.memory.storage.capacity}</li>
+                        <li>${product.displaysize}" Display | ${product.os}</li>
+                        <li>Condition: ${product.condition}</li>
+                    </ul>
+                    <button class="add-to-cart-btn" data-product-id="${product.id}">Add to Cart</button>
+                </div>
+            </div>
+        </a>`;
         
         container.appendChild(productElement);
     });
@@ -59,9 +60,10 @@ function displayProducts(filteredProducts) {
     // Add event listeners for "Add to Cart" buttons
     document.querySelectorAll(".add-to-cart-btn").forEach(button => {
         button.addEventListener("click", function(e) {
-            e.preventDefault(); // Prevent navigating to product page when clicking Add to Cart
-            const productDiv = e.target.closest(".product");
-            const productId = productDiv.dataset.id;
+            e.preventDefault(); // Prevent the anchor link from activating
+            e.stopPropagation(); // Stop event from bubbling up
+            
+            const productId = this.getAttribute('data-product-id');
             const product = filteredProducts.find(p => p.id == productId);
             
             if (product) {
@@ -70,7 +72,6 @@ function displayProducts(filteredProducts) {
         });
     });
 }
-
 // Function to show "Added to Cart" message
 function showAddedToCartMessage(productName) {
     const messageDiv = document.createElement("div");
@@ -114,50 +115,62 @@ function addToCart(product) {
         cart.push({
             id: product.id,
             brand: product.brand,
-            model: product.model,
-            ram: product.ram,
-            rom: product.rom,
+            series: product.series,
+            processor: product.processor,
+            memory: product.memory,
+            displaysize: product.displaysize,
+            os: product.os,
             condition: product.condition,
             image: product.image,
-            price: product.price,
-            discount: product.discount,
+            price: product.pricing.basePrice,
+            discount: product.pricing.discount,
             quantity: 1
         });
     }
 
     localStorage.setItem(userCartKey, JSON.stringify(cart)); // Store cart for specific user
     updateCartCount(cart);
-    showAddedToCartMessage(`${product.brand} ${product.model}`);
+    showAddedToCartMessage(`${product.brand} ${product.series}`);
 }
 
 // Function to get selected filters
 function getSelectedFilters() {
     return {
         brands: Array.from(document.querySelectorAll(".brand:checked")).map(cb => cb.value),
+        processors: Array.from(document.querySelectorAll(".processor:checked")).map(cb => cb.value),
+        generations: Array.from(document.querySelectorAll(".generation:checked")).map(cb => cb.value),
         rams: Array.from(document.querySelectorAll(".ram:checked")).map(cb => parseInt(cb.value)), 
-        roms: Array.from(document.querySelectorAll(".rom:checked")).map(cb => parseInt(cb.value)), 
-        batteries: Array.from(document.querySelectorAll(".battery:checked")).map(cb => cb.value), 
+        storageTypes: Array.from(document.querySelectorAll(".storage-type:checked")).map(cb => cb.value),
+        storageCapacities: Array.from(document.querySelectorAll(".storage:checked")).map(cb => cb.value),
+        displays: Array.from(document.querySelectorAll(".display:checked")).map(cb => cb.value),
+        oses: Array.from(document.querySelectorAll(".os:checked")).map(cb => cb.value),
+        weights: Array.from(document.querySelectorAll(".weight:checked")).map(cb => cb.value),
         conditions: Array.from(document.querySelectorAll(".condition:checked")).map(cb => cb.value),
         discounts: Array.from(document.querySelectorAll(".discount:checked")).map(cb => parseInt(cb.value)), 
         minPrice: parseInt(document.getElementById("min-value").value) || 0,
-        maxPrice: parseInt(document.getElementById("max-value").value) || 150000
+        maxPrice: parseInt(document.getElementById("max-value").value) || 200000
     };
 }
 
 // Function to store selected filters in localStorage
 function storeFiltersToStorage() {
-    localStorage.setItem("selectedFilters", JSON.stringify(getSelectedFilters()));
+    localStorage.setItem("selectedLaptopFilters", JSON.stringify(getSelectedFilters()));
 }
 
 // Function to load filters from localStorage
 function loadFiltersFromStorage() {
-    const storedFilters = JSON.parse(localStorage.getItem("selectedFilters"));
+    const storedFilters = JSON.parse(localStorage.getItem("selectedLaptopFilters"));
     if (!storedFilters) return false;
 
     document.querySelectorAll(".brand").forEach(cb => cb.checked = storedFilters.brands.includes(cb.value));
+    document.querySelectorAll(".processor").forEach(cb => cb.checked = storedFilters.processors.includes(cb.value));
+    document.querySelectorAll(".generation").forEach(cb => cb.checked = storedFilters.generations.includes(cb.value));
     document.querySelectorAll(".ram").forEach(cb => cb.checked = storedFilters.rams.includes(parseInt(cb.value)));
-    document.querySelectorAll(".rom").forEach(cb => cb.checked = storedFilters.roms.includes(parseInt(cb.value)));
-    document.querySelectorAll(".battery").forEach(cb => cb.checked = storedFilters.batteries.includes(cb.value));
+    document.querySelectorAll(".storage-type").forEach(cb => cb.checked = storedFilters.storageTypes.includes(cb.value));
+    document.querySelectorAll(".storage").forEach(cb => cb.checked = storedFilters.storageCapacities.includes(cb.value));
+    document.querySelectorAll(".display").forEach(cb => cb.checked = storedFilters.displays.includes(cb.value));
+    document.querySelectorAll(".os").forEach(cb => cb.checked = storedFilters.oses.includes(cb.value));
+    document.querySelectorAll(".weight").forEach(cb => cb.checked = storedFilters.weights.includes(cb.value));
     document.querySelectorAll(".condition").forEach(cb => cb.checked = storedFilters.conditions.includes(cb.value));
     document.querySelectorAll(".discount").forEach(cb => cb.checked = storedFilters.discounts.includes(parseInt(cb.value)));
 
@@ -200,17 +213,23 @@ function updateSelectedFilters() {
     }
 
     selectedFilters.brands.forEach(brand => addFilterTag("brand", brand, brand));
+    selectedFilters.processors.forEach(processor => addFilterTag("processor", processor, processor));
+    selectedFilters.generations.forEach(gen => addFilterTag("generation", gen, gen));
     selectedFilters.rams.forEach(ram => addFilterTag("ram", ram, `${ram}GB RAM`));
-    selectedFilters.roms.forEach(rom => addFilterTag("rom", rom, `${rom}GB Storage`));
-    selectedFilters.batteries.forEach(battery => addFilterTag("battery", battery, `${battery}mAh Battery`));
+    selectedFilters.storageTypes.forEach(type => addFilterTag("storage-type", type, type));
+    selectedFilters.storageCapacities.forEach(capacity => 
+        addFilterTag("storage", capacity, `${capacity}${capacity > 2 ? "GB" : "TB"} Storage`));
+    selectedFilters.displays.forEach(display => addFilterTag("display", display, `${display}" Display`));
+    selectedFilters.oses.forEach(os => addFilterTag("os", os, os));
+    selectedFilters.weights.forEach(weight => addFilterTag("weight", weight, `${weight} kg`));
     selectedFilters.conditions.forEach(condition => addFilterTag("condition", condition, condition));
     selectedFilters.discounts.forEach(discount => addFilterTag("discount", discount, `${discount}% off`));
 
     // Add price range filter tag if it's not at default values
     const minPrice = parseInt(document.getElementById("min-value").value) || 0;
-    const maxPrice = parseInt(document.getElementById("max-value").value) || 150000;
+    const maxPrice = parseInt(document.getElementById("max-value").value) || 200000;
     
-    if (minPrice > 0 || maxPrice < 150000) {
+    if (minPrice > 0 || maxPrice < 200000) {
         addFilterTag("price", "range", `₹${minPrice} - ₹${maxPrice}`);
     }
 
@@ -222,9 +241,9 @@ function updateSelectedFilters() {
 function removeFilter(type, value) {
     if (type === "price") {
         document.getElementById("min-price").value = 0;
-        document.getElementById("max-price").value = 150000;
+        document.getElementById("max-price").value = 200000;
         document.getElementById("min-value").value = 0;
-        document.getElementById("max-value").value = 150000;
+        document.getElementById("max-value").value = 200000;
         updateSliderBackground();
     } else {
         const checkbox = document.querySelector(`.${type}[value="${value}"]`);
@@ -254,27 +273,104 @@ function filterProducts() {
     // Check if any filters are active
     const hasActiveFilters = 
         selectedFilters.brands.length > 0 || 
+        selectedFilters.processors.length > 0 ||
+        selectedFilters.generations.length > 0 ||
         selectedFilters.rams.length > 0 || 
-        selectedFilters.roms.length > 0 || 
-        selectedFilters.batteries.length > 0 || 
+        selectedFilters.storageTypes.length > 0 ||
+        selectedFilters.storageCapacities.length > 0 ||
+        selectedFilters.displays.length > 0 ||
+        selectedFilters.oses.length > 0 ||
+        selectedFilters.weights.length > 0 ||
         selectedFilters.conditions.length > 0 || 
         selectedFilters.discounts.length > 0 || 
         selectedFilters.minPrice > 0 || 
-        selectedFilters.maxPrice < 150000;
+        selectedFilters.maxPrice < 200000;
 
-    let filteredProducts = mobileModels;
+    let filteredProducts = laptopModels;
     
     if (hasActiveFilters) {
-        filteredProducts = mobileModels.filter(product => {
-            const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
+        filteredProducts = laptopModels.filter(product => {
+            const discountedPrice = calculateDiscountedPrice(product.pricing.basePrice, product.pricing.discount);
 
+            // Brand filter
             if (selectedFilters.brands.length > 0 && !selectedFilters.brands.includes(product.brand)) return false;
+            
+            // Price filter
             if (discountedPrice < selectedFilters.minPrice || discountedPrice > selectedFilters.maxPrice) return false;
-            if (selectedFilters.rams.length > 0 && !selectedFilters.rams.includes(parseInt(product.ram))) return false;
-            if (selectedFilters.roms.length > 0 && !selectedFilters.roms.includes(parseInt(product.rom))) return false;
-            if (selectedFilters.batteries.length > 0 && !selectedFilters.batteries.includes(product.specs.battery.toString())) return false;
+            
+            // Processor filter
+            if (selectedFilters.processors.length > 0 && !selectedFilters.processors.includes(product.processor.name)) return false;
+            
+            // Generation filter
+            if (selectedFilters.generations.length > 0 && !selectedFilters.generations.includes(product.processor.generation)) return false;
+            
+            // RAM filter
+            const ramValue = parseInt(product.memory.ram);
+            if (selectedFilters.rams.length > 0 && !selectedFilters.rams.includes(ramValue)) return false;
+            
+            // Storage type filter
+            if (selectedFilters.storageTypes.length > 0 && !selectedFilters.storageTypes.includes(product.memory.storage.type)) return false;
+            
+            // Storage capacity filter
+            const storageCapacity = product.memory.storage.capacity;
+            if (selectedFilters.storageCapacities.length > 0) {
+                let match = false;
+                for (const filter of selectedFilters.storageCapacities) {
+                    if (storageCapacity.includes(filter)) {
+                        match = true;
+                        break;
+                    }
+                }
+                if (!match) return false;
+            }
+            
+            // Display size filter
+            if (selectedFilters.displays.length > 0) {
+                let match = false;
+                for (const filter of selectedFilters.displays) {
+                    const [min, max] = filter.split('-').map(Number);
+                    if (max) {
+                        if (product.displaysize >= min && product.displaysize < max) {
+                            match = true;
+                            break;
+                        }
+                    } else {
+                        if (product.displaysize >= min) {
+                            match = true;
+                            break;
+                        }
+                    }
+                }
+                if (!match) return false;
+            }
+            
+            // OS filter
+            if (selectedFilters.oses.length > 0 && !selectedFilters.oses.includes(product.os)) return false;
+            // Weight filter
+            if (selectedFilters.weights.length > 0) {
+                let match = false;
+                for (const filter of selectedFilters.weights) {
+                    const [min, max] = filter.split('-').map(Number);
+                    if (max) {
+                        if (product.weight >= min && product.weight < max) {
+                            match = true;
+                            break;
+                        }
+                    } else {
+                        if (product.weight >= min) {
+                            match = true;
+                            break;
+                        }
+                    }
+                }
+                if (!match) return false;
+            }
+            
+            // Condition filter
             if (selectedFilters.conditions.length > 0 && !selectedFilters.conditions.includes(product.condition)) return false;
-            if (selectedFilters.discounts.length > 0 && !selectedFilters.discounts.includes(product.discount)) return false;
+            
+            // Discount filter
+            if (selectedFilters.discounts.length > 0 && !selectedFilters.discounts.includes(product.pricing.discount)) return false;
 
             return true;
         });
@@ -290,16 +386,16 @@ function filterProducts() {
 function clearAllFilters() {
     document.querySelectorAll(".filters input[type='checkbox']").forEach(checkbox => checkbox.checked = false);
     document.getElementById("min-price").value = 0;
-    document.getElementById("max-price").value = 150000;
+    document.getElementById("max-price").value = 200000;
     document.getElementById("min-value").value = 0;
-    document.getElementById("max-value").value = 150000;
+    document.getElementById("max-value").value = 200000;
 
-    localStorage.removeItem("selectedFilters");
+    localStorage.removeItem("selectedLaptopFilters");
     updateSliderBackground();
     filterProducts();
 
-    // Remove URL parameters and reset to `/filter-buy-phone`
-    window.history.replaceState(null, "", "/filter-buy-phone");
+    // Remove URL parameters and reset to `/filter-buy-laptop`
+    window.history.replaceState(null, "", "/filter-buy-laptop");
 }
 
 // Function to update cart count in the header
@@ -332,7 +428,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // If URL has parameters, apply them as filters
     if (selectedBrand || maxPrice) {
-        localStorage.removeItem("selectedFilters"); // Clear any existing filters
+        localStorage.removeItem("selectedLaptopFilters"); // Clear any existing filters
         
         if (selectedBrand) {
             const brandCheckbox = document.querySelector(`.brand[value="${selectedBrand}"]`);
@@ -351,7 +447,7 @@ document.addEventListener("DOMContentLoaded", function () {
     else {
         // Only reset filters if NOT coming from a page reload
         if (!performance.navigation || performance.navigation.type !== performance.navigation.TYPE_RELOAD) {
-            localStorage.removeItem("selectedFilters");
+            localStorage.removeItem("selectedLaptopFilters");
         } else {
             loadFiltersFromStorage();
         }

@@ -44,41 +44,42 @@
 <div class="bg_top_brands ">
 <div class="brands-section">
 
-<div class="brands-container">
-    <div class="brand-card">
-        <img src="/images/topbrands/iphone.webp" alt="Apple">
-        <div class="brand-name">Apple</div>
+    <div class="brands-container">
+        <div class="brand-card" onclick="redirectToFilterPage('Apple')">
+            <img src="/images/topbrands/iphone.webp" alt="Apple">
+            <div class="brand-name">Apple</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('Samsung')">
+            <img src="/images/topbrands/samsung.webp" alt="Samsung">
+            <div class="brand-name">Samsung</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('Xiaomi')">
+            <img src="/images/topbrands/xiaomi.webp" alt="Xiaomi">
+            <div class="brand-name">Xiaomi</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('OnePlus')">
+            <img src="/images/topbrands/oneplus.webp" alt="OnePlus">
+            <div class="brand-name">OnePlus</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('Realme')">
+            <img src="/images/topbrands/realme.webp" alt="Realme">
+            <div class="brand-name">Realme</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('Motorola')">
+            <img src="/images/topbrands/motorola.webp" alt="Motorola">
+            <div class="brand-name">Motorola</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('Google')">
+            <img src="/images/topbrands/google pixel.webp" alt="Google">
+            <div class="brand-name">Google</div>
+        </div>
+        <div class="brand-card" onclick="redirectToFilterPage('Vivo')">
+            <img src="/images/topbrands/vivo.png" alt="Vivo">
+            <div class="brand-name">Vivo</div>
+        </div>
     </div>
-    <div class="brand-card">
-        <img src="/images/topbrands/samsung.webp" alt="Lenovo">
-        <div class="brand-name">Samsung</div>
-    </div>
-    <div class="brand-card">
-        <img src="/images/topbrands/xiaomi.webp" alt="Xiaomi">
-        <div class="brand-name">Xiaomi</div>
-    </div>
-    <div class="brand-card">
-        <img src="/images/topbrands/oneplus.webp" alt="OnePlus">
-        <div class="brand-name">OnePlus</div>
-    </div>
-    <div class="brand-card">
-        <img src="/images/topbrands/realme.webp" alt="Realme">
-        <div class="brand-name">Realme</div>
-    </div>
-    <div class="brand-card">
-        <img src="/images/topbrands/motorola.webp" alt="Motorola">
-        <div class="brand-name">Motorola</div>
-    </div>
-    <div class="brand-card">
-        <img src="/images/topbrands/google pixel.webp" alt="Google Mobiles">
-        <div class="brand-name">Google </div>
-    </div>
+
     
-    <div class="brand-card">
-        <img src="/images/topbrands/vivo.png" alt="Nokia">
-        <div class="brand-name">Vivo</div>
-    </div>
-</div>
 </div>
 </div>
 <div>
@@ -146,34 +147,42 @@
     </div>
 </div>
 </div>
-
 <div class="container1">  
-    <div class="card1" style="background-color: #e0f7fa;">  
+    <div class="card1" style="background-color: #e0f7fa;" value="10000" onclick="redirectToFilterPageWithPrice(this)">
         <h2>Best-Selling Phones</h2>  
         <p>UNDER</p>  
         <h3>₹10,000</h3>  
         <img src="/images/buy_phone/img4.webp" alt="Phone 1">  
-       
     </div>  
-    <div class="card1" style="background-color: #ffecb3;">  
+    <div class="card1" style="background-color: #ffecb3;" value="20000" onclick="redirectToFilterPageWithPrice(this)">
         <h2>Best-Selling Phones</h2>  
         <p>UNDER</p>  
         <h3>₹20,000</h3>  
         <img src="/images/buy_phone/img5.webp" alt="Phone 2">  
-         
     </div>  
-    <div class="card1" style="background-color: #bbdefb;">  
+    <div class="card1" style="background-color: #bbdefb;" value="30000" onclick="redirectToFilterPageWithPrice(this)">
         <h2>Best-Selling Phones</h2>  
         <p>UNDER</p>  
         <h3>₹30,000</h3>  
         <img src="/images/buy_phone/img6.webp" alt="Phone 3">  
-       
     </div>  
-    <div class="card1" style="background-color: #c8e6c9;">  
+    <div class="card1" style="background-color: #c8e6c9;" value="50000" onclick="redirectToFilterPageWithPrice(this)">
         <h2>Best-Selling Phones</h2>  
         <p>UNDER</p>  
         <h3>₹50,000</h3>  
         <img src="/images/buy_phone/img7.webp" alt="Phone 4">  
-      
     </div>  
-</div>  
+</div>
+
+<script>
+    function redirectToFilterPage(brand) {
+        window.location.href = `/filter-buy-phone?brand=${encodeURIComponent(brand)}`;
+    }
+
+    function redirectToFilterPageWithPrice(card) {
+        const maxPrice = card.getAttribute("value");
+        window.location.href = `/filter-buy-phone?maxPrice=${maxPrice}`;
+    }
+</script>
+    </body>
+</html>

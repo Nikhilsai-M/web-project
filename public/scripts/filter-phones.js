@@ -9,6 +9,23 @@ function calculateDiscountedPrice(price, discount) {
 function displayProducts(filteredProducts) {
     const container = document.getElementById("product-list");
     container.innerHTML = "";
+    
+    if (filteredProducts.length === 0) {
+        container.innerHTML = `
+            <div class="no-products">
+                <h3>No products match your filters</h3>
+                <p>Try adjusting your filter criteria or <button class="clear-all-inline">clear all filters</button></p>
+            </div>
+        `;
+        
+        // Add event listener to the inline clear button
+        const clearInlineBtn = container.querySelector(".clear-all-inline");
+        if (clearInlineBtn) {
+            clearInlineBtn.addEventListener("click", clearAllFilters);
+        }
+        return;
+    }
+    
     filteredProducts.forEach(product => {
         const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
         
@@ -40,7 +57,6 @@ function displayProducts(filteredProducts) {
             
             if (product) {
                 addToCart(product);
-                showAddedToCartMessage(product.brand + " " + product.model);
             }
         });
     });
@@ -66,17 +82,27 @@ function showAddedToCartMessage(productName) {
 
 // Function to add a product to cart
 function addToCart(product) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    // Check if user is logged in
+    const session = JSON.parse(localStorage.getItem("currentSession"));
     
+    if (!session || !session.loggedIn) {
+        // Redirect to login page if not logged in
+        window.location.href = "/login";
+        return;
+    }
+
+    let userId = session.userId; // Get logged-in user's ID
+    let userCartKey = `cart_${userId}`; // Unique cart for each user
+
+    let cart = JSON.parse(localStorage.getItem(userCartKey)) || [];
+
     // Check if product already exists in cart
     const existingProductIndex = cart.findIndex(item => item.id === product.id);
     
     if (existingProductIndex !== -1) {
-        // If product exists, increase quantity
         cart[existingProductIndex].quantity += 1;
     } else {
-        // Add new product with quantity 1
-        const cartItem = {
+        cart.push({
             id: product.id,
             brand: product.brand,
             model: product.model,
@@ -87,25 +113,12 @@ function addToCart(product) {
             price: product.price,
             discount: product.discount,
             quantity: 1
-        };
-        cart.push(cartItem);
+        });
     }
-    
-    // Update cart count indicator if exists
-    updateCartCount(cart);
-    
-    // Save cart to localStorage
-    localStorage.setItem("cart", JSON.stringify(cart));
-}
 
-// Function to update cart count indicator
-function updateCartCount(cart) {
-    const cartCountElement = document.querySelector(".cart-count");
-    if (cartCountElement) {
-        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-        cartCountElement.textContent = totalItems;
-        cartCountElement.style.display = totalItems > 0 ? "flex" : "none";
-    }
+    localStorage.setItem(userCartKey, JSON.stringify(cart)); // Store cart for specific user
+    updateCartCount(cart);
+    showAddedToCartMessage(`${product.brand} ${product.model}`);
 }
 
 // Function to get selected filters
@@ -130,7 +143,7 @@ function storeFiltersToStorage() {
 // Function to load filters from localStorage
 function loadFiltersFromStorage() {
     const storedFilters = JSON.parse(localStorage.getItem("selectedFilters"));
-    if (!storedFilters) return;
+    if (!storedFilters) return false;
 
     document.querySelectorAll(".brand").forEach(cb => cb.checked = storedFilters.brands.includes(cb.value));
     document.querySelectorAll(".ram").forEach(cb => cb.checked = storedFilters.rams.includes(parseInt(cb.value)));
@@ -145,6 +158,7 @@ function loadFiltersFromStorage() {
     document.getElementById("max-price").value = storedFilters.maxPrice;
 
     updateSliderBackground();
+    return true;
 }
 
 // Function to update filters and store them
@@ -159,8 +173,10 @@ function updateSelectedFilters() {
     selectedFiltersList.innerHTML = "";
 
     const selectedFilters = getSelectedFilters();
+    let hasActiveFilters = false;
 
     function addFilterTag(type, value, label) {
+        hasActiveFilters = true;
         const tag = document.createElement("div");
         tag.classList.add("filter-tag");
         tag.setAttribute("data-type", type);
@@ -189,7 +205,8 @@ function updateSelectedFilters() {
         addFilterTag("price", "range", `₹${minPrice} - ₹${maxPrice}`);
     }
 
-    document.querySelector(".selected-filters").style.display = selectedFiltersList.innerHTML ? "block" : "none";
+    // Display or hide the selected filters section
+    document.querySelector(".selected-filters").style.display = hasActiveFilters ? "block" : "none";
 }
 
 // Function to remove a specific filter
@@ -225,24 +242,39 @@ function filterProducts() {
     const selectedFilters = getSelectedFilters();
     console.log("Filtering with price range:", selectedFilters.minPrice, "to", selectedFilters.maxPrice);
 
-    const filteredProducts = mobileModels.filter(product => {
-        const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
+    // Check if any filters are active
+    const hasActiveFilters = 
+        selectedFilters.brands.length > 0 || 
+        selectedFilters.rams.length > 0 || 
+        selectedFilters.roms.length > 0 || 
+        selectedFilters.batteries.length > 0 || 
+        selectedFilters.conditions.length > 0 || 
+        selectedFilters.discounts.length > 0 || 
+        selectedFilters.minPrice > 0 || 
+        selectedFilters.maxPrice < 150000;
 
-        if (selectedFilters.brands.length > 0 && !selectedFilters.brands.includes(product.brand)) return false;
-        if (discountedPrice < selectedFilters.minPrice || discountedPrice > selectedFilters.maxPrice) return false;
-        if (selectedFilters.rams.length > 0 && !selectedFilters.rams.includes(parseInt(product.ram))) return false;
-        if (selectedFilters.roms.length > 0 && !selectedFilters.roms.includes(parseInt(product.rom))) return false;
-        if (selectedFilters.batteries.length > 0 && !selectedFilters.batteries.includes(product.specs.battery.toString())) return false;
-        if (selectedFilters.conditions.length > 0 && !selectedFilters.conditions.includes(product.condition)) return false;
-        if (selectedFilters.discounts.length > 0 && !selectedFilters.discounts.includes(product.discount)) return false;
+    let filteredProducts = mobileModels;
+    
+    if (hasActiveFilters) {
+        filteredProducts = mobileModels.filter(product => {
+            const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
 
-        return true;
-    });
+            if (selectedFilters.brands.length > 0 && !selectedFilters.brands.includes(product.brand)) return false;
+            if (discountedPrice < selectedFilters.minPrice || discountedPrice > selectedFilters.maxPrice) return false;
+            if (selectedFilters.rams.length > 0 && !selectedFilters.rams.includes(parseInt(product.ram))) return false;
+            if (selectedFilters.roms.length > 0 && !selectedFilters.roms.includes(parseInt(product.rom))) return false;
+            if (selectedFilters.batteries.length > 0 && !selectedFilters.batteries.includes(product.specs.battery.toString())) return false;
+            if (selectedFilters.conditions.length > 0 && !selectedFilters.conditions.includes(product.condition)) return false;
+            if (selectedFilters.discounts.length > 0 && !selectedFilters.discounts.includes(product.discount)) return false;
+
+            return true;
+        });
+    }
 
     displayProducts(filteredProducts);
     updateSelectedFilters();
     
-    console.log(`Filtered to ${filteredProducts.length} products`);
+    console.log(`Displaying ${filteredProducts.length} products`);
 }
 
 // Function to clear all filters
@@ -261,30 +293,59 @@ function clearAllFilters() {
     window.history.replaceState(null, "", "/filter-buy-phone");
 }
 
+// Function to update cart count in the header
+function updateCartCount(cart) {
+    const cartCountElement = document.querySelector(".cart-count");
+    if (cartCountElement) {
+        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+        cartCountElement.textContent = totalItems;
+        cartCountElement.style.display = totalItems > 0 ? "flex" : "none";
+    }
+}
+
 // Load filters and set event listeners when DOM is ready
 document.addEventListener("DOMContentLoaded", function () {
-    if (!performance.navigation || performance.navigation.type !== performance.navigation.TYPE_RELOAD) {
-        localStorage.removeItem("selectedFilters"); // Reset filters if navigating from another page
+    // Check if user is logged in
+    const session = JSON.parse(localStorage.getItem("currentSession"));
+    
+    // Initialize cart count on page load
+    if (session && session.loggedIn) {
+        let userId = session.userId;
+        let userCartKey = `cart_${userId}`;
+        const cart = JSON.parse(localStorage.getItem(userCartKey)) || [];
+        updateCartCount(cart);
     }
 
-    loadFiltersFromStorage();
-
+    // Handle URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const selectedBrand = urlParams.get("brand");
     const maxPrice = urlParams.get("maxPrice");
 
-    if (selectedBrand) {
-        localStorage.removeItem("selectedFilters");
-        const brandCheckbox = document.querySelector(`.brand[value="${selectedBrand}"]`);
-        if (brandCheckbox) {
-            brandCheckbox.checked = true;
+    // If URL has parameters, apply them as filters
+    if (selectedBrand || maxPrice) {
+        localStorage.removeItem("selectedFilters"); // Clear any existing filters
+        
+        if (selectedBrand) {
+            const brandCheckbox = document.querySelector(`.brand[value="${selectedBrand}"]`);
+            if (brandCheckbox) {
+                brandCheckbox.checked = true;
+            }
         }
-    }
 
-    if (maxPrice) {
-        const maxPriceValue = parseInt(maxPrice);
-        document.getElementById("max-price").value = maxPriceValue;
-        document.getElementById("max-value").value = maxPriceValue;
+        if (maxPrice) {
+            const maxPriceValue = parseInt(maxPrice);
+            document.getElementById("max-price").value = maxPriceValue;
+            document.getElementById("max-value").value = maxPriceValue;
+        }
+    } 
+    // If no URL parameters, try to load filters from localStorage
+    else {
+        // Only reset filters if NOT coming from a page reload
+        if (!performance.navigation || performance.navigation.type !== performance.navigation.TYPE_RELOAD) {
+            localStorage.removeItem("selectedFilters");
+        } else {
+            loadFiltersFromStorage();
+        }
     }
 
     // Add event listeners for price sliders
@@ -321,11 +382,8 @@ document.addEventListener("DOMContentLoaded", function () {
         checkbox.addEventListener("change", updateFiltersAndStore)
     );
     
-    // Initialize cart count on page load
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    updateCartCount(cart);
-
-    updateFiltersAndStore();
+    // Apply filters and display products
+    filterProducts();
 });
 
 // Add some basic CSS for the cart message
@@ -358,21 +416,6 @@ document.head.insertAdjacentHTML("beforeend", `
 @keyframes slideIn {
     from { transform: translateX(100px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
-}
-
-.cart-count {
-    display: none;
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background-color: #ff4500;
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    justify-content: center;
-    align-items: center;
 }
 </style>
 `);

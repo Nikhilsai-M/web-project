@@ -29,19 +29,27 @@
 
         <!-- Right Section with Cart and Sign In/Profile -->
         <div class="header-right-section">
-            <a class="" href="/cart">
+            <a class="cart-link" href="#" id="cart-link">
                 <img class="icons" src="/images/header/cart-icon.png" alt="Cart">
-                <div class="cart-text">Cart</div>
+                <div class="cart-text">Cart</span></div>
             </a>
-            <div id="user-section">
-                <a class="" href="login.html">
-                    <img class="icons" style="display: inline;" src="/images/header/profile-icon.png" alt="Profile">
-                    <a href="login.html" id="login-link">Sign in</a>
+        
+            <!-- User Section -->
+            <div id="user-section" class="user-profile-container">
+                <a id="profile-link" href="/login">
+                    <img class="icons" src="/images/header/profile-icon.png" alt="Profile">
+                    <span id="login-link">Sign in</span>
                 </a>
+                <div id="user-dropdown" class="user-dropdown">
+                    <a href="/profile">User Profile</a>
+                    <a href="/orders">My Orders</a>
+                    <a href="/cart">Cart</a>
+                    <a href="#" id="logout-button">Logout</a>
+                </div>
             </div>
-            
         </div>
     </div>
+ 
 
     <!-- Navigation Menu -->
     <div class="navbar">
@@ -118,5 +126,22 @@
     </div>
 
     <script src="scripts/index.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const session = JSON.parse(localStorage.getItem("currentSession"));
+        
+            // If logged in, set profile and cart link
+            if (session && session.loggedIn) {
+                document.getElementById("profile-link").href = "/profile";
+                document.getElementById("login-link").textContent = session.name;
+                document.getElementById("cart-link").href = "/cart"; // Allow access to cart
+            } else {
+                document.getElementById("cart-link").addEventListener("click", function(event) {
+                    event.preventDefault(); // Prevent default navigation
+                    window.location.href = "/login"; // Redirect to login
+                });
+            }
+        });
+        </script>
 </body>  
 </html>  

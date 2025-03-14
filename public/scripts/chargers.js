@@ -25,7 +25,7 @@ function displayChargers(filteredChargers) {
                 <li>Wattage: ${charger.wattage}W</li>  
                 <li>Output Current: ${charger.outputCurrent}</li>  
                 </ul>
-                <button style="background-color:green ;color:white;padding:5px 5px 5px 5px;border:none">Add to Cart</button>
+                <button style="background-color:green ;color:white;padding:10px 10px 10px 10px;border:none; width:20%; border-radius:5px;margin-top:5px">Add to Cart</button>
                 
             </div>
             </div>  

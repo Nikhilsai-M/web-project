@@ -32,6 +32,7 @@ function displayChargers(filteredChargers) {
     filteredChargers.forEach(charger => {
         const discountPrice = (charger.originalPrice - (charger.originalPrice * parseFloat(charger.discount) / 100)).toFixed(2);
         const productHTML = `
+            <a href="/charger/${charger.id}" class="product-link"> 
             <div class="product" data-id="${charger.id}">
                 <img src="${charger.image}" alt="${charger.title}">
                 <div class="product1">
@@ -44,6 +45,7 @@ function displayChargers(filteredChargers) {
                         <li>Wattage: ${charger.wattage}W</li>
                         <li>Output Current: ${charger.outputCurrent}</li>
                     </ul>
+                    </a>
                     <button class="add-to-cart-btn" style="background-color:green ;color:white;padding:10px 10px 10px 10px;border:none; width:20%; border-radius:5px;margin-top:5px">Add to Cart</button>
                 </div>
             </div>
@@ -112,7 +114,7 @@ function addToCart(charger) {
             wattage: charger.wattage,
             outputCurrent: charger.outputCurrent,
             image: charger.image,
-            originalPrice: charger.originalPrice,
+            price: charger.originalPrice,
             discount: parseFloat(charger.discount), // Convert to number here
             quantity: 1
         });

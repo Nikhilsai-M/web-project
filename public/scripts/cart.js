@@ -76,7 +76,7 @@ function displayCartItems(cart) {
         if (isPhone) {
             discountedPrice = calculateDiscountedPrice(item.price, item.discount);
         } else if (isCharger || isEarphone || isMouse || isSmartwatch ) {
-            discountedPrice = calculateDiscountedPrice(item.originalPrice, item.discount);
+            discountedPrice = calculateDiscountedPrice(item.price, item.discount);
         }else if(isLaptop){
             discountedPrice = calculateDiscountedPrice(item.price, item.discount);
         }
@@ -127,9 +127,9 @@ function displayCartItems(cart) {
             // Display earphone item
             cartItemsContainer.innerHTML += `
                 <div class="cart-item" data-id="${item.id}">
-                    <img src="${item.image}" alt="${item.brand} ${item.model}">
+                    <img src="${item.image}" alt="${item.brand}">
                     <div class="item-details">
-                        <h3>${item.brand}</h3>
+                        <h3>${item.title}</h3>
                         <p>Design: ${item.design}</p>
                         <p>Battery Life: ${item.batteryLife}</p>
                     </div>
@@ -146,9 +146,9 @@ function displayCartItems(cart) {
             // Display smartwatch item
             cartItemsContainer.innerHTML += `
                 <div class="cart-item" data-id="${item.id}">
-                    <img src="${item.image}" alt="${item.brand} ${item.model}">
+                    <img src="${item.image}" alt="${item.brand}">
                     <div class="item-details">
-                        <h3>${item.brand}</h3>
+                        <h3>${item.title}</h3>
                         <p>Display Size: ${item.displaySize}</p>
                         <p>Display Type: ${item.displayType}</p>
                         <p>Battery Runtime: ${item.batteryRuntime}</p>
@@ -166,9 +166,9 @@ function displayCartItems(cart) {
             // Display mouse item
             cartItemsContainer.innerHTML += `
                 <div class="cart-item" data-id="${item.id}">
-                    <img src="${item.image}" alt="${item.brand} ${item.model}">
+                    <img src="${item.image}" alt="${item.brand}">
                     <div class="item-details">
-                        <h3>${item.brand}</h3>
+                        <h3>${item.title}</h3>
                         <p>Resolution: ${item.resolution}</p>
                         <p>Connectivity: ${item.connectivity}</p>
                         <p>Type: ${item.type}</p>
@@ -339,7 +339,7 @@ function updateCartSummary(cart) {
         if (isPhone) {
             itemPrice = calculateDiscountedPrice(item.price, item.discount);
         } else if (isCharger || isEarphone || isSmartwatch || isMouse ) {
-            itemPrice = calculateDiscountedPrice(item.originalPrice, item.discount);
+            itemPrice = calculateDiscountedPrice(item.price, item.discount);
         }else if(isLaptop){
             itemPrice = calculateDiscountedPrice(item.price, item.discount);
         }

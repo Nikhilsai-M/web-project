@@ -34,6 +34,7 @@ function displayMouses(filteredMouses) {
     filteredMouses.forEach(mouse => {  
         const discountPrice = (mouse.originalPrice - (mouse.originalPrice * parseFloat(mouse.discount) / 100)).toFixed(2);  
         const productHTML = `  
+            <a href="/mouse/${mouse.id}" class="product-link"> 
             <div class="product" data-id="${mouse.id}">  
                 <img src="${mouse.image}" alt="${mouse.title}">
                 <div class="product1">
@@ -47,6 +48,7 @@ function displayMouses(filteredMouses) {
                         <li>Type: ${mouse.type}</li>
                         <li>Resolution: ${mouse.resolution} DPI</li>
                     </ul>
+                    </a>
                     <button class="add-to-cart-btn" style="background-color:green; color:white; padding:10px 10px 10px 10px; border:none; width:20%; border-radius:5px; margin-top:5px">Add to Cart</button>
                 </div>
             </div>  
@@ -116,7 +118,7 @@ function addToCart(mouse) {
             type: mouse.type,
             resolution: mouse.resolution,
             image: mouse.image,
-            originalPrice: mouse.originalPrice,
+            price: mouse.originalPrice,
             discount: parseFloat(mouse.discount), // Convert to number to avoid NaN issues
             quantity: 1
         });

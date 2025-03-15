@@ -33,7 +33,8 @@ function displayEarphones(filteredEarphones) {
     
     filteredEarphones.forEach(earphone => {  
         const discountPrice = (earphone.originalPrice - (earphone.originalPrice * parseFloat(earphone.discount) / 100)).toFixed(2);  
-        const productHTML = `  
+        const productHTML = ` 
+            <a href="/earphone/${earphone.id}" class="product-link"> 
             <div class="product" data-id="${earphone.id}">  
                 <img src="${earphone.image}" alt="${earphone.title}"> 
                 <div class="product1"> 
@@ -46,6 +47,7 @@ function displayEarphones(filteredEarphones) {
                 <li>Battery Life: ${earphone.batteryLife} hours</li>  
                 <li>Design: ${earphone.design}</li>  
                 </ul>
+                </a>
                 <button class="add-to-cart-btn" style="background-color:green ;color:white;padding:10px 10px 10px 10px;border:none; width:20%; border-radius:5px;margin-top:5px">Add to Cart</button>
                 </div>
             </div>  
@@ -114,7 +116,7 @@ function addToCart(earphone) {
             batteryLife: earphone.batteryLife,
             design: earphone.design,
             image: earphone.image,
-            originalPrice: earphone.originalPrice,
+            price: earphone.originalPrice,
             discount: parseFloat(earphone.discount), // Convert to number to avoid NaN issues
             quantity: 1
         });

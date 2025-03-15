@@ -55,6 +55,17 @@ body {
     height: 30vh;
     margin-right: 3vw;
 }
+.product-image {
+    flex: 0 0 30%;
+    margin-right: 20px;
+}
+
+.product-image img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: contain;
+}
 .product h3 {
     margin: 0 0 5px 0;
     font-size: 18px;
@@ -83,6 +94,16 @@ body {
     color: #B12704;
     font-size: 18px;
     font-weight: bold;
+}
+
+.product-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+.product-container {
+    display: flex;
+    align-items: flex-start;
 }
 
 .discount{

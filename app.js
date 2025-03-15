@@ -114,6 +114,13 @@ app.get('/cart', (req, res) => {
     res.render("cart");
 });
 
+app.get('/profile', (req, res) => {
+    res.render("user-profile");
+});
+app.get('/orders', (req, res) => {
+    res.render("orders");
+});
+
 // User type selection page
 app.get('/login', (req, res) => {
     res.render("login-interfaces");

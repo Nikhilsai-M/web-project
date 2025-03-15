@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | Your eCommerce Store</title>
+    <link rel="stylesheet" href="/styles/orders.css">
+</head>
+<body>
+    
+        <%- include('partials/header') %>
+    
+    <main class="orders-container">
+        <h1>My Orders</h1>
+        
+        <div class="orders-tabs">
+            <button class="tab-button active" data-tab="all-orders">All Orders</button>
+            <button class="tab-button" data-tab="active-orders">Active</button>
+            <button class="tab-button" data-tab="completed-orders">Completed</button>
+            <button class="tab-button" data-tab="cancelled-orders">Cancelled</button>
+            <button class="tab-button" data-tab="my-listings">My Listings</button>
+        </div>
+        
+        <div class="tab-content active" id="all-orders">
+            <!-- Orders List -->
+            <div class="orders-list">
+                <!-- Order Card -->
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <span class="order-id">Order #ORD12345</span>
+                            <span class="order-date">March 10, 2025</span>
+                        </div>
+                        <div class="order-status delivered">Delivered</div>
+                    </div>
+                    
+                    <div class="order-items">
+                        <div class="order-item">
+                            <img src="/images/buy-page-phones/i-14.webp" alt="iPhone 14">
+                            <div class="item-details">
+                                <h3>iPhone 14 Pro - 128GB</h3>
+                                <p class="item-price">₹10000</p>
+                                <p class="item-specs">Black | Like New</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-footer">
+                        <div class="order-total">
+                            <span>Total:</span>
+                            <span class="total-amount">₹10000</span>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn-primary">Track Order</button>
+                            <button class="btn-secondary">View Details</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Card -->
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <span class="order-id">Order #ORD12346</span>
+                            <span class="order-date">March 5, 2025</span>
+                        </div>
+                        <div class="order-status shipped">Shipped</div>
+                    </div>
+                    
+                    <div class="order-items">
+                        <div class="order-item">
+                            <img src="/images/buy-laptops/macbook-air-m3.webp" alt="MacBook Air">
+                            <div class="item-details">
+                                <h3>MacBook Air M3 - 512GB</h3>
+                                <p class="item-price">₹100000</p>
+                                <p class="item-specs">Silver | New</p>
+                            </div>
+                        </div>
+                        <div class="order-item">
+                            <img src="/images/accessories/earphones/boat_235.webp" alt="boat">
+                            <div class="item-details">
+                                <h3>Boat 235</h3>
+                                <p class="item-price">₹1000</p>
+                                <p class="item-specs">Space Gray</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-footer">
+                        <div class="order-total">
+                            <span>Total:</span>
+                            <span class="total-amount">₹101000</span>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn-primary">Track Order</button>
+                            <button class="btn-secondary">View Details</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- My Selling Order Card -->
+                <div class="order-card selling-order">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <span class="order-id">Listing #LST7890</span>
+                            <span class="order-date">February 28, 2025</span>
+                        </div>
+                        <div class="order-status pending">Verification Pending</div>
+                    </div>
+                    
+                    <div class="order-items">
+                        <div class="order-item">
+                            <img src="/images/buy-page-phones/galaxy zflip5.webp" alt="Samsung Galaxy">
+                            <div class="item-details">
+                                <h3>Samsung Galaxy Zflip - 256GB</h3>
+                                <p class="item-price">₹65000 (Selling Price)</p>
+                                <p class="item-specs">Blue | Good Condition</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-footer">
+                        <div class="listing-status">
+                            <span>Status:</span>
+                            <span class="status-detail">Awaiting supervisor verification</span>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn-secondary">Edit Listing</button>
+                            <button class="btn-danger">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pagination">
+                <button class="page-btn prev-btn" disabled>Previous</button>
+                <div class="page-numbers">
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                </div>
+                <button class="page-btn next-btn">Next</button>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="my-listings">
+            <!-- My Listings content would be similar but focused on items being sold -->
+            <div class="empty-state">
+                <img src="/images/empty-listings.png" alt="No listings">
+                <h2>No Active Listings</h2>
+                <p>You haven't listed any items for sale yet.</p>
+                <button class="btn-primary">Sell an Item</button>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <%- include('partials/footer') %>
+    </footer>
+
+    <script src="orders.js"></script>
+</body>
+</html>

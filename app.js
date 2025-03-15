@@ -3,6 +3,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import session from 'express-session'; // You'll need to install this: npm install express-session
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -20,6 +21,39 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({extended: true}));
 
+// Add session middleware
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set to true if using HTTPS
+}));
+
+// Middleware to make user data available to all views
+app.use((req, res, next) => {
+    res.locals.user = req.session.user || null;
+    next();
+});
+
+// Middleware for protected supervisor routes
+function requireSupervisorAuth(req, res, next) {
+    if (req.session.user && req.session.user.role === 'supervisor') {
+        next();
+    } else {
+        res.redirect('/supervisor/login');
+    }
+}
+
+// Middleware for protected admin routes
+function requireAdminAuth(req, res, next) {
+    if (req.session.user && req.session.user.role === 'admin') {
+        next();
+    } else {
+        res.redirect('/admin/login');
+    }
+}
+
+// Your existing routes
 app.get('/', (req, res) => {
     res.render("homepage");
 });
@@ -80,7 +114,13 @@ app.get('/cart', (req, res) => {
     res.render("cart");
 });
 
+// User type selection page
 app.get('/login', (req, res) => {
+    res.render("login-interfaces");
+});
+
+// Customer login routes
+app.get('/customerlogin', (req, res) => {
     res.render("login");
 });
 
@@ -88,7 +128,107 @@ app.get('/signup', (req, res) => {
     res.render("signup");
 });
 
-// New route for product details
+// Supervisor routes
+app.get('/supervisor/login', (req, res) => {
+    res.render("supervisor/supervisor-login", { error: null });
+});
+
+app.get('/supervisor/home', requireSupervisorAuth, (req, res) => {
+    res.render("supervisor/home", { user: req.session.user });
+});
+
+// Supervisor API endpoints
+app.post('/api/supervisor/login', (req, res) => {
+    const { employee_id, password } = req.body;
+    
+    // Your test credentials (should be in a database in production)
+    const testCredentials = [
+        { employeeId: 'sv1', password: 'sv@123', name: 'test1' },
+        { employeeId: 'sv2', password: 'sv@456', name: 'test2' },
+    ];
+    
+    const user = testCredentials.find(cred => 
+        cred.employeeId === employee_id && cred.password === password
+    );
+    
+    if (user) {
+        // Set user in session
+        req.session.user = {
+            employeeId: user.employeeId,
+            name: user.name,
+            role: 'supervisor'
+        };
+        
+        return res.json({ success: true, name: user.name });
+    } else {
+        return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+});
+
+app.get('/api/supervisor/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/supervisor/login');
+});
+
+// Admin routes
+app.get('/admin/login', (req, res) => {
+    res.render("admin/admin-login", { error: null });
+});
+
+app.get('/admin/home', requireAdminAuth, (req, res) => {
+    res.render("admin/home", { user: req.session.user });
+});
+
+// Admin API endpoints
+// Admin API endpoints
+app.post('/api/admin/login', (req, res) => {
+    const { admin_id, password, security_token } = req.body;
+    
+    // Admin test credentials
+    const adminCredentials = [
+        { 
+            adminId: 'ADMIN001', 
+            password: 'Admin@123', 
+            securityToken: 'TOKEN001',
+            name: 'admin1'
+        },
+        { 
+            adminId: 'ADMIN002', 
+            password: 'Admin@456', 
+            securityToken: 'TOKEN002',
+            name: 'admin2'
+        },
+    ];
+    
+    const admin = adminCredentials.find(cred => 
+        cred.adminId === admin_id && 
+        cred.password === password && 
+        cred.securityToken === security_token
+    );
+    
+    if (admin) {
+        req.session.user = {
+            adminId: admin.adminId,
+            name: admin.name,
+            role: 'admin',
+            loginTime: new Date().toISOString()
+        };
+        
+        return res.json({ success: true, name: admin.name });
+    } else {
+        // Log failed login attempt (in a real app)
+        console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
+        
+        return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
+    }
+});
+
+app.get('/api/admin/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/admin/login');
+});
+
+// Product routes
 app.get('/product/:id', (req, res) => {
     const productId = parseInt(req.params.id);
     const product = mobileModels.find(p => p.id === productId);
@@ -100,7 +240,6 @@ app.get('/product/:id', (req, res) => {
     res.render('product-details', { product });
 });
 
-//API route to get product details
 app.get('/api/product/:id', (req, res) => {
     const productId = parseInt(req.params.id);
     const product = mobileModels.find(p => p.id === productId);
@@ -135,7 +274,6 @@ app.get('/laptop/:id', (req, res) => {
     res.render('laptop-details', { laptop });
 });
 
-// API endpoint for laptop details
 app.get('/api/laptop/:id', (req, res) => {
     const laptopId = req.params.id;
     

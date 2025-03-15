@@ -20,6 +20,7 @@
   "homepage": "https://github.com/Nikhilsai-M/web-project#readme",
   "dependencies": {
     "ejs": "^3.1.10",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "express-session": "^1.18.1"
   }
 }

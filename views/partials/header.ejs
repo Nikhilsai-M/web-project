@@ -52,8 +52,15 @@
  
 
     <!-- Navigation Menu -->
-    <div class="navbar">
-        <div class="nav-item">All
+<div class="navbar">
+    <div class="brand-text">Smart Exchange</div>
+    <div class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="nav-menu">
+        <div class="nav-item all-item">All
             <div class="dropdown">
                 <a class="all-dropdown" href="/sell-phone">Sell phone</a>
                 <a class="all-dropdown" href="/sell-laptop">Sell laptop</a>
@@ -62,7 +69,7 @@
                 <a class="all-dropdown" href="/Accessories">Accessories</a>
             </div>
         </div>
-        <div class="nav-item" > <a href="/sell-phone" class="text-decoration">Sell Phone </a>
+        <div class="nav-item"><a href="/sell-phone" class="text-decoration">Sell Phone</a>
             <div class="dropdown">
                 <a  class="dropdown-heading">Top Selling brands</a>
                 <a class="top-sell-phone-dropdown">Apple</a>
@@ -74,7 +81,7 @@
                 <a class="top-sell-phone-dropdown">Google</a>
             </div>
         </div>
-        <div class="nav-item"> <a href="/sell-laptop" class="text-decoration">Sell Laptops</a>
+        <div class="nav-item"><a href="/sell-laptop" class="text-decoration">Sell Laptops</a>
             <div class="dropdown">
                 <a  class="dropdown-heading">Top Selling brands</a>
                 <a class="top-sell-laptop-dropdown">Apple</a>
@@ -86,9 +93,8 @@
                 <a class="top-sell-laptop-dropdown">MSI</a>
                 <a class="top-sell-laptop-dropdown">Lenovo</a>
             </div>
-            
         </div>
-        <div class="nav-item"> <a href="/buy-phone" class="text-decoration">Buy Phones</a>
+        <div class="nav-item"><a href="/buy-phone" class="text-decoration">Buy Phones</a>
             <div class="dropdown">
                 <a  class="dropdown-heading">Top brands</a>
                 <a class="top-buy-phone-dropdown">Apple</a>
@@ -114,7 +120,7 @@
                 <a class="top-buy-laptop-dropdown">Lenovo</a>
             </div>
         </div>
-        <div class="nav-item"> <a href="/Accessories" class="text-decoration">Accessories</a>
+        <div class="nav-item"><a href="/Accessories" class="text-decoration">Accessories</a>
             <div class="dropdown">
                 <a class="dropdown-heading">Categories</a>
                 <a href="/smartwatches">Smart Watches</a>
@@ -122,26 +128,37 @@
                 <a href="/chargers">Chargers</a>
                 <a href="/mouses">Mouses</a>
             </div>
-        </div>  
+        </div>
     </div>
+</div>
 
     <script src="scripts/index.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const session = JSON.parse(localStorage.getItem("currentSession"));
+            const hamburger = document.querySelector(".hamburger");
+            const navMenu = document.querySelector(".nav-menu");
         
-            // If logged in, set profile and cart link
+            hamburger.addEventListener("click", () => {
+                navMenu.classList.toggle("active");
+                
+                // Hamburger animation
+                hamburger.classList.toggle("active");
+            });
+        
+            // Session handling
+            const session = JSON.parse(localStorage.getItem("currentSession"));
             if (session && session.loggedIn) {
                 document.getElementById("profile-link").href = "/profile";
                 document.getElementById("login-link").textContent = session.name;
-                document.getElementById("cart-link").href = "/cart"; // Allow access to cart
+                document.getElementById("cart-link").href = "/cart";
             } else {
                 document.getElementById("cart-link").addEventListener("click", function(event) {
-                    event.preventDefault(); // Prevent default navigation
-                    window.location.href = "/login"; // Redirect to login
+                    event.preventDefault();
+                    window.location.href = "/login";
                 });
             }
         });
         </script>
+        
 </body>  
 </html>  

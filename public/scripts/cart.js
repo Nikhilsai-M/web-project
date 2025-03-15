@@ -76,7 +76,7 @@ function displayCartItems(cart) {
         if (isPhone) {
             discountedPrice = calculateDiscountedPrice(item.price, item.discount);
         } else if (isCharger || isEarphone || isMouse || isSmartwatch ) {
-            discountedPrice = calculateDiscountedPrice(item.originalPrice, item.discount);
+            discountedPrice = calculateDiscountedPrice(item.price, item.discount);
         }else if(isLaptop){
             discountedPrice = calculateDiscountedPrice(item.price, item.discount);
         }
@@ -339,7 +339,7 @@ function updateCartSummary(cart) {
         if (isPhone) {
             itemPrice = calculateDiscountedPrice(item.price, item.discount);
         } else if (isCharger || isEarphone || isSmartwatch || isMouse ) {
-            itemPrice = calculateDiscountedPrice(item.originalPrice, item.discount);
+            itemPrice = calculateDiscountedPrice(item.price, item.discount);
         }else if(isLaptop){
             itemPrice = calculateDiscountedPrice(item.price, item.discount);
         }

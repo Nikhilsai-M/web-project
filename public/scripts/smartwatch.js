@@ -30,25 +30,30 @@ function displayWatches(filteredWatches) {
         return;
     }
      
-    filteredWatches.forEach(watch => {  
-        const discountPrice = (watch.originalPrice - (watch.originalPrice * parseFloat(watch.discount) / 100)).toFixed(2);  
-        const productHTML = `  
-            <div class="product" data-id="${watch.id}">  
-                <img src="${watch.image}" alt="${watch.title}">
+    filteredWatches.forEach(smartwatch => {  
+        const discountPrice = (smartwatch.originalPrice - (smartwatch.originalPrice * parseFloat(smartwatch.discount) / 100)).toFixed(2);  
+        const productHTML = ` 
+            <a href="/smartwatch/${smartwatch.id}" class="product-link">  
+            
+            <div class="product" data-id="${smartwatch.id}">  
+                <img src="${smartwatch.image}" alt="${smartwatch.title}">
+            
                 <div class="product1">
-                    <h3>${watch.title}</h3>
+                    <h3>${smartwatch.title}</h3>
                     <p class="discounted-price">₹${discountPrice}</p>
-                    <span class="original-price">₹${watch.originalPrice}</span><br>
-                    <span class="discount">${watch.discount} Off</span>
+                    <span class="original-price">₹${smartwatch.originalPrice}</span><br>
+                    <span class="discount">${smartwatch.discount} Off</span>
                     <ul>
-                        <li>Brand: ${watch.brand}</li>
-                        <li>Display Type: ${watch.displayType}</li>
-                        <li>Display Size: ${watch.displaySize}mm</li>
-                        <li>Battery Runtime: ${watch.batteryRuntime} days</li>
+                        <li>Brand: ${smartwatch.brand}</li>
+                        <li>Display Type: ${smartwatch.displayType}</li>
+                        <li>Display Size: ${smartwatch.displaySize}mm</li>
+                        <li>Battery Runtime: ${smartwatch.batteryRuntime} days</li>
                     </ul>
+                    </a>
                     <button class="add-to-cart-btn" style="background-color:green; color:white; padding:10px 10px 10px 10px; border:none; width:20%; border-radius:5px; margin-top:5px">Add to Cart</button>
                 </div>
             </div>  
+            
         `;  
         productList.innerHTML += productHTML;  
     });
@@ -58,10 +63,10 @@ function displayWatches(filteredWatches) {
         button.addEventListener("click", function(e) {
             const productDiv = e.target.closest(".product");
             const productId = productDiv.dataset.id;
-            const watch = filteredWatches.find(p => p.id == productId);
+            const smartwatch = filteredWatches.find(p => p.id == productId);
             
-            if (watch) {
-                addToCart(watch);
+            if (smartwatch) {
+                addToCart(smartwatch);
             }
         });
     });
@@ -86,7 +91,7 @@ function showAddedToCartMessage(productName) {
 }
 
 // Function to add a product to cart
-function addToCart(watch) {
+function addToCart(smartwatch) {
     // Check if user is logged in
     const session = JSON.parse(localStorage.getItem("currentSession"));
     
@@ -102,28 +107,28 @@ function addToCart(watch) {
     let cart = JSON.parse(localStorage.getItem(userCartKey)) || [];
 
     // Check if product already exists in cart
-    const existingProductIndex = cart.findIndex(item => item.id === watch.id);
+    const existingProductIndex = cart.findIndex(item => item.id === smartwatch.id);
     
     if (existingProductIndex !== -1) {
         cart[existingProductIndex].quantity += 1;
     } else {
         cart.push({
-            id: watch.id,
-            title: watch.title,
-            brand: watch.brand,
-            displayType: watch.displayType,
-            displaySize: watch.displaySize,
-            batteryRuntime: watch.batteryRuntime,
-            image: watch.image,
-            originalPrice: watch.originalPrice,
-            discount: parseFloat(watch.discount), // Convert to number to avoid NaN issues
+            id: smartwatch.id,
+            title: smartwatch.title,
+            brand: smartwatch.brand,
+            displayType: smartwatch.displayType,
+            displaySize: smartwatch.displaySize,
+            batteryRuntime: smartwatch.batteryRuntime,
+            image: smartwatch.image,
+            price: smartwatch.originalPrice,
+            discount: parseFloat(smartwatch.discount), // Convert to number to avoid NaN issues
             quantity: 1
         });
     }
 
     localStorage.setItem(userCartKey, JSON.stringify(cart)); // Store cart for specific user
     updateCartCount(cart);
-    showAddedToCartMessage(watch.title);
+    showAddedToCartMessage(smartwatch.title);
 }
 
 // Function to filter smartwatches
@@ -134,16 +139,16 @@ function filterWatches() {
     const checkedcon = Array.from(document.querySelectorAll('.displaytype-filter:checked')).map(checkbox => checkbox.value);
     const checkedDiscounts = Array.from(document.querySelectorAll('.discount-filter:checked')).map(checkbox => parseInt(checkbox.value));
     
-    const filteredWatches = smartwatches.filter(watch => {
-        const matchesBrand = checkedBrands.length === 0 || checkedBrands.includes(watch.brand);
-        const matchedbattery = parseInt(watch.batteryRuntime);
+    const filteredWatches = smartwatches.filter(smartwatch => {
+        const matchesBrand = checkedBrands.length === 0 || checkedBrands.includes(smartwatch.brand);
+        const matchedbattery = parseInt(smartwatch.batteryRuntime);
         const matchesres = checkedres.length === 0 || checkedres.some(e => matchedbattery >= e);
         
-        const matchedSize = parseInt(watch.displaySize);
+        const matchedSize = parseInt(smartwatch.displaySize);
         const matchesSize = checkedtype.length === 0 || checkedtype.some(f => matchedSize >= f);
         
-        const matchescon = checkedcon.length === 0 || checkedcon.includes(watch.displayType);
-        const discountValue = parseInt(watch.discount);
+        const matchescon = checkedcon.length === 0 || checkedcon.includes(smartwatch.displayType);
+        const discountValue = parseInt(smartwatch.discount);
         const matchesDiscount = checkedDiscounts.length === 0 || checkedDiscounts.some(d => discountValue >= d);
         
         return matchesBrand && matchesres && matchesSize && matchescon && matchesDiscount;

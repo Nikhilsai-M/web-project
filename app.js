@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 // Import data using ES modules
 import { mobileModels } from './public/scripts/buy-mobile-data.js';
 import laptopModels from './public/scripts/buy-laptop-data.js';
-
+import { accessoriesData } from './public/scripts/accessories-data.js';  
 const app = express();
 const port = 3000;
 
@@ -155,6 +155,98 @@ app.get('/api/laptop/:id', (req, res) => {
     res.json(laptop);
 });
 
+app.get('/earphone/:id', (req, res) => {
+    const earphoneId = req.params.id;
+    const earphone = accessoriesData.earphones.find(e => e.id === earphoneId);
+    
+    if (!earphone) {
+        return res.status(404).render('404', { message: 'Product not found' });
+    }
+    
+    res.render('earphones-details', { earphone });
+});
+
+//API route to get product details
+app.get('/api/earphone/:id', (req, res) => {
+    const earphoneId = req.params.id;
+    const earphone = accessoriesData.earphones.find(p => p.id === earphoneId);
+    
+    if (!earphone) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    res.json(earphone);
+});
+
+
+app.get('/charger/:id', (req, res) => {
+    const chargerId = req.params.id;
+    const charger = accessoriesData.chargers.find(e => e.id === chargerId);
+    
+    if (!charger) {
+        return res.status(404).render('404', { message: 'Product not found' });
+    }
+    
+    res.render('charger-details', { charger });
+});
+
+//API route to get product details
+app.get('/api/charger/:id', (req, res) => {
+    const chargerId = req.params.id;
+    const charger = accessoriesData.chargers.find(p => p.id === chargerId);
+    
+    if (!charger) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    res.json(charger);
+});
+
+app.get('/mouse/:id', (req, res) => {
+    const mouseId = req.params.id;
+    const mouse = accessoriesData.mouses.find(e => e.id === mouseId);
+    
+    if (!mouse) {
+        return res.status(404).render('404', { message: 'Product not found' });
+    }
+    
+    res.render('mouse-details', { mouse });
+});
+
+//API route to get product details
+app.get('/api/mouse/:id', (req, res) => {
+    const mouseId = req.params.id;
+    const mouse = accessoriesData.mouses.find(p => p.id === mouseId);
+    
+    if (!mouse) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    res.json(mouse);
+});
+
+app.get('/smartwatch/:id', (req, res) => {
+    const smartwatchId = req.params.id;
+    const smartwatch = accessoriesData.smartwatches.find(e => e.id === smartwatchId);
+    
+    if (!smartwatch) {
+        return res.status(404).render('404', { message: 'Product not found' });
+    }
+    
+    res.render('smartwatch-details', { smartwatch });
+});
+
+//API route to get product details
+app.get('/api/smartwatch/:id', (req, res) => {
+    const smartwatchId = req.params.id;
+    const smartwatch = accessoriesData.smartwatches.find(p => p.id === smartwatchId);
+    
+    if (!smartwatch) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    res.json(smartwatch);
+});
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

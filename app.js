@@ -134,6 +134,15 @@ app.get('/customerlogin', (req, res) => {
 app.get('/signup', (req, res) => {
     res.render("signup");
 });
+app.get('/blog', (req, res) => {
+    res.render("blog");
+});
+app.get('/contact_us', (req, res) => {
+    res.render("contact_us");
+});
+app.get('/about_us', (req, res) => {
+    res.render("about_us");
+});
 
 // Supervisor routes
 app.get('/supervisor/login', (req, res) => {

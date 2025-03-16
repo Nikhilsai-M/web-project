@@ -108,7 +108,7 @@ function buyNow(mouseId) {
     addToCart(mouseId);
 
     setTimeout(() => {
-        window.location.href = "/checkout";
+        window.location.href = "/orders";
     }, 500);
 }
 

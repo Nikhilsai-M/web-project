@@ -1,17 +1,6 @@
 
 document.addEventListener("DOMContentLoaded", function() {
     // Check if user is logged in
-    const session = JSON.parse(localStorage.getItem("currentSession"));
-
-    if (!session || !session.loggedIn) {
-        // If user is not logged in, we'll handle this in the addToCart function
-    } else {
-        // User is logged in, initialize cart count
-        let userId = session.userId;
-        let userCartKey = `cart_${userId}`;
-        const cart = JSON.parse(localStorage.getItem(userCartKey)) || [];
-        updateCartCount(cart);
-    }
 
     // Add to Cart button event listener
     const addToCartBtn = document.getElementById("add-to-cart");
@@ -76,9 +65,6 @@ function addToCart(productId) {
                 // Save updated cart to localStorage
                 localStorage.setItem(userCartKey, JSON.stringify(cart));
                 
-                // Update cart count in header
-                updateCartCount(cart);
-                
                 // Show success message
                 showAddedToCartMessage(`${product.brand} ${product.model}`);
             }
@@ -86,10 +72,7 @@ function addToCart(productId) {
         .catch(error => {
             console.error("Error fetching product details:", error);
             // Fallback: Get product details from the page
-            const productTitle = document.querySelector(".product-title").textContent;
-            const productImage = document.querySelector(".product-image img").src;
-            const productPrice = parseFloat(document.querySelector(".discounted-price").textContent.replace("₹", "").replace(",", ""));
-            
+            const productTitle = document.querySelector(".product-title").textContent;         
             showAddedToCartMessage(productTitle);
         });
 }
@@ -105,24 +88,13 @@ function buyNow(productId) {
         return;
     }
 
-    // Add product to cart first
-    addToCart(productId);
     
-    // Then redirect to checkout page
     setTimeout(() => {
-        window.location.href = "/checkout";
+        window.location.href = "/orders";
     }, 500);
 }
 
-// Function to update cart count in header
-function updateCartCount(cart) {
-    const cartCountElement = document.querySelector(".cart-count");
-    if (cartCountElement) {
-        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-        cartCountElement.textContent = totalItems;
-        cartCountElement.style.display = totalItems > 0 ? "flex" : "none";
-    }
-}
+
 
 // Function to show "Added to Cart" message
 function showAddedToCartMessage(productName) {

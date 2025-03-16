@@ -1,17 +1,5 @@
 // public/scripts/laptop-details.js
 document.addEventListener("DOMContentLoaded", function() {
-    // Check if user is logged in
-    const session = JSON.parse(localStorage.getItem("currentSession"));
-
-    if (!session || !session.loggedIn) {
-        // If user is not logged in, we'll handle this in the addToCart function
-    } else {
-        // User is logged in, initialize cart count
-        let userId = session.userId;
-        let userCartKey = `cart_${userId}`;
-        const cart = JSON.parse(localStorage.getItem(userCartKey)) || [];
-        updateCartCount(cart);
-    }
 
     // Add to Cart button event listener
     const addToCartBtn = document.getElementById("add-to-cart");
@@ -78,10 +66,7 @@ function addToCart(laptopId) {
                 
                 // Save updated cart to localStorage
                 localStorage.setItem(userCartKey, JSON.stringify(cart));
-                
-                // Update cart count in header
-                updateCartCount(cart);
-                
+       
                 // Show success message
                 showAddedToCartMessage(`${laptop.brand} ${laptop.series}`);
             }
@@ -90,9 +75,7 @@ function addToCart(laptopId) {
             console.error("Error fetching laptop details:", error);
             // Fallback: Get laptop details from the page
             const laptopTitle = document.querySelector(".product-title").textContent;
-            const laptopImage = document.querySelector(".product-image img").src;
-            const laptopPrice = parseFloat(document.querySelector(".discounted-price").textContent.replace("₹", "").replace(",", ""));
-            
+                   
             showAddedToCartMessage(laptopTitle);
         });
 }
@@ -108,24 +91,11 @@ function buyNow(laptopId) {
         return;
     }
 
-    // Add laptop to cart first
-    addToCart(laptopId);
-    
-    // Then redirect to checkout page
     setTimeout(() => {
         window.location.href = "/checkout";
     }, 500);
 }
 
-// Function to update cart count in header
-function updateCartCount(cart) {
-    const cartCountElement = document.querySelector(".cart-count");
-    if (cartCountElement) {
-        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-        cartCountElement.textContent = totalItems;
-        cartCountElement.style.display = totalItems > 0 ? "flex" : "none";
-    }
-}
 
 // Function to show "Added to Cart" message
 function showAddedToCartMessage(productName) {

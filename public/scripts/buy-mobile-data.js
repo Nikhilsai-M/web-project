@@ -17,8 +17,8 @@ const ordered_mobilePhones = [
         },
         ram: "12GB",
         rom: "256GB",
-        price: 18399,
-        discount: 15, // 15% off
+        price: 27999,
+        discount: 50,
         condition: "Good" // Condition added
         },
         
@@ -235,8 +235,8 @@ const ordered_mobilePhones = [
            },
             ram: "8GB",
             rom: "128GB",
-            price: 33999,
-            discount: 55, // 15% off
+            price: 59999,
+            discount: 53, // 15% off
             condition: "Superb" // Condition added
         },
         
@@ -687,7 +687,7 @@ const ordered_mobilePhones = [
             },
             ram: "4GB",
             rom: "64GB",
-            price: 48999,
+            price: 35999,
             discount: 8, 
             condition: "very Good" // Condition added
         }
@@ -963,7 +963,7 @@ const ordered_mobilePhones = [
         ram: "8GB",
         rom: "128GB",
         price: 34990,
-        discount: 29, 
+        discount: 66, 
         condition: "Very Good" 
     },
     {
@@ -1194,7 +1194,7 @@ const ordered_mobilePhones = [
         ram: "8GB",
         rom: "512GB",
         price: 22800,
-        discount: 31, 
+        discount: 10, 
         condition: "Good" 
     },
     {
@@ -2036,6 +2036,27 @@ condition: "Good"
     discount: 12,
     condition: "Superb"
 },    
+{
+    "id": 97,
+        brand: "Apple",
+        model: "iPhone XR (White, 64 GB)",
+        color: "White",
+        image: "images/buy-page-phones/i-xr.webp",
+        specs: {
+            processor: "A12 Bionic Chip Processor",
+            display: "15.49 cm (6.1 inch) Super Retina XDR Display",
+            battery: 2815,
+            camera: "12MP Rear Camera | 7MP Front Camera",
+            os: "iOS 12",
+            network: "4G",
+            weight: "194g"
+        },
+        ram: "4GB",
+        rom: "64GB",
+        price: 14500,
+        discount: 0, 
+        condition: "Good" // Condition added
+    }
 ];
 
 function shuffleArray(array) {

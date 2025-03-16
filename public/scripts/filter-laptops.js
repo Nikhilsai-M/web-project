@@ -129,7 +129,6 @@ function addToCart(product) {
     }
 
     localStorage.setItem(userCartKey, JSON.stringify(cart)); // Store cart for specific user
-    updateCartCount(cart);
     showAddedToCartMessage(`${product.brand} ${product.series}`);
 }
 
@@ -398,28 +397,12 @@ function clearAllFilters() {
     window.history.replaceState(null, "", "/filter-buy-laptop");
 }
 
-// Function to update cart count in the header
-function updateCartCount(cart) {
-    const cartCountElement = document.querySelector(".cart-count");
-    if (cartCountElement) {
-        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-        cartCountElement.textContent = totalItems;
-        cartCountElement.style.display = totalItems > 0 ? "flex" : "none";
-    }
-}
 
 // Load filters and set event listeners when DOM is ready
 document.addEventListener("DOMContentLoaded", function () {
     // Check if user is logged in
     const session = JSON.parse(localStorage.getItem("currentSession"));
     
-    // Initialize cart count on page load
-    if (session && session.loggedIn) {
-        let userId = session.userId;
-        let userCartKey = `cart_${userId}`;
-        const cart = JSON.parse(localStorage.getItem(userCartKey)) || [];
-        updateCartCount(cart);
-    }
 
     // Handle URL parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -446,7 +429,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // If no URL parameters, try to load filters from localStorage
     else {
         // Only reset filters if NOT coming from a page reload
-        if (!performance.navigation || performance.navigation.type !== performance.navigation.TYPE_RELOAD) {
+        if (performance.getEntriesByType("navigation")[0]?.type !== "reload") {
             localStorage.removeItem("selectedLaptopFilters");
         } else {
             loadFiltersFromStorage();
@@ -490,37 +473,3 @@ document.addEventListener("DOMContentLoaded", function () {
     // Apply filters and display products
     filterProducts();
 });
-
-// Add some basic CSS for the cart message
-document.head.insertAdjacentHTML("beforeend", `
-<style>
-.cart-message {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #4CAF50;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    z-index: 1000;
-    animation: slideIn 0.5s ease-out;
-}
-
-.cart-message a {
-    color: white;
-    font-weight: bold;
-    text-decoration: underline;
-}
-
-.cart-message.fade-out {
-    opacity: 0;
-    transition: opacity 0.5s;
-}
-
-@keyframes slideIn {
-    from { transform: translateX(100px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-</style>
-`);

@@ -3,6 +3,9 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import session from 'express-session';
+import bcrypt from 'bcrypt';
+import { initializeDatabase, getDb } from './db.js';
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -11,15 +14,60 @@ const __dirname = dirname(__filename);
 // Import data using ES modules
 import { mobileModels } from './public/scripts/buy-mobile-data.js';
 import laptopModels from './public/scripts/buy-laptop-data.js';
-
+import { accessoriesData } from './public/scripts/accessories-data.js';  
 const app = express();
 const port = 3000;
+
+// Initialize the database when the app starts
+let db;
+(async () => {
+  try {
+    db = await initializeDatabase();
+    console.log('Database initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize database:', error);
+    process.exit(1);
+  }
+})();
 
 app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({extended: true}));
 
+// Add session middleware
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set to true if using HTTPS
+}));
+
+// Middleware to make user data available to all views
+app.use((req, res, next) => {
+    res.locals.user = req.session.user || null;
+    next();
+});
+
+// Middleware for protected supervisor routes
+function requireSupervisorAuth(req, res, next) {
+    if (req.session.user && req.session.user.role === 'supervisor') {
+        next();
+    } else {
+        res.redirect('/supervisor/login');
+    }
+}
+
+// Middleware for protected admin routes
+function requireAdminAuth(req, res, next) {
+    if (req.session.user && req.session.user.role === 'admin') {
+        next();
+    } else {
+        res.redirect('/admin/login');
+    }
+}
+
+// Your existing routes
 app.get('/', (req, res) => {
     res.render("homepage");
 });
@@ -80,7 +128,20 @@ app.get('/cart', (req, res) => {
     res.render("cart");
 });
 
+app.get('/profile', (req, res) => {
+    res.render("user-profile");
+});
+app.get('/orders', (req, res) => {
+    res.render("orders");
+});
+
+// User type selection page
 app.get('/login', (req, res) => {
+    res.render("login-interfaces");
+});
+
+// Customer login routes
+app.get('/customerlogin', (req, res) => {
     res.render("login");
 });
 
@@ -97,7 +158,117 @@ app.get('/about_us', (req, res) => {
     res.render("about_us");
 });
 
-// New route for product details
+// Supervisor routes
+app.get('/supervisor/login', (req, res) => {
+    res.render("supervisor/supervisor-login", { error: null });
+});
+
+app.get('/supervisor/home', requireSupervisorAuth, (req, res) => {
+    res.render("supervisor/home", { user: req.session.user });
+});
+
+// Supervisor API endpoints - Updated to use SQLite
+app.post('/api/supervisor/login', async (req, res) => {
+    const { employee_id, password } = req.body;
+    
+    try {
+        // Get the database connection
+        const db = await getDb();
+        
+        // Find the supervisor
+        const supervisor = await db.get(
+            'SELECT * FROM supervisors WHERE employee_id = ?',
+            [employee_id]
+        );
+        
+        if (!supervisor) {
+            return res.status(401).json({ success: false, message: 'Invalid employee ID or password' });
+        }
+        
+        // Compare passwords
+        const passwordMatch = await bcrypt.compare(password, supervisor.password);
+        
+        if (passwordMatch) {
+            // Set user in session
+            req.session.user = {
+                employeeId: supervisor.employee_id,
+                name: supervisor.name,
+                role: 'supervisor'
+            };
+            
+            return res.json({ success: true, name: supervisor.name });
+        } else {
+            return res.status(401).json({ success: false, message: 'Invalid employee ID or password' });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        return res.status(500).json({ success: false, message: 'Server error during login' });
+    }
+});
+
+app.get('/api/supervisor/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/supervisor/login');
+});
+
+// Admin routes
+app.get('/admin/login', (req, res) => {
+    res.render("admin/admin-login", { error: null });
+});
+
+app.get('/admin/home', requireAdminAuth, (req, res) => {
+    res.render("admin/home", { user: req.session.user });
+});
+
+// Admin API endpoints
+app.post('/api/admin/login', (req, res) => {
+    const { admin_id, password, security_token } = req.body;
+    
+    // Admin test credentials
+    const adminCredentials = [
+        { 
+            adminId: 'ADMIN001', 
+            password: 'Admin@123', 
+            securityToken: 'TOKEN001',
+            name: 'admin1'
+        },
+        { 
+            adminId: 'ADMIN002', 
+            password: 'Admin@456', 
+            securityToken: 'TOKEN002',
+            name: 'admin2'
+        },
+    ];
+    
+    const admin = adminCredentials.find(cred => 
+        cred.adminId === admin_id && 
+        cred.password === password && 
+        cred.securityToken === security_token
+    );
+    
+    if (admin) {
+        req.session.user = {
+            adminId: admin.adminId,
+            name: admin.name,
+            role: 'admin',
+            loginTime: new Date().toISOString()
+        };
+        
+        return res.json({ success: true, name: admin.name });
+    } else {
+        // Log failed login attempt (in a real app)
+        console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
+        
+        return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
+    }
+});
+
+app.get('/api/admin/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/admin/login');
+});
+
+// Product routes
 app.get('/product/:id', (req, res) => {
     const productId = parseInt(req.params.id);
     const product = mobileModels.find(p => p.id === productId);
@@ -109,7 +280,6 @@ app.get('/product/:id', (req, res) => {
     res.render('product-details', { product });
 });
 
-//API route to get product details
 app.get('/api/product/:id', (req, res) => {
     const productId = parseInt(req.params.id);
     const product = mobileModels.find(p => p.id === productId);
@@ -144,7 +314,6 @@ app.get('/laptop/:id', (req, res) => {
     res.render('laptop-details', { laptop });
 });
 
-// API endpoint for laptop details
 app.get('/api/laptop/:id', (req, res) => {
     const laptopId = req.params.id;
     
@@ -162,6 +331,99 @@ app.get('/api/laptop/:id', (req, res) => {
     }
     
     res.json(laptop);
+});
+
+app.get('/earphone/:id', (req, res) => {
+    const earphoneId = req.params.id;
+    const earphone = accessoriesData.earphones.find(e => e.id === earphoneId);
+    
+    if (!earphone) {
+        return res.status(404).render('404', { message: 'Product not found' });
+    }
+    
+    res.render('earphones-details', { earphone });
+});
+
+//API route to get product details
+app.get('/api/earphone/:id', (req, res) => {
+    const earphoneId = req.params.id;
+    const earphone = accessoriesData.earphones.find(p => p.id === earphoneId);
+    
+    if (!earphone) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    res.json(earphone);
+});
+
+
+app.get('/charger/:id', (req, res) => {
+    const chargerId = req.params.id;
+    const charger = accessoriesData.chargers.find(e => e.id === chargerId);
+    
+    if (!charger) {
+        return res.status(404).render('404', { message: 'Product not found' });
+    }
+    
+    res.render('charger-details', { charger });
+});
+
+//API route to get product details
+app.get('/api/charger/:id', (req, res) => {
+    const chargerId = req.params.id;
+    const charger = accessoriesData.chargers.find(p => p.id === chargerId);
+    
+    if (!charger) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    res.json(charger);
+});
+
+app.get('/mouse/:id', (req, res) => {
+    const mouseId = req.params.id;
+    const mouse = accessoriesData.mouses.find(e => e.id === mouseId);
+    
+    if (!mouse) {
+        return res.status(404).render('404', { message: 'Product not found' });
+    }
+    
+    res.render('mouse-details', { mouse });
+});
+
+//API route to get product details
+app.get('/api/mouse/:id', (req, res) => {
+    const mouseId = req.params.id;
+    const mouse = accessoriesData.mouses.find(p => p.id === mouseId);
+    
+    if (!mouse) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    res.json(mouse);
+});
+
+app.get('/smartwatch/:id', (req, res) => {
+    const smartwatchId = req.params.id;
+    const smartwatch = accessoriesData.smartwatches.find(e => e.id === smartwatchId);
+    
+    if (!smartwatch) {
+        return res.status(404).render('404', { message: 'Product not found' });
+    }
+    
+    res.render('smartwatch-details', { smartwatch });
+});
+
+//API route to get product details
+app.get('/api/smartwatch/:id', (req, res) => {
+    const smartwatchId = req.params.id;
+    const smartwatch = accessoriesData.smartwatches.find(p => p.id === smartwatchId);
+    
+    if (!smartwatch) {
+        return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    res.json(smartwatch);
 });
 
 app.listen(port, () => {

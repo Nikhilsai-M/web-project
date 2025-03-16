@@ -15,6 +15,7 @@ body {
 .container {
     max-width: 100%;
     margin: 0;
+    margin-top: -3vh;
     padding: 20px;
     overflow-x: auto;
     white-space: nowrap;
@@ -22,14 +23,12 @@ body {
 .grid {
     display: flex;
     gap: 20px;
-    flex-wrap: nowrap;
 }
 .card {
     background: white;
     padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);   
     min-width: 250px;
 }
 .card img {
@@ -55,6 +54,7 @@ body {
 .best_in_value_heading{
     margin-left: 3vw;
     margin-top: 2vh;
+    margin-bottom: 0px;
     
 }
 .best_in_value_phone_name{
@@ -68,20 +68,13 @@ body {
     height: 40vh;
 }
 .bg_top_brands {
-    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f8f8f8;
-    text-align: center;
 }
 
 .brands-section {
     padding: 30px;
-}
-
-.brands-section h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
 }
 
 .brands-container {
@@ -94,11 +87,11 @@ body {
 .brand-card {
     background: white;
     border-radius: 10px;
-    overflow: hidden;
     text-align: center;
     width: 140px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease-in-out;
+    cursor: pointer;
 }
 
 .brand-card:hover {
@@ -160,10 +153,11 @@ body {
     max-width: 100%;
     margin: 0;
     padding: 20px;
-    overflow-x: auto;
-    white-space: nowrap;
 }  
-
+@media (max-width: 860px){
+    .container1{
+    flex-wrap: wrap;}
+}
 .card1 {  
     border-radius: 10px;  
     padding: 20px;  
@@ -171,6 +165,7 @@ body {
     width: 250px;  
     box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);  
     cursor: pointer;
+    transition: transform 0.2s ease-in-out;
 }  
 
 .card1 h2 {  
@@ -195,21 +190,19 @@ body {
     border-radius: 8px;
 }  
 .card1:hover{
-    transform: scale(1.04);
-    transition: margin 0.4s ease-in-out;
+    transform: scale(1.04);    
 }
 .fltr-link{
     display: flex;
     justify-content: flex-end; /* Moves content to the right */
-    padding-right: 6vw;
+    padding-right: 4vw;
     padding-bottom: 5vh; /* Adjust padding as needed */
 }
 
 .filter-buyphone-link{
     cursor: pointer;
     color: blue;
-    position: absolute; /* Positions it relative to the page */
-    right: 5vw; /* Moves it to the right side */
+    position: absolute;  /*Positions it relative to the page */
     text-decoration: none;
 }
 .filter-buyphone-link::after {

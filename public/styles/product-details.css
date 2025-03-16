@@ -42,7 +42,7 @@ body {
     background-color: var(--white);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-md);
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 .product-image {

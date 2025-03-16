@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginMessage = document.getElementById('login_message');
 
     function validateEmployeeId(employeeId) {
-        return employeeId.length > 0; // Simple validation for debugging
+        return employeeId.length > 0;
     }
 
     function validatePassword(password) {
-        return password.length >= 3; // Changed to 3 to match your test credentials
+        return password.length >= 3;
     }
 
     loginForm.addEventListener('submit', async (event) => {

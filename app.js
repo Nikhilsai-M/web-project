@@ -3,7 +3,9 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import session from 'express-session'; // You'll need to install this: npm install express-session
+import session from 'express-session';
+import bcrypt from 'bcrypt';
+import { initializeDatabase, getDb } from './db.js';
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -15,6 +17,18 @@ import laptopModels from './public/scripts/buy-laptop-data.js';
 import { accessoriesData } from './public/scripts/accessories-data.js';  
 const app = express();
 const port = 3000;
+
+// Initialize the database when the app starts
+let db;
+(async () => {
+  try {
+    db = await initializeDatabase();
+    console.log('Database initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize database:', error);
+    process.exit(1);
+  }
+})();
 
 app.set('view engine', 'ejs');
 app.use(express.json());
@@ -153,31 +167,42 @@ app.get('/supervisor/home', requireSupervisorAuth, (req, res) => {
     res.render("supervisor/home", { user: req.session.user });
 });
 
-// Supervisor API endpoints
-app.post('/api/supervisor/login', (req, res) => {
+// Supervisor API endpoints - Updated to use SQLite
+app.post('/api/supervisor/login', async (req, res) => {
     const { employee_id, password } = req.body;
     
-    // Your test credentials (should be in a database in production)
-    const testCredentials = [
-        { employeeId: 'sv1', password: 'sv@123', name: 'test1' },
-        { employeeId: 'sv2', password: 'sv@456', name: 'test2' },
-    ];
-    
-    const user = testCredentials.find(cred => 
-        cred.employeeId === employee_id && cred.password === password
-    );
-    
-    if (user) {
-        // Set user in session
-        req.session.user = {
-            employeeId: user.employeeId,
-            name: user.name,
-            role: 'supervisor'
-        };
+    try {
+        // Get the database connection
+        const db = await getDb();
         
-        return res.json({ success: true, name: user.name });
-    } else {
-        return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        // Find the supervisor
+        const supervisor = await db.get(
+            'SELECT * FROM supervisors WHERE employee_id = ?',
+            [employee_id]
+        );
+        
+        if (!supervisor) {
+            return res.status(401).json({ success: false, message: 'Invalid employee ID or password' });
+        }
+        
+        // Compare passwords
+        const passwordMatch = await bcrypt.compare(password, supervisor.password);
+        
+        if (passwordMatch) {
+            // Set user in session
+            req.session.user = {
+                employeeId: supervisor.employee_id,
+                name: supervisor.name,
+                role: 'supervisor'
+            };
+            
+            return res.json({ success: true, name: supervisor.name });
+        } else {
+            return res.status(401).json({ success: false, message: 'Invalid employee ID or password' });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        return res.status(500).json({ success: false, message: 'Server error during login' });
     }
 });
 
@@ -195,7 +220,6 @@ app.get('/admin/home', requireAdminAuth, (req, res) => {
     res.render("admin/home", { user: req.session.user });
 });
 
-// Admin API endpoints
 // Admin API endpoints
 app.post('/api/admin/login', (req, res) => {
     const { admin_id, password, security_token } = req.body;
@@ -401,6 +425,7 @@ app.get('/api/smartwatch/:id', (req, res) => {
     
     res.json(smartwatch);
 });
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

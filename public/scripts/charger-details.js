@@ -111,7 +111,7 @@ function buyNow(chargerId) {
 
     // Then redirect to checkout page
     setTimeout(() => {
-        window.location.href = "/checkout";
+        window.location.href = "/orders";
     }, 500);
 }
 

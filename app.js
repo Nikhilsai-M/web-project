@@ -217,7 +217,7 @@ app.get('/admin/login', (req, res) => {
 });
 
 app.get('/admin/home', requireAdminAuth, (req, res) => {
-    res.render("admin/home", { user: req.session.user });
+    res.render("/admin/home", { user: req.session.user });
 });
 
 // Admin API endpoints

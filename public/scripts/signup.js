@@ -66,11 +66,6 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
-        // Check terms agreement
-        if (!agreeTerms) {
-            document.getElementById('terms-error').textContent = 'You must agree to the Terms of Service';
-            isValid = false;
-        }
         
         // If form is not valid, stop here
         if (!isValid) return;
@@ -104,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Redirect to login page after short delay
         setTimeout(() => {
             window.location.href = '/login';
-        }, 2000);
+        }, 1000);
     });
     
     // Handle social signup buttons (placeholders)

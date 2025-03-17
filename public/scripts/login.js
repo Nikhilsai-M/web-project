@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('email-error').textContent = 'Please enter a valid email address';
             return;
         }
-        
+
         // Check if user exists
         const user = getUserByEmail(email);
         if (!user) {
@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Login successful
         // Store user session
         const session = {
             userId: user.id,
@@ -56,8 +55,6 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.removeItem('rememberUser');
         }
         
-        // Transfer any items from guest cart to user cart
-        transferGuestCart(user.id);
         
         // Show success message
         showNotification('Login successful! Redirecting to homepage...', 'success');
@@ -67,14 +64,6 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = '/';
         }, 1500);
     });
-    
-    function transferGuestCart(userId) {
-        localStorage.removeItem("cart"); // Remove any guest cart
-        let userCartKey = `cart_${userId}`;
-        let userCart = JSON.parse(localStorage.getItem(userCartKey)) || [];
-        localStorage.setItem(userCartKey, JSON.stringify(userCart)); // Ensure user has their cart
-    }
-    
     
     // Check for remembered user
     const rememberedUserId = localStorage.getItem('rememberUser');

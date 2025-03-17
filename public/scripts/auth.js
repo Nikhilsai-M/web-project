@@ -53,7 +53,7 @@ function isValidPassword(password) {
 
 // Validate phone number (basic validation for Indian numbers)
 function isValidPhone(phone) {
-    const phoneRegex = /^[6-9]\d{9}$/;
+    const phoneRegex = /^[0-9]\d{9}$/;
     return phoneRegex.test(phone);
 }
 
@@ -106,35 +106,4 @@ function getUserCart(userId) {
 function saveUserCart(userId, cart) {
     const cartKey = `cart_${userId}`;
     localStorage.setItem(cartKey, JSON.stringify(cart));
-}
-
-// Transfer guest cart to user cart on login
-function transferGuestCart(userId) {
-    const guestCart = JSON.parse(localStorage.getItem('cart_guest')) || [];
-    if (guestCart.length > 0) {
-        const userCart = getUserCart(userId);
-        
-        // Merge carts: For items that exist in both, use the higher quantity
-        const mergedCart = [...userCart];
-        
-        guestCart.forEach(guestItem => {
-            const existingItemIndex = mergedCart.findIndex(item => item.id === guestItem.id);
-            
-            if (existingItemIndex !== -1) {
-                // Item exists in user cart, keep the higher quantity
-                if (guestItem.quantity > mergedCart[existingItemIndex].quantity) {
-                    mergedCart[existingItemIndex].quantity = guestItem.quantity;
-                }
-            } else {
-                // Item doesn't exist in user cart, add it
-                mergedCart.push(guestItem);
-            }
-        });
-        
-        // Save merged cart to user's cart
-        saveUserCart(userId, mergedCart);
-        
-        // Clear guest cart
-        localStorage.setItem('cart_guest', JSON.stringify([]));
-    }
 }

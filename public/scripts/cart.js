@@ -34,12 +34,8 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
     
-    // Add event listener for checkout button
     document.querySelector(".checkout-btn").addEventListener("click", function() {
-        // You can implement checkout functionality here
         alert("Proceeding to checkout...");
-        // Redirect to checkout page
-        // window.location.href = "/checkout";
     });
 });
 
@@ -151,7 +147,7 @@ function displayCartItems(cart) {
                         <h3>${item.title}</h3>
                         <p>Display Size: ${item.displaySize}</p>
                         <p>Display Type: ${item.displayType}</p>
-                        <p>Battery Runtime: ${item.batteryRuntime}</p>
+                        <p>Battery Runtime: ${item.batteryRuntime} hrs</p>
                     </div>
                     <div class="item-quantity">
                         <button class="qty-btn minus" data-index="${index}">-</button>
@@ -259,11 +255,6 @@ function setupCartEventListeners() {
 // Function to remove an item from cart
 function removeCartItem(index) {
     const session = JSON.parse(localStorage.getItem("currentSession"));
-    
-    if (!session || !session.loggedIn) {
-        window.location.href = "/login"; // Redirect non-logged-in users
-        return;
-    }
 
     let userId = session.userId;
     let userCartKey = `cart_${userId}`; // Ensure we modify the correct user's cart
@@ -283,11 +274,6 @@ function removeCartItem(index) {
 function updateCartItemQuantity(index, action, newQuantity) {
     // Get user session
     const session = JSON.parse(localStorage.getItem("currentSession"));
-    
-    if (!session || !session.loggedIn) {
-        window.location.href = "/login"; // Redirect non-logged-in users
-        return;
-    }
 
     let userId = session.userId;
     let userCartKey = `cart_${userId}`; // Ensure we modify the correct user's cart

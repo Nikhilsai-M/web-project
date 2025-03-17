@@ -91,8 +91,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const currentSession = localStorage.getItem("currentSession");
         const loginLink = document.getElementById("login-link");
         const profileLink = document.getElementById("profile-link");
-        const userDropdown = document.getElementById("user-dropdown");
-        
+        const userProfileContainer = document.querySelector(".user-profile-container");
+        const icon=document.querySelector(".profile-icon");
+
         if (currentSession) {
             const userData = JSON.parse(currentSession);
             
@@ -102,12 +103,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 
                 // Update the display text to show user's first name
                 loginLink.textContent = firstName;
-                
+                loginLink.classList.remove("signin-button");
+                loginLink.classList.add("user-name");
+                icon.classList.remove("profile-icon");
                 // Update the link to profile instead of login page
                 profileLink.href = "/profile";
                 
-                // Add active class to dropdown to enable it
-                userDropdown.classList.add("active");
+                // Add a class to the container to enable hover functionality
+                userProfileContainer.classList.add("dropdown-enabled");
                 
                 // Add logout functionality
                 const logoutButton = document.getElementById("logout-button");
@@ -140,57 +143,50 @@ document.addEventListener("DOMContentLoaded", function () {
     function setupNotLoggedInState() {
         const loginLink = document.getElementById("login-link");
         const profileLink = document.getElementById("profile-link");
-        const userDropdown = document.getElementById("user-dropdown");
+        const userProfileContainer = document.querySelector(".user-profile-container");
         
         // Update text back to Sign in
         loginLink.textContent = "Sign in";
         
+        // Add button styling
+        loginLink.classList.add("signin-button");
+        loginLink.classList.remove("user-name");
+        
         // Set link to login page
         profileLink.href = "/login";
         
-        // Remove active class to disable dropdown
-        userDropdown.classList.remove("active");
+        // Remove the class that enables hover functionality
+        userProfileContainer.classList.remove("dropdown-enabled");
     }
     
     // Initialize user interface based on login state
     updateUserInterface();
-});
-document.addEventListener("DOMContentLoaded", function () {
-    let userSection = document.querySelector(".user-profile-container");
-    let dropdown = document.querySelector(".user-dropdown");
-    let timeout;
 
-    userSection.addEventListener("mouseenter", function () {
-        clearTimeout(timeout);
-        dropdown.style.display = "block";
-    });
-
-    userSection.addEventListener("mouseleave", function () {
-        timeout = setTimeout(() => {
-            dropdown.style.display = "none";
-        }, 300); // 300ms delay before hiding
-    });
-
-    dropdown.addEventListener("mouseenter", function () {
-        clearTimeout(timeout);
-    });
-
-    dropdown.addEventListener("mouseleave", function () {
-        timeout = setTimeout(() => {
-            dropdown.style.display = "none";
-        }, 300); // 300ms delay before hiding
-    });
-});
-document.addEventListener("DOMContentLoaded", function () {
-    const session = JSON.parse(localStorage.getItem("currentSession"));
-    const cartLink = document.getElementById("cart-link");
-
-    if (session && session.loggedIn) {
-        cartLink.href = "/cart"; // Allow logged-in users to access their cart
-    } else {
-        cartLink.addEventListener("click", function (event) {
-            event.preventDefault(); // Prevent default navigation
-            window.location.href = "/login"; // Redirect non-logged-in users to login
+    const userProfileContainer = document.querySelector(".user-profile-container");
+    const userDropdown = document.querySelector(".user-dropdown");
+    let timeoutId;
+    
+    // Only add these event listeners if a user is logged in
+    if (localStorage.getItem("currentSession") && JSON.parse(localStorage.getItem("currentSession")).loggedIn) {
+        userProfileContainer.addEventListener("mouseenter", function() {
+            clearTimeout(timeoutId);
+            userDropdown.style.display = "block";
+        });
+        
+        userProfileContainer.addEventListener("mouseleave", function() {
+            timeoutId = setTimeout(function() {
+                userDropdown.style.display = "none";
+            }, 300); // 500ms delay gives you time to move to the dropdown
+        });
+        
+        userDropdown.addEventListener("mouseenter", function() {
+            clearTimeout(timeoutId);
+        });
+        
+        userDropdown.addEventListener("mouseleave", function() {
+            timeoutId = setTimeout(function() {
+                userDropdown.style.display = "none";
+            }, 300);
         });
     }
 });

@@ -125,7 +125,7 @@
                         </select>
                     </div>
                     <div style="margin-bottom: 1rem;">
-                        <label style="display: block; margin-bottom: 0.5rem;">Price ($)</label>
+                        <label style="display: block; margin-bottom: 0.5rem;">Price (₹)</label>
                         <input type="number" step="0.01" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.375rem;" required>
                     </div>
                     <div style="margin-bottom: 1rem;">
@@ -263,7 +263,7 @@
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
-                        label: 'Sales ($)',
+                        label: 'Sales (₹)',
                         data: [15000, 19000, 17000, 18500, 21000, 24350],
                         backgroundColor: 'rgba(37, 99, 235, 0.2)',
                         borderColor: 'rgba(37, 99, 235, 1)',

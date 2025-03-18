@@ -231,3 +231,55 @@ input[type="radio"] {
     margin-right: 8px;
     transform: scale(1.2);
 }
+
+/* Final Price Section Styling */
+#finalPriceSection {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    border-left: 4px solid #4CAF50;
+}
+
+#finalPriceSection h2 {
+    color: #333;
+    margin-top: 0;
+    font-size: 1.5rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+#finalPriceSection p {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+#finalPriceSection h3 {
+    color: #4CAF50;
+    font-size: 1.8rem;
+    margin: 15px 0;
+}
+
+#confirmExchangeBtn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#confirmExchangeBtn:hover {
+    background-color: #45a049;
+}
+
+#confirmExchangeBtn:active {
+    transform: scale(0.98);
+}

@@ -235,7 +235,7 @@ function collectStep2Details() {
     mobileCheckStep3();
 }
 
-// Step 3: Device health checks
+
 // Step 3: Device health checks
 function mobileCheckStep3() {
     updateSideHeading(3); // Update side heading for Step 3
@@ -304,10 +304,12 @@ function showFinalPrice() {
     const finalPrice = calculateFinalPrice();
 
     finalPriceSection.innerHTML = `
+    <div id="finalPriceSection">
         <h2>Final Price Calculation</h2>
         <p>Based on your inputs, here's the final price:</p>
         <h3>Final Price: ₹${finalPrice.toFixed(2)}</h3>
         <button id="confirmExchangeBtn">Confirm Exchange</button>
+        <div>
     `;
 
     modelContainer.appendChild(finalPriceSection);

@@ -17,7 +17,6 @@ function displayProducts(filteredProducts) {
             </div>
         `;
         
-        // Add event listener to the inline clear button
         const clearInlineBtn = container.querySelector(".clear-all-inline");
         if (clearInlineBtn) {
             clearInlineBtn.addEventListener("click", clearAllFilters);

@@ -11,14 +11,13 @@
                 // Add active class to clicked item
                 this.classList.add('active');
                 
-                // In a real application, you would load the corresponding content here
-                // For demo purposes, show an alert with the clicked menu item
+                // For demo purposes
                 const menuName = this.querySelector('span').textContent;
                 alert(`Navigating to ${menuName} section`);
             });
         });
         
-        // Notification bell functionality
+
         const notificationBell = document.querySelector('.notification-bell');
         
         notificationBell.addEventListener('click', function() {
@@ -263,7 +262,7 @@
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                     datasets: [{
-                        label: 'Sales ($)',
+                        label: 'Sales (₹)',
                         data: [15000, 19000, 17000, 18500, 21000, 24350],
                         backgroundColor: 'rgba(37, 99, 235, 0.2)',
                         borderColor: 'rgba(37, 99, 235, 1)',
@@ -278,7 +277,7 @@
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return '$' + value.toLocaleString();
+                                    return '₹' + value.toLocaleString();
                                 }
                             }
                         }

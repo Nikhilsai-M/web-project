@@ -55,7 +55,15 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.removeItem('rememberUser');
         }
         
-        
+                // Log user details to console
+        console.log('User Login Details:');
+        console.log('-------------------');
+        console.log('User ID:', user.id);
+        console.log('Name:', `${user.firstName} ${user.lastName}`);
+        console.log('Email:', user.email);
+        console.log('Login Time:', new Date().toISOString());
+        console.log('Remember Me:', rememberMe);
+        console.log('-------------------');
         // Show success message
         showNotification('Login successful! Redirecting to homepage...', 'success');
         

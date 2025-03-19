@@ -216,7 +216,7 @@ function updateSelectedFilters() {
     document.querySelector(".selected-filters").style.display = hasActiveFilters ? "block" : "none";
 }
 
-// Function to remove a specific filter
+
 function removeFilter(type, value) {
     if (type === "price") {
         document.getElementById("min-price").value = 0;

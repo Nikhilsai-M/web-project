@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const phone = document.getElementById('phone').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
-        const agreeTerms = document.getElementById('terms').checked;
+
         
         // Validate form inputs
         let isValid = true;

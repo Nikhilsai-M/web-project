@@ -1,25 +1,30 @@
-// app.js
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
 import bcrypt from 'bcrypt';
-import { initializeDatabase, getDb, createCustomer, authenticateCustomer } from './db.js';
 import { 
-  
+  initializeDatabase, 
+  getDb, 
+  createCustomer, 
+  authenticateCustomer, 
   getAllLaptops, 
   getLaptopById, 
   addLaptop, 
   updateLaptop, 
-  deleteLaptop 
+  deleteLaptop,
+  getAllPhones,
+  getPhoneById,
+  addPhone,
+  updatePhone,
+  deletePhone
 } from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Import only the accessoriesData since laptops are now in the database
-import { mobileModels } from './public/scripts/buy-mobile-data.js';
+// Import only the accessoriesData since laptops and phones are now in the database
 import { accessoriesData } from './public/scripts/accessories-data.js';  
 
 const app = express();
@@ -39,7 +44,7 @@ const port = 3000;
 app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
     secret: 'your-secret-key',
@@ -213,8 +218,6 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-
-
 // Customer logout route
 app.get('/api/logout', (req, res) => {
     req.session.destroy();
@@ -246,8 +249,15 @@ app.get('/sell-phone-models', (req, res) => {
     res.render("sellphone-container");
 });
 
-app.get('/buy-phone', (req, res) => {
-    res.render("buy_phone");
+// Updated route to get phones from database
+app.get('/buy-phone', async (req, res) => {
+    try {
+        const phones = await getAllPhones();
+        res.render("buy_phone", { phoneModels: phones });
+    } catch (error) {
+        console.error('Error fetching phones:', error);
+        res.status(500).render('error', { message: 'Failed to load phones' });
+    }
 });
 
 // Updated route to get laptops from database
@@ -277,8 +287,14 @@ app.get('/smartwatches', (req, res) => {
     res.render("smartwatch");
 });
 
-app.get('/filter-buy-phone', (req, res) => {
-    res.render("filter-buy-phone");
+app.get('/filter-buy-phone', async (req, res) => {
+    try {
+        const phones = await getAllPhones();
+        res.render("filter-buy-phone", { phoneModels: phones });
+    } catch (error) {
+        console.error('Error fetching phones for filter:', error);
+        res.status(500).render('error', { message: 'Failed to load phones' });
+    }
 });
 
 app.get('/filter-buy-laptop', async (req, res) => {
@@ -422,14 +438,49 @@ app.get('/admin/laptops/edit/:id', requireAdminAuth, async (req, res) => {
     }
 });
 
+// Admin phone management routes
+app.get('/admin/phones', requireAdminAuth, async (req, res) => {
+    try {
+        const phones = await getAllPhones();
+        res.render("admin/phones", { phones, user: req.session.user });
+    } catch (error) {
+        console.error('Error fetching phones for admin:', error);
+        res.status(500).render('error', { message: 'Failed to load phones' });
+    }
+});
+
+app.get('/admin/phones/add', requireAdminAuth, (req, res) => {
+    res.render("admin/phone-form", { 
+        user: req.session.user,
+        phone: null,
+        action: 'add'
+    });
+});
+
+app.get('/admin/phones/edit/:id', requireAdminAuth, async (req, res) => {
+    try {
+        const phone = await getPhoneById(req.params.id);
+        if (!phone) {
+            return res.status(404).render('404', { message: 'Phone not found' });
+        }
+        
+        res.render("admin/phone-form", { 
+            user: req.session.user,
+            phone,
+            action: 'edit'
+        });
+    } catch (error) {
+        console.error('Error fetching phone for edit:', error);
+        res.status(500).render('error', { message: 'Failed to load phone details' });
+    }
+});
+
 app.post('/api/admin/login', async (req, res) => {
     const { admin_id, password, security_token } = req.body;
     
     try {
-        // Get database connection
         const db = await getDb();
         
-        // Find admin by admin_id
         const admin = await db.get(
             'SELECT * FROM admins WHERE admin_id = ?',
             [admin_id]
@@ -440,10 +491,7 @@ app.post('/api/admin/login', async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
         }
         
-        // Check password
         const passwordMatch = await bcrypt.compare(password, admin.password);
-        
-        // Check security token (exact match)
         const tokenMatch = (security_token === admin.security_token);
         
         if (passwordMatch && tokenMatch) {
@@ -542,6 +590,78 @@ app.delete('/api/laptops/:id', requireAdminAuth, async (req, res) => {
     }
 });
 
+// API routes for phone management
+app.get('/api/product', async (req, res) => {
+    try {
+        const phones = await getAllPhones();
+        res.json(phones);
+    } catch (error) {
+        console.error('Error fetching phones:', error);
+        res.status(500).json({ error: 'Failed to fetch phones' });
+    }
+});
+
+app.get('/api/product/:id', async (req, res) => {
+    try {
+        const phone = await getPhoneById(req.params.id);
+        
+        if (!phone) {
+            return res.status(404).json({ error: 'Phone not found' });
+        }
+        
+        res.json(phone);
+    } catch (error) {
+        console.error('Error fetching phone:', error);
+        res.status(500).json({ error: 'Failed to fetch phone' });
+    }
+});
+
+app.post('/api/product', requireAdminAuth, async (req, res) => {
+    try {
+        const result = await addPhone(req.body);
+        
+        if (result.success) {
+            res.status(201).json({ success: true, id: result.id });
+        } else {
+            res.status(400).json({ success: false, message: result.message });
+        }
+    } catch (error) {
+        console.error('Error adding phone:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+app.put('/api/product/:id', requireAdminAuth, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const result = await updatePhone(id, req.body);
+        
+        if (result.success) {
+            res.json({ success: true });
+        } else {
+            res.status(400).json({ success: false, message: result.message });
+        }
+    } catch (error) {
+        console.error('Error updating phone:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+app.delete('/api/product/:id', requireAdminAuth, async (req, res) => {
+    try {
+        const result = await deletePhone(req.params.id);
+        
+        if (result.success) {
+            res.json({ success: true });
+        } else {
+            res.status(400).json({ success: false, message: result.message });
+        }
+    } catch (error) {
+        console.error('Error deleting phone:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
 // Updated route to get laptop details from database
 app.get('/laptop/:id', async (req, res) => {
     try {
@@ -559,27 +679,24 @@ app.get('/laptop/:id', async (req, res) => {
     }
 });
 
-app.get('/product/:id', (req, res) => {
-    const productId = parseInt(req.params.id);
-    const product = mobileModels.find(p => p.id === productId);
-    
-    if (!product) {
-        return res.status(404).render('404', { message: 'Product not found' });
+// Updated route to get phone details from database
+app.get('/product/:id', async (req, res) => {
+    try {
+        const phoneId = parseInt(req.params.id);
+        const phone = await getPhoneById(phoneId);
+        
+        if (!phone) {
+            return res.status(404).render('404', { message: 'Phone not found' });
+        }
+        
+        res.render('product-details', { phone });
+    } catch (error) {
+        console.error('Error fetching phone details:', error);
+        res.status(500).render('error', { message: 'Failed to load phone details' });
     }
-    
-    res.render('product-details', { product });
 });
 
-app.get('/api/product/:id', (req, res) => {
-    const productId = parseInt(req.params.id);
-    const product = mobileModels.find(p => p.id === productId);
-    
-    if (!product) {
-        return res.status(404).json({ error: 'Product not found' });
-    }
-    
-    res.json(product);
-});
+
 
 app.get('/earphone/:id', (req, res) => {
     const earphoneId = req.params.id;

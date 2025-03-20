@@ -1,8 +1,15 @@
-import {mobileModels} from "./buy-mobile-data.js";
-
-// Function to calculate discounted price
 function calculateDiscountedPrice(price, discount) {
-    return price - (price * discount / 100);
+    // Convert price and discount to numbers
+    const numericPrice = parseFloat(price);
+    const numericDiscount = parseFloat(discount);
+
+    // Check if the conversion was successful
+    if (isNaN(numericPrice) || isNaN(numericDiscount)) {
+        console.error("Invalid price or discount:", price, discount);
+        return 0; // Return 0 or handle the error as needed
+    }
+
+    return numericPrice - (numericPrice * numericDiscount / 100);
 }
 
 function displayProducts(filteredProducts) {
@@ -25,7 +32,7 @@ function displayProducts(filteredProducts) {
     }
     
     filteredProducts.forEach(product => {
-        const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
+        const discountedPrice = calculateDiscountedPrice(product.pricing.basePrice, product.pricing.discount);
         const productElement = document.createElement('div');
         productElement.className = 'product';
         productElement.dataset.id = product.id;
@@ -38,9 +45,9 @@ function displayProducts(filteredProducts) {
                     </div>
                     <div class="product-details">
                         <h4>${product.brand} ${product.model}</h4>
-                        <p class="discounted-price">₹${discountedPrice}</p>
-                        <span class="original-price">₹${product.price}</span>
-                        <span class="discount">${product.discount}% Off</span>
+                        <p class="discounted-price">₹${discountedPrice.toFixed(0)}</p>
+                        <span class="original-price">₹${product.pricing.basePrice}</span>
+                        <span class="discount">${product.pricing.discount}% Off</span>
                         <ul>
                             <li>${product.ram} RAM | ${product.rom} Storage</li>
                             <li>${product.specs.battery}mAh Battery</li>
@@ -244,11 +251,26 @@ function updateSliderBackground() {
     maxValue.value = maxSlider.value;
 }
 
+// Function to fetch mobile data from the database
+async function fetchPhoneData() {
+    try {
+        const response = await fetch('/api/product'); // Replace with your API endpoint
+        if (!response.ok) {
+            throw new Error('Failed to fetch laptop data');
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching laptop data:', error);
+        return []; // Return an empty array in case of error
+    }
+}
+
 // Function to filter products based on selected filters
-function filterProducts() {
+async function filterProducts() {
     const selectedFilters = getSelectedFilters();
     console.log("Filtering with price range:", selectedFilters.minPrice, "to", selectedFilters.maxPrice);
-
+    const mobileModels= await fetchPhoneData();
     // Check if any filters are active
     const hasActiveFilters = 
         selectedFilters.brands.length > 0 || 

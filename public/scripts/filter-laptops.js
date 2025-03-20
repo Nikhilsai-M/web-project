@@ -1,8 +1,17 @@
 // Function to calculate discounted price
 function calculateDiscountedPrice(price, discount) {
-    return price - (price * discount / 100);
-}
+    // Convert price and discount to numbers
+    const numericPrice = parseFloat(price);
+    const numericDiscount = parseFloat(discount);
 
+    // Check if the conversion was successful
+    if (isNaN(numericPrice) || isNaN(numericDiscount)) {
+        console.error("Invalid price or discount:", price, discount);
+        return 0; // Return 0 or handle the error as needed
+    }
+
+    return numericPrice - (numericPrice * numericDiscount / 100);
+}
 // Function to display products
 function displayProducts(filteredProducts) {
     const container = document.getElementById("product-list");

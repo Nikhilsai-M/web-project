@@ -6,13 +6,23 @@ import { dirname } from 'path';
 import session from 'express-session';
 import bcrypt from 'bcrypt';
 import { initializeDatabase, getDb, createCustomer, authenticateCustomer } from './db.js';
+import { 
+  initializeDatabase, 
+  getDb, 
+  getAllLaptops, 
+  getLaptopById, 
+  addLaptop, 
+  updateLaptop, 
+  deleteLaptop 
+} from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Import only the accessoriesData since laptops are now in the database
 import { mobileModels } from './public/scripts/buy-mobile-data.js';
-import laptopModels from './public/scripts/buy-laptop-data.js';
 import { accessoriesData } from './public/scripts/accessories-data.js';  
+
 const app = express();
 const port = 3000;
 
@@ -241,8 +251,15 @@ app.get('/buy-phone', (req, res) => {
     res.render("buy_phone");
 });
 
-app.get('/buy-laptop', (req, res) => {
-    res.render("buy_laptop");
+// Updated route to get laptops from database
+app.get('/buy-laptop', async (req, res) => {
+    try {
+        const laptops = await getAllLaptops();
+        res.render("buy_laptop", { laptopModels: laptops });
+    } catch (error) {
+        console.error('Error fetching laptops:', error);
+        res.status(500).render('error', { message: 'Failed to load laptops' });
+    }
 });
 
 app.get('/chargers', (req, res) => {
@@ -265,8 +282,14 @@ app.get('/filter-buy-phone', (req, res) => {
     res.render("filter-buy-phone");
 });
 
-app.get('/filter-buy-laptop', (req, res) => {
-    res.render("filter-buy-laptop");
+app.get('/filter-buy-laptop', async (req, res) => {
+    try {
+        const laptops = await getAllLaptops();
+        res.render("filter-buy-laptop", { laptopModels: laptops });
+    } catch (error) {
+        console.error('Error fetching laptops for filter:', error);
+        res.status(500).render('error', { message: 'Failed to load laptops' });
+    }
 });
 
 app.get('/cart', (req, res) => {
@@ -363,6 +386,43 @@ app.get('/admin/home', requireAdminAuth, (req, res) => {
     res.render("admin/home", { user: req.session.user });
 });
 
+// Admin laptop management routes
+app.get('/admin/laptops', requireAdminAuth, async (req, res) => {
+    try {
+        const laptops = await getAllLaptops();
+        res.render("admin/laptops", { laptops, user: req.session.user });
+    } catch (error) {
+        console.error('Error fetching laptops for admin:', error);
+        res.status(500).render('error', { message: 'Failed to load laptops' });
+    }
+});
+
+app.get('/admin/laptops/add', requireAdminAuth, (req, res) => {
+    res.render("admin/laptop-form", { 
+        user: req.session.user,
+        laptop: null,
+        action: 'add'
+    });
+});
+
+app.get('/admin/laptops/edit/:id', requireAdminAuth, async (req, res) => {
+    try {
+        const laptop = await getLaptopById(req.params.id);
+        if (!laptop) {
+            return res.status(404).render('404', { message: 'Laptop not found' });
+        }
+        
+        res.render("admin/laptop-form", { 
+            user: req.session.user,
+            laptop,
+            action: 'edit'
+        });
+    } catch (error) {
+        console.error('Error fetching laptop for edit:', error);
+        res.status(500).render('error', { message: 'Failed to load laptop details' });
+    }
+});
+
 app.post('/api/admin/login', async (req, res) => {
     const { admin_id, password, security_token } = req.body;
     
@@ -411,6 +471,95 @@ app.get('/api/admin/logout', (req, res) => {
     res.redirect('/admin/login');
 });
 
+// API routes for laptop management
+app.get('/api/laptops', async (req, res) => {
+    try {
+        const laptops = await getAllLaptops();
+        res.json(laptops);
+    } catch (error) {
+        console.error('Error fetching laptops:', error);
+        res.status(500).json({ error: 'Failed to fetch laptops' });
+    }
+});
+
+app.get('/api/laptops/:id', async (req, res) => {
+    try {
+        const laptop = await getLaptopById(req.params.id);
+        
+        if (!laptop) {
+            return res.status(404).json({ error: 'Laptop not found' });
+        }
+        
+        res.json(laptop);
+    } catch (error) {
+        console.error('Error fetching laptop:', error);
+        res.status(500).json({ error: 'Failed to fetch laptop' });
+    }
+});
+
+app.post('/api/laptops', requireAdminAuth, async (req, res) => {
+    try {
+        const result = await addLaptop(req.body);
+        
+        if (result.success) {
+            res.status(201).json({ success: true, id: result.id });
+        } else {
+            res.status(400).json({ success: false, message: result.message });
+        }
+    } catch (error) {
+        console.error('Error adding laptop:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+app.put('/api/laptops/:id', requireAdminAuth, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const result = await updateLaptop(id, req.body);
+        
+        if (result.success) {
+            res.json({ success: true });
+        } else {
+            res.status(400).json({ success: false, message: result.message });
+        }
+    } catch (error) {
+        console.error('Error updating laptop:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+app.delete('/api/laptops/:id', requireAdminAuth, async (req, res) => {
+    try {
+        const result = await deleteLaptop(req.params.id);
+        
+        if (result.success) {
+            res.json({ success: true });
+        } else {
+            res.status(400).json({ success: false, message: result.message });
+        }
+    } catch (error) {
+        console.error('Error deleting laptop:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// Updated route to get laptop details from database
+app.get('/laptop/:id', async (req, res) => {
+    try {
+        const laptopId = parseInt(req.params.id);
+        const laptop = await getLaptopById(laptopId);
+        
+        if (!laptop) {
+            return res.status(404).render('404', { message: 'Laptop not found' });
+        }
+        
+        res.render('laptop-details', { laptop });
+    } catch (error) {
+        console.error('Error fetching laptop details:', error);
+        res.status(500).render('error', { message: 'Failed to load laptop details' });
+    }
+});
+
 app.get('/product/:id', (req, res) => {
     const productId = parseInt(req.params.id);
     const product = mobileModels.find(p => p.id === productId);
@@ -431,44 +580,6 @@ app.get('/api/product/:id', (req, res) => {
     }
     
     res.json(product);
-});
-
-app.get('/laptop/:id', (req, res) => {
-    console.log('Looking for laptop with ID:', req.params.id);
-    console.log('laptopModels type:', typeof laptopModels);
-    console.log('Is array?', Array.isArray(laptopModels));
-    
-    const laptopId = req.params.id;
-    
-    let laptop = laptopModels.find(p => p.id === laptopId);
-
-    if (!laptop) {
-        const numericId = parseInt(laptopId);
-        laptop = laptopModels.find(p => p.id === numericId);
-    }
-    
-    if (!laptop) {
-        return res.status(404).render('404', { message: 'Laptop not found' });
-    }
-    
-    res.render('laptop-details', { laptop });
-});
-
-app.get('/api/laptop/:id', (req, res) => {
-    const laptopId = req.params.id;
-    
-    let laptop = laptopModels.find(l => l.id === laptopId);
-    
-    if (!laptop) {
-        const numericId = parseInt(laptopId);
-        laptop = laptopModels.find(l => l.id === numericId);
-    }
-    
-    if (!laptop) {
-        return res.status(404).json({ error: 'Laptop not found' });
-    }
-    
-    res.json(laptop);
 });
 
 app.get('/earphone/:id', (req, res) => {

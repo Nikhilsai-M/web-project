@@ -7,8 +7,7 @@ import session from 'express-session';
 import bcrypt from 'bcrypt';
 import { initializeDatabase, getDb, createCustomer, authenticateCustomer } from './db.js';
 import { 
-  initializeDatabase, 
-  getDb, 
+  
   getAllLaptops, 
   getLaptopById, 
   addLaptop, 

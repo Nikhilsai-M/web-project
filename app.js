@@ -219,44 +219,46 @@ app.get('/admin/home', requireAdminAuth, (req, res) => {
 });
 
 
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/login', async (req, res) => {
     const { admin_id, password, security_token } = req.body;
     
-
-    const adminCredentials = [
-        { 
-            adminId: 'ADMIN001', 
-            password: 'Admin@123', 
-            securityToken: 'TOKEN001',
-            name: 'admin1'
-        },
-        { 
-            adminId: 'ADMIN002', 
-            password: 'Admin@456', 
-            securityToken: 'TOKEN002',
-            name: 'admin2'
-        },
-    ];
-    
-    const admin = adminCredentials.find(cred => 
-        cred.adminId === admin_id && 
-        cred.password === password && 
-        cred.securityToken === security_token
-    );
-    
-    if (admin) {
-        req.session.user = {
-            adminId: admin.adminId,
-            name: admin.name,
-            role: 'admin',
-            loginTime: new Date().toISOString()
-        };
+    try {
+        // Get database connection
+        const db = await getDb();
         
-        return res.json({ success: true, name: admin.name });
-    } else {
-        console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
+        // Find admin by admin_id
+        const admin = await db.get(
+            'SELECT * FROM admins WHERE admin_id = ?',
+            [admin_id]
+        );
         
-        return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
+        if (!admin) {
+            console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
+            return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
+        }
+        
+        // Check password
+        const passwordMatch = await bcrypt.compare(password, admin.password);
+        
+        // Check security token (exact match)
+        const tokenMatch = (security_token === admin.security_token);
+        
+        if (passwordMatch && tokenMatch) {
+            req.session.user = {
+                adminId: admin.admin_id,
+                name: admin.name,
+                role: 'admin',
+                loginTime: new Date().toISOString()
+            };
+            
+            return res.json({ success: true, name: admin.name });
+        } else {
+            console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
+            return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
+        }
+    } catch (error) {
+        console.error('Admin login error:', error);
+        return res.status(500).json({ success: false, message: 'Server error during login' });
     }
 });
 

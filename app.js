@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
 import bcrypt from 'bcrypt';
+import { initializeDatabase, getDb, createCustomer, authenticateCustomer } from './db.js';
 import { 
   initializeDatabase, 
   getDb, 
@@ -25,10 +26,10 @@ import { accessoriesData } from './public/scripts/accessories-data.js';
 const app = express();
 const port = 3000;
 
-let db;
+// Initialize database before setting up routes
 (async () => {
   try {
-    db = await initializeDatabase();
+    await initializeDatabase();
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Failed to initialize database:', error);
@@ -68,6 +69,158 @@ function requireAdminAuth(req, res, next) {
         res.redirect('/admin/login');
     }
 }
+
+function requireCustomerAuth(req, res, next) {
+    if (req.session.user && req.session.user.role === 'customer') {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+}
+
+// Test database connection route
+app.get('/api/test-db', async (req, res) => {
+  try {
+    const db = await getDb();
+    res.json({ success: true, message: 'Database connection successful' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Database connection failed' });
+  }
+});
+
+// Customer signup route
+app.post('/api/signup', async (req, res) => {
+    try {
+        const { firstName, lastName, email, phone, password } = req.body;
+        
+        // Basic validation
+        const errors = {};
+        
+        if (!firstName || firstName.length < 2) {
+            errors.firstName = 'First name must be at least 2 characters';
+        }
+        
+        if (!lastName || lastName.length < 2) {
+            errors.lastName = 'Last name must be at least 2 characters';
+        }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            errors.email = 'Please enter a valid email address';
+        }
+        
+        if (!phone || phone.length < 10) {
+            errors.phone = 'Please enter a valid phone number';
+        }
+        
+        if (!password || password.length < 6) {
+            errors.password = 'Password must be at least 6 characters';
+        }
+        
+        // Return errors if validation fails
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({ success: false, errors });
+        }
+        
+        // Create new customer using the function from db.js
+        const result = await createCustomer(firstName, lastName, email, phone, password);
+        
+        if (result.success) {
+            // Set session for automatic login (optional)
+            req.session.user = {
+                userId: result.userId,
+                firstName,
+                lastName,
+                email,
+                role: 'customer'
+            };
+            
+            return res.status(201).json({ 
+                success: true, 
+                message: 'Account created successfully',
+                userId: result.userId
+            });
+        } else {
+            // Handle database errors or duplicate email
+            if (result.message === 'Email already registered') {
+                return res.status(409).json({ 
+                    success: false, 
+                    errors: { email: 'Email is already registered' }
+                });
+            }
+            
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Error creating account'
+            });
+        }
+    } catch (error) {
+        console.error('Signup error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
+    }
+});
+
+// Customer login route
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Basic validation
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email and password are required',
+            });
+        }
+
+        // Authenticate customer
+        const result = await authenticateCustomer(email, password);
+
+        if (result.success) {
+            // Set session
+            req.session.user = {
+                userId: result.user.user_id,
+                firstName: result.user.first_name,
+                lastName: result.user.last_name,
+                email: result.user.email,
+                role: 'customer',
+            };
+
+            return res.json({
+                success: true,
+                message: 'Login successful',
+                user: {
+                    userId: result.user.user_id,
+                    firstName: result.user.first_name,
+                    lastName: result.user.last_name,
+                    email: result.user.email,
+                },
+            });
+        } else {
+            return res.status(401).json({
+                success: false,
+                message: result.message || 'Invalid credentials',
+            });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error',
+        });
+    }
+});
+
+
+
+// Customer logout route
+app.get('/api/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
+});
 
 // Your existing routes
 app.get('/', (req, res) => {
@@ -143,11 +296,11 @@ app.get('/cart', (req, res) => {
     res.render("cart");
 });
 
-app.get('/profile', (req, res) => {
+app.get('/profile', requireCustomerAuth, (req, res) => {
     res.render("user-profile");
 });
 
-app.get('/orders', (req, res) => {
+app.get('/orders', requireCustomerAuth, (req, res) => {
     res.render("orders");
 });
 
@@ -198,7 +351,7 @@ app.post('/api/supervisor/login', async (req, res) => {
         if (!supervisor) {
             return res.status(401).json({ success: false, message: 'Invalid employee ID or password' });
         }
-        
+
         const passwordMatch = await bcrypt.compare(password, supervisor.password);
         
         if (passwordMatch) {

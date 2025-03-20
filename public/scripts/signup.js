@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const confirmPassword = document.getElementById('confirmPassword').value;
 
         
-        // Basic client-side validation
+        // Client-side validation
         let isValid = true;
         
         // Validate name fields
@@ -38,17 +38,43 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            document.getElementById('email-error').textContent = 'Please enter a valid email address';
+            isValid = false;
+        }
+        
+        // Phone validation
+        if (phone.length < 10) {
+            document.getElementById('phone-error').textContent = 'Please enter a valid phone number';
+            isValid = false;
+        }
+        
+        // Password validation
+        if (password.length < 6) {
+            document.getElementById('password-error').textContent = 'Password must be at least 6 characters';
+            isValid = false;
+        }
+        
+        // Confirm password
+        if (password !== confirmPassword) {
+            document.getElementById('confirmPassword-error').textContent = 'Passwords do not match';
+            isValid = false;
+        }
+        
         // If basic validation fails, stop here
         if (!isValid) return;
         
+        const submitButton = signupForm.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.textContent = 'Creating account...';
         try {
             // Show loading state
-            const submitButton = signupForm.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.textContent;
-            submitButton.disabled = true;
-            submitButton.textContent = 'Creating account...';
+     
             
-            // Submit form data to server
+            // Submit form data to server - use the route consistent with your createCustomer function in db.js
             const response = await fetch('/api/signup', {
                 method: 'POST',
                 headers: {
@@ -59,10 +85,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     lastName,
                     email,
                     phone,
-                    password,
-                    confirmPassword
+                    password
                 })
             });
+            
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Server returned non-JSON response. Check server endpoint configuration.');
+            }
             
             const data = await response.json();
             
@@ -90,50 +121,71 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Signup error:', error);
-            showNotification('Network error. Please try again.', 'error');
+            showNotification('Network error or server issue. Please try again.', 'error');
         } finally {
-            // Reset button state
-            submitButton.disabled = false;
-            submitButton.textContent = originalButtonText;
+            // Make sure to reference the button 
+            const submitButton = signupForm.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText || 'Create Account';
+            }
         }
     });
-    
-   
-
 });
 
-// Helper function for showing notifications (implementation depends on your UI framework)
+// Helper function for showing notifications
 function showNotification(message, type) {
-    // This is a placeholder - implement based on your UI framework
-    // Examples: Toast notification, alert, or custom element
-    console.log(`${type.toUpperCase()}: ${message}`);
+    const notification = document.querySelector('.notification');
+    const notificationMessage = notification.querySelector('.notification-message');
+    const notificationIcon = notification.querySelector('.notification-icon');
+    const notificationClose = notification.querySelector('.notification-close');
     
-    // Simple implementation - create a notification div
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
+    // Set message
+    notificationMessage.textContent = message;
     
-    // Add to body
-    document.body.appendChild(notification);
+    // Set appropriate icon and class
+    notification.className = 'notification ' + type;
     
-    // Remove after 3 seconds
+    if (type === 'success') {
+        notificationIcon.className = 'notification-icon fas fa-check-circle';
+    } else if (type === 'error') {
+        notificationIcon.className = 'notification-icon fas fa-exclamation-circle';
+    }
+    
+    // Show notification
+    notification.style.display = 'flex';
+    
+    // Auto-hide after 3 seconds
     setTimeout(() => {
-        notification.remove();
+        notification.style.display = 'none';
     }, 3000);
+    
+    // Close on click
+    notificationClose.addEventListener('click', function() {
+        notification.style.display = 'none';
+    });
 }
 
 // Function to toggle password visibility
 function setupPasswordToggles() {
-    const passwordToggles = document.querySelectorAll('.password-toggle');
+    const togglePassword = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const passwordField = document.getElementById('password');
+    const confirmPasswordField = document.getElementById('confirmPassword');
     
-    passwordToggles.forEach(toggle => {
-        toggle.addEventListener('click', function() {
-            const passwordField = this.previousElementSibling;
-            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordField.setAttribute('type', type);
-            
-            // Toggle icon (assuming you have eye/eye-off icons)
-            this.classList.toggle('visible');
-        });
+    // Set up toggle password button
+    togglePassword.addEventListener('click', function() {
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+    
+    // Set up toggle confirm password button
+    toggleConfirmPassword.addEventListener('click', function() {
+        const type = confirmPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPasswordField.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
     });
 }

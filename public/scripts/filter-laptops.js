@@ -1,10 +1,9 @@
-import laptopModels from "./buy-laptop-data.js";
-
 // Function to calculate discounted price
 function calculateDiscountedPrice(price, discount) {
     return price - (price * discount / 100);
 }
 
+// Function to display products
 function displayProducts(filteredProducts) {
     const container = document.getElementById("product-list");
     container.innerHTML = "";
@@ -72,6 +71,7 @@ function displayProducts(filteredProducts) {
         });
     });
 }
+
 // Function to show "Added to Cart" message
 function showAddedToCartMessage(productName) {
     const messageDiv = document.createElement("div");
@@ -264,10 +264,28 @@ function updateSliderBackground() {
     maxValue.value = maxSlider.value;
 }
 
+// Function to fetch laptop data from the database
+async function fetchLaptopData() {
+    try {
+        const response = await fetch('/api/laptops'); // Replace with your API endpoint
+        if (!response.ok) {
+            throw new Error('Failed to fetch laptop data');
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching laptop data:', error);
+        return []; // Return an empty array in case of error
+    }
+}
+
 // Function to filter products based on selected filters
-function filterProducts() {
+async function filterProducts() {
     const selectedFilters = getSelectedFilters();
     console.log("Filtering with price range:", selectedFilters.minPrice, "to", selectedFilters.maxPrice);
+
+    // Fetch laptop data from the database
+    const laptopModels = await fetchLaptopData();
 
     // Check if any filters are active
     const hasActiveFilters = 
@@ -397,12 +415,10 @@ function clearAllFilters() {
     window.history.replaceState(null, "", "/filter-buy-laptop");
 }
 
-
 // Load filters and set event listeners when DOM is ready
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
     // Check if user is logged in
     const session = JSON.parse(localStorage.getItem("currentSession"));
-    
 
     // Handle URL parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -426,7 +442,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("max-value").value = maxPriceValue;
         }
     } 
-    // If no URL parameters, try to load filters from localStorage
+
     else {
         // Only reset filters if NOT coming from a page reload
         if (performance.getEntriesByType("navigation")[0]?.type !== "reload") {
@@ -471,5 +487,5 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     
     // Apply filters and display products
-    filterProducts();
+    await filterProducts(); // Wait for the data to be fetched before filtering
 });

@@ -57,6 +57,28 @@ export async function initializeDatabase() {
       )
     `);
     
+    // Create laptops table if it doesn't exist
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS laptops (
+        id INTEGER PRIMARY KEY,
+        brand TEXT NOT NULL,
+        series TEXT NOT NULL,
+        processor_name TEXT NOT NULL,
+        processor_generation TEXT NOT NULL,
+        base_price REAL NOT NULL,
+        discount INTEGER,
+        ram TEXT NOT NULL,
+        storage_type TEXT NOT NULL,
+        storage_capacity TEXT NOT NULL,
+        display_size REAL NOT NULL,
+        weight REAL NOT NULL,
+        condition TEXT NOT NULL,
+        os TEXT NOT NULL,
+        image TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    
     // Check if any supervisors exist, add test ones if not
     const supervisorCount = await db.get('SELECT COUNT(*) as count FROM supervisors');
     
@@ -100,6 +122,30 @@ export async function initializeDatabase() {
       console.log('Test admins added to database');
     }
     
+    // Check if any laptops exist, add initial data if not
+    const laptopCount = await db.get('SELECT COUNT(*) as count FROM laptops');
+    
+    if (laptopCount.count ===0) {
+      // Insert the sample laptop data
+      await db.run(
+        `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, 
+                             base_price, discount, ram, storage_type, storage_capacity, 
+                             display_size, weight, condition, os, image) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [100, 'Acer', 'Aspire 3', 'Intel Core i3', '12th Gen', 45999, 10, '8GB', 
+         'SSD', '512GB', 15.6, 1.7, 'Superb', 'Windows 11', 'images/buy-laptops/aspire3.webp']
+      );
+      
+      await db.run(
+        `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, 
+                             base_price, discount, ram, storage_type, storage_capacity, 
+                             display_size, weight, condition, os, image) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [101, 'Acer', 'Aspire 5', 'Intel Core i5', '13th Gen', 57999, 12, '16GB', 
+         'SSD', '512GB', 14, 1.6, 'Superb', 'Windows 11', 'images/buy-laptops/aspire5.webp']
+      );
+    }
+    
     return db;
   } catch (error) {
     console.error('Database initialization error:', error);
@@ -113,6 +159,178 @@ export async function getDb() {
     await initializeDatabase();
   }
   return db;
+}
+
+// Laptop data functions
+export async function getAllLaptops() {
+  try {
+    const db = await getDb();
+    const laptops = await db.all('SELECT * FROM laptops');
+    
+    // Transform the flat data structure back to the nested structure expected by the frontend
+    return laptops.map(laptop => ({
+      id: laptop.id,
+      brand: laptop.brand,
+      series: laptop.series,
+      processor: {
+        name: laptop.processor_name,
+        generation: laptop.processor_generation
+      },
+      pricing: {
+        basePrice: laptop.base_price,
+        discount: laptop.discount
+      },
+      memory: {
+        ram: laptop.ram,
+        storage: {
+          type: laptop.storage_type,
+          capacity: laptop.storage_capacity
+        }
+      },
+      displaysize: laptop.display_size,
+      weight: laptop.weight,
+      condition: laptop.condition,
+      os: laptop.os,
+      image: laptop.image
+    }));
+  } catch (error) {
+    console.error('Error getting laptops:', error);
+    throw error;
+  }
+}
+
+export async function getLaptopById(id) {
+  try {
+    const db = await getDb();
+    const laptop = await db.get('SELECT * FROM laptops WHERE id = ?', [id]);
+    
+    if (!laptop) {
+      return null;
+    }
+    
+    // Transform to the expected structure
+    return {
+      id: laptop.id,
+      brand: laptop.brand,
+      series: laptop.series,
+      processor: {
+        name: laptop.processor_name,
+        generation: laptop.processor_generation
+      },
+      pricing: {
+        basePrice: laptop.base_price,
+        discount: laptop.discount
+      },
+      memory: {
+        ram: laptop.ram,
+        storage: {
+          type: laptop.storage_type,
+          capacity: laptop.storage_capacity
+        }
+      },
+      displaysize: laptop.display_size,
+      weight: laptop.weight,
+      condition: laptop.condition,
+      os: laptop.os,
+      image: laptop.image
+    };
+  } catch (error) {
+    console.error('Error getting laptop by id:', error);
+    throw error;
+  }
+}
+
+export async function addLaptop(laptopData) {
+  try {
+    const db = await getDb();
+    
+    const result = await db.run(
+      `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, 
+                           base_price, discount, ram, storage_type, storage_capacity, 
+                           display_size, weight, condition, os, image) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        laptopData.id,
+        laptopData.brand,
+        laptopData.series,
+        laptopData.processor.name,
+        laptopData.processor.generation,
+        laptopData.pricing.basePrice,
+        laptopData.pricing.discount,
+        laptopData.memory.ram,
+        laptopData.memory.storage.type,
+        laptopData.memory.storage.capacity,
+        laptopData.displaysize,
+        laptopData.weight,
+        laptopData.condition,
+        laptopData.os,
+        laptopData.image
+      ]
+    );
+    
+    return { success: true, id: laptopData.id };
+  } catch (error) {
+    console.error('Error adding laptop:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function updateLaptop(id, laptopData) {
+  try {
+    const db = await getDb();
+    
+    await db.run(
+      `UPDATE laptops SET 
+        brand = ?, 
+        series = ?, 
+        processor_name = ?, 
+        processor_generation = ?, 
+        base_price = ?, 
+        discount = ?, 
+        ram = ?, 
+        storage_type = ?, 
+        storage_capacity = ?, 
+        display_size = ?, 
+        weight = ?, 
+        condition = ?, 
+        os = ?, 
+        image = ? 
+      WHERE id = ?`,
+      [
+        laptopData.brand,
+        laptopData.series,
+        laptopData.processor.name,
+        laptopData.processor.generation,
+        laptopData.pricing.basePrice,
+        laptopData.pricing.discount,
+        laptopData.memory.ram,
+        laptopData.memory.storage.type,
+        laptopData.memory.storage.capacity,
+        laptopData.displaysize,
+        laptopData.weight,
+        laptopData.condition,
+        laptopData.os,
+        laptopData.image,
+        id
+      ]
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating laptop:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function deleteLaptop(id) {
+  try {
+    const db = await getDb();
+    await db.run('DELETE FROM laptops WHERE id = ?', [id]);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting laptop:', error);
+    return { success: false, message: error.message };
+  }
 }
 
 // Customer authentication functions

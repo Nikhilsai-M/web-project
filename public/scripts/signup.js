@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const phone = document.getElementById('phone').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
+
         
         // Basic client-side validation
         let isValid = true;

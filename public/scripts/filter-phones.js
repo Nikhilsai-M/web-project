@@ -17,7 +17,6 @@ function displayProducts(filteredProducts) {
             </div>
         `;
         
-        // Add event listener to the inline clear button
         const clearInlineBtn = container.querySelector(".clear-all-inline");
         if (clearInlineBtn) {
             clearInlineBtn.addEventListener("click", clearAllFilters);
@@ -217,7 +216,7 @@ function updateSelectedFilters() {
     document.querySelector(".selected-filters").style.display = hasActiveFilters ? "block" : "none";
 }
 
-// Function to remove a specific filter
+
 function removeFilter(type, value) {
     if (type === "price") {
         document.getElementById("min-price").value = 0;

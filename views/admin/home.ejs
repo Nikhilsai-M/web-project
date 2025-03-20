@@ -25,24 +25,8 @@
                     <span>Products</span>
                 </div>
                 <div class="nav-item">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                    <span>Orders</span>
-                </div>
-                <div class="nav-item">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Customers</span>
-                </div>
-                <div class="nav-item">
-                    <i class="fa-solid fa-tag"></i>
-                    <span>Promotions</span>
-                </div>
-                <div class="nav-item">
                     <i class="fa-solid fa-chart-simple"></i>
                     <span>Analytics</span>
-                </div>
-                <div class="nav-item">
-                    <i class="fa-solid fa-comment"></i>
-                    <span>Reviews</span>
                 </div>
                 <div class="nav-item">
                     <i class="fa-solid fa-gear"></i>
@@ -56,14 +40,10 @@
             <div class="header">
                 <div class="search-bar">
                     <i class="fa-solid fa-search"></i>
-                    <input type="text" placeholder="Search products, orders, customers...">
+                    <input type="text" placeholder="Search products...">
                 </div>
                 
                 <div class="user-actions">
-                    <div class="notification-bell">
-                        <i class="fa-solid fa-bell"></i>
-                        <div class="notification-badge">3</div>
-                    </div>
                     <div class="avatar">
                         <span>SE</span>
                     </div>
@@ -97,15 +77,6 @@
                         <span>4.1% from last month</span>
                     </div>
                 </div>
-                
-                <div class="stats-card">
-                    <div class="card-title">CUSTOMER REVIEWS</div>
-                    <div class="card-value">4.8 <span style="font-size: 1rem; color: var(--secondary);">/5</span></div>
-                    <div class="card-indicator positive">
-                        <i class="fa-solid fa-arrow-up"></i>
-                        <span>0.3 from last month</span>
-                    </div>
-                </div>
             </div>
             
             <div class="section-title">Inventory Overview</div>
@@ -113,7 +84,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Product</th<th>Product</th>
+                            <th>Product</th>
                             <th>Category</th>
                             <th>Price</th>
                             <th>Stock</th>
@@ -196,89 +167,102 @@
                     </tbody>
                 </table>
             </div>
-            
-            <div class="recent-section">
-                <div>
-                    <div class="section-title">Recent Listings</div>
-                    <div class="products-table">
-                        
-                        <div class="listing-item">
-                            <div class="listing-img">
-                                <i class="fa-solid fa-camera"></i>
-                            </div>
-                            <div class="listing-info">
-                                <div class="listing-name">Samsung S22 ultra</div>
-                                <div class="listing-meta">Listed by: Sarah M. · 5 hours ago</div>
-                            </div>
-                            <div class="listing-price">30,000</div>
-                        </div>
-                        <div class="listing-item">
-                            <div class="listing-img">
-                                <i class="fa-solid fa-tv"></i>
-                            </div>
-                            <div class="listing-info">
-                                <div class="listing-name">Hp victus</div>
-                                <div class="listing-meta">Listed by: Michael T. · 8 hours ago</div>
-                            </div>
-                            <div class="listing-price">50,000</div>
-                        </div>
-                        <div class="listing-item">
-                            <div class="listing-img">
-                                <i class="fa-solid fa-clock"></i>
-                            </div>
-                            <div class="listing-info">
-                                <div class="listing-name">Apple Watch Series 8</div>
-                                <div class="listing-meta">Listed by: Emma K. · 1 day ago</div>
-                            </div>
-                            <div class="listing-price">10,000</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="section-title">Top Sellers</div>
-                    <div class="products-table">
-                        <div class="listing-item">
-                            <div class="listing-img">
-                                <i class="fa-solid fa-user"></i>
-                            </div>
-                            <div class="listing-info">
-                                <div class="listing-name">Virat Kohli</div>
-                                <div class="listing-meta">23 products · 4.9 rating</div>
-                            </div>
-                        </div>
-                        <div class="listing-item">
-                            <div class="listing-img">
-                                <i class="fa-solid fa-user"></i>
-                            </div>
-                            <div class="listing-info">
-                                <div class="listing-name">MS Dhoni</div>
-                                <div class="listing-meta">18 products · 4.8 rating</div>
-                            </div>
-                        </div>
-                        <div class="listing-item">
-                            <div class="listing-img">
-                                <i class="fa-solid fa-user"></i>
-                            </div>
-                            <div class="listing-info">
-                                <div class="listing-name">Rohit</div>
-                                <div class="listing-meta">15 products · 4.7 rating</div>
-                            </div>
-                        </div>
-                        <div class="listing-item">
-                            <div class="listing-img">
-                                <i class="fa-solid fa-user"></i>
-                            </div>
-                            <div class="listing-info">
-                                <div class="listing-name">Hardik</div>
-                                <div class="listing-meta">12 products · 4.7 rating</div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="sales-graph" style="margin-top: 2rem;">
+                <div class="section-title">Monthly Sales</div>
+                <div style="padding: 1rem;">
+                    <canvas id="salesChart" width="400" height="200"></canvas>
                 </div>
             </div>
         </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script>
+        // Initialize the chart when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            const salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Sales ($)',
+                        data: [15000, 19000, 17000, 18500, 21000, 24350],
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                            titleFont: {
+                                family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+                                size: 14
+                            },
+                            bodyFont: {
+                                family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+                                size: 13
+                            },
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(226, 232, 240, 0.6)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+                                },
+                                padding: 10,
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+                                },
+                                padding: 10
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
     <script src="/scripts/admin/admin-home.js"></script>
 </body>
 </html>

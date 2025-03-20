@@ -183,6 +183,7 @@ app.post('/api/supervisor/login', async (req, res) => {
         if (!supervisor) {
             return res.status(401).json({ success: false, message: 'Invalid employee ID or password' });
         }
+
         
 
         const passwordMatch = await bcrypt.compare(password, supervisor.password);
@@ -193,6 +194,8 @@ app.post('/api/supervisor/login', async (req, res) => {
                 name: supervisor.name,
                 role: 'supervisor'
             };
+            console.log("Login request received: ",req.session.user);
+            
             
             return res.json({ success: true, name: supervisor.name });
         } else {

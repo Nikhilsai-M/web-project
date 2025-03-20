@@ -227,23 +227,16 @@ app.get('/', (req, res) => {
 });
 
 app.get('/sell-phone', (req, res) => {
-    res.render("sell_phone");
+    res.render("sell-phone");
 });
 
 app.get('/sell-laptop', (req, res) => {
-    res.render("sell_laptop");
+    res.render("sell-laptop");
 });
 
-app.get('/sell-laptop-models', (req, res) => {
-    res.render("sell-laptop-models");
-});
 
 app.get('/Accessories', (req, res) => {
     res.render("accessories");
-});
-
-app.get('/sell-phone-models', (req, res) => {
-    res.render("sellphone-container");
 });
 
 app.get('/buy-phone', (req, res) => {

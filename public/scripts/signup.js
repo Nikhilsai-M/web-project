@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const signupForm = document.getElementById('signupForm');
     
     // Add form submit event listener
-    signupForm.addEventListener('submit', function(e) {
+    signupForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         // Reset all error messages
@@ -22,9 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const phone = document.getElementById('phone').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
-        const agreeTerms = document.getElementById('terms').checked;
         
-        // Validate form inputs
+        // Basic client-side validation
         let isValid = true;
         
         // Validate name fields
@@ -38,76 +37,102 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
-        // Validate email
-        if (!isValidEmail(email)) {
-            document.getElementById('email-error').textContent = 'Please enter a valid email address';
-            isValid = false;
-        } else if (userExists(email)) {
-            document.getElementById('email-error').textContent = 'This email is already registered';
-            isValid = false;
-        }
-        
-        // Validate phone number
-        if (!isValidPhone(phone)) {
-            document.getElementById('phone-error').textContent = 'Please enter a valid 10-digit mobile number';
-            isValid = false;
-        }
-        
-        // Validate password strength
-        if (!isValidPassword(password)) {
-            document.getElementById('password-error').textContent = 
-                'Password must be at least 8 characters with uppercase, lowercase, and number';
-            isValid = false;
-        }
-        
-        // Check if passwords match
-        if (password !== confirmPassword) {
-            document.getElementById('confirmPassword-error').textContent = 'Passwords do not match';
-            isValid = false;
-        }
-        
-        
-        // If form is not valid, stop here
+        // If basic validation fails, stop here
         if (!isValid) return;
         
-        // Form is valid, create new user
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        
-        // Generate a unique ID
-        const userId = 'user_' + Date.now();
-        
-        // Create user object
-        const newUser = {
-            id: userId,
-            firstName,
-            lastName,
-            email,
-            phone,
-            password, // Note: In a real app, you should hash passwords
-            createdAt: new Date().toISOString()
-        };
-        
-        // Add user to users array
-        users.push(newUser);
-        
-        // Save to localStorage
-        localStorage.setItem('users', JSON.stringify(users));
-        
-        // Show success message
-        showNotification('Account created successfully! Redirecting to login page...', 'success');
-        
-        // Redirect to login page after short delay
-        setTimeout(() => {
-            window.location.href = '/login';
-        }, 1000);
+        try {
+            // Show loading state
+            const submitButton = signupForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Creating account...';
+            
+            // Submit form data to server
+            const response = await fetch('/api/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    password,
+                    confirmPassword
+                })
+            });
+            
+            const data = await response.json();
+            
+            // Handle response
+            if (!response.ok) {
+                // Display validation errors from server
+                if (data.errors) {
+                    Object.entries(data.errors).forEach(([field, message]) => {
+                        const errorElement = document.getElementById(`${field}-error`);
+                        if (errorElement) {
+                            errorElement.textContent = message;
+                        }
+                    });
+                } else {
+                    showNotification(data.message || 'An error occurred', 'error');
+                }
+            } else {
+                // Show success message
+                showNotification('Account created successfully! Redirecting to login page...', 'success');
+                
+                // Redirect to login page after short delay
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            showNotification('Network error. Please try again.', 'error');
+        } finally {
+            // Reset button state
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        }
     });
     
-    // Handle social signup buttons (placeholders)
-    const socialButtons = document.querySelectorAll('.social-button');
-    socialButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const platform = this.classList.contains('google') ? 'Google' : 'Facebook';
-            showNotification(`${platform} signup is not implemented in this demo`, 'info');
+   
+
+});
+
+// Helper function for showing notifications (implementation depends on your UI framework)
+function showNotification(message, type) {
+    // This is a placeholder - implement based on your UI framework
+    // Examples: Toast notification, alert, or custom element
+    console.log(`${type.toUpperCase()}: ${message}`);
+    
+    // Simple implementation - create a notification div
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    // Add to body
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Function to toggle password visibility
+function setupPasswordToggles() {
+    const passwordToggles = document.querySelectorAll('.password-toggle');
+    
+    passwordToggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const passwordField = this.previousElementSibling;
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            
+            // Toggle icon (assuming you have eye/eye-off icons)
+            this.classList.toggle('visible');
         });
     });
-});
+}

@@ -315,6 +315,8 @@ app.get('/laptop/:id', (req, res) => {
     res.render('laptop-details', { laptop });
 });
 
+
+
 app.get('/api/laptop/:id', (req, res) => {
     const laptopId = req.params.id;
     

@@ -5,12 +5,10 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import session from 'express-session';
 import bcrypt from 'bcrypt';
-import { initializeDatabase, getDb } from './db.js';
-
+import { initializeDatabase, getDb, createCustomer, authenticateCustomer } from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
 
 import { mobileModels } from './public/scripts/buy-mobile-data.js';
 import laptopModels from './public/scripts/buy-laptop-data.js';
@@ -18,10 +16,10 @@ import { accessoriesData } from './public/scripts/accessories-data.js';
 const app = express();
 const port = 3000;
 
-let db;
+// Initialize database before setting up routes
 (async () => {
   try {
-    db = await initializeDatabase();
+    await initializeDatabase();
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Failed to initialize database:', error);
@@ -34,7 +32,6 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({extended: true}));
 
-
 app.use(session({
     secret: 'your-secret-key',
     resave: false,
@@ -42,12 +39,10 @@ app.use(session({
     cookie: { secure: false } 
 }));
 
-
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
     next();
 });
-
 
 function requireSupervisorAuth(req, res, next) {
     if (req.session.user && req.session.user.role === 'supervisor') {
@@ -57,7 +52,6 @@ function requireSupervisorAuth(req, res, next) {
     }
 }
 
-
 function requireAdminAuth(req, res, next) {
     if (req.session.user && req.session.user.role === 'admin') {
         next();
@@ -65,6 +59,158 @@ function requireAdminAuth(req, res, next) {
         res.redirect('/admin/login');
     }
 }
+
+function requireCustomerAuth(req, res, next) {
+    if (req.session.user && req.session.user.role === 'customer') {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+}
+
+// Test database connection route
+app.get('/api/test-db', async (req, res) => {
+  try {
+    const db = await getDb();
+    res.json({ success: true, message: 'Database connection successful' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Database connection failed' });
+  }
+});
+
+// Customer signup route
+app.post('/api/signup', async (req, res) => {
+    try {
+        const { firstName, lastName, email, phone, password } = req.body;
+        
+        // Basic validation
+        const errors = {};
+        
+        if (!firstName || firstName.length < 2) {
+            errors.firstName = 'First name must be at least 2 characters';
+        }
+        
+        if (!lastName || lastName.length < 2) {
+            errors.lastName = 'Last name must be at least 2 characters';
+        }
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email || !emailRegex.test(email)) {
+            errors.email = 'Please enter a valid email address';
+        }
+        
+        if (!phone || phone.length < 10) {
+            errors.phone = 'Please enter a valid phone number';
+        }
+        
+        if (!password || password.length < 6) {
+            errors.password = 'Password must be at least 6 characters';
+        }
+        
+        // Return errors if validation fails
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({ success: false, errors });
+        }
+        
+        // Create new customer using the function from db.js
+        const result = await createCustomer(firstName, lastName, email, phone, password);
+        
+        if (result.success) {
+            // Set session for automatic login (optional)
+            req.session.user = {
+                userId: result.userId,
+                firstName,
+                lastName,
+                email,
+                role: 'customer'
+            };
+            
+            return res.status(201).json({ 
+                success: true, 
+                message: 'Account created successfully',
+                userId: result.userId
+            });
+        } else {
+            // Handle database errors or duplicate email
+            if (result.message === 'Email already registered') {
+                return res.status(409).json({ 
+                    success: false, 
+                    errors: { email: 'Email is already registered' }
+                });
+            }
+            
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Error creating account'
+            });
+        }
+    } catch (error) {
+        console.error('Signup error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
+    }
+});
+
+// Customer login route
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Basic validation
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email and password are required',
+            });
+        }
+
+        // Authenticate customer
+        const result = await authenticateCustomer(email, password);
+
+        if (result.success) {
+            // Set session
+            req.session.user = {
+                userId: result.user.user_id,
+                firstName: result.user.first_name,
+                lastName: result.user.last_name,
+                email: result.user.email,
+                role: 'customer',
+            };
+
+            return res.json({
+                success: true,
+                message: 'Login successful',
+                user: {
+                    userId: result.user.user_id,
+                    firstName: result.user.first_name,
+                    lastName: result.user.last_name,
+                    email: result.user.email,
+                },
+            });
+        } else {
+            return res.status(401).json({
+                success: false,
+                message: result.message || 'Invalid credentials',
+            });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error',
+        });
+    }
+});
+
+
+
+// Customer logout route
+app.get('/api/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
+});
 
 // Your existing routes
 app.get('/', (req, res) => {
@@ -127,18 +273,17 @@ app.get('/cart', (req, res) => {
     res.render("cart");
 });
 
-app.get('/profile', (req, res) => {
+app.get('/profile', requireCustomerAuth, (req, res) => {
     res.render("user-profile");
 });
-app.get('/orders', (req, res) => {
+
+app.get('/orders', requireCustomerAuth, (req, res) => {
     res.render("orders");
 });
-
 
 app.get('/login', (req, res) => {
     res.render("login-interfaces");
 });
-
 
 app.get('/customerlogin', (req, res) => {
     res.render("login");
@@ -147,12 +292,15 @@ app.get('/customerlogin', (req, res) => {
 app.get('/signup', (req, res) => {
     res.render("signup");
 });
+
 app.get('/blog', (req, res) => {
     res.render("blog");
 });
+
 app.get('/contact_us', (req, res) => {
     res.render("contact_us");
 });
+
 app.get('/about_us', (req, res) => {
     res.render("about_us");
 });
@@ -166,15 +314,12 @@ app.get('/supervisor/home', requireSupervisorAuth, (req, res) => {
     res.render("supervisor/home", { user: req.session.user });
 });
 
-
 app.post('/api/supervisor/login', async (req, res) => {
     const { employee_id, password } = req.body;
     
     try {
-     
         const db = await getDb();
         
-
         const supervisor = await db.get(
             'SELECT * FROM supervisors WHERE employee_id = ?',
             [employee_id]
@@ -183,8 +328,6 @@ app.post('/api/supervisor/login', async (req, res) => {
         if (!supervisor) {
             return res.status(401).json({ success: false, message: 'Invalid employee ID or password' });
         }
-
-        
 
         const passwordMatch = await bcrypt.compare(password, supervisor.password);
         
@@ -195,7 +338,6 @@ app.post('/api/supervisor/login', async (req, res) => {
                 role: 'supervisor'
             };
             console.log("Login request received: ",req.session.user);
-            
             
             return res.json({ success: true, name: supervisor.name });
         } else {
@@ -220,7 +362,6 @@ app.get('/admin/login', (req, res) => {
 app.get('/admin/home', requireAdminAuth, (req, res) => {
     res.render("admin/home", { user: req.session.user });
 });
-
 
 app.post('/api/admin/login', async (req, res) => {
     const { admin_id, password, security_token } = req.body;
@@ -270,7 +411,6 @@ app.get('/api/admin/logout', (req, res) => {
     res.redirect('/admin/login');
 });
 
-
 app.get('/product/:id', (req, res) => {
     const productId = parseInt(req.params.id);
     const product = mobileModels.find(p => p.id === productId);
@@ -300,7 +440,6 @@ app.get('/laptop/:id', (req, res) => {
     
     const laptopId = req.params.id;
     
-
     let laptop = laptopModels.find(p => p.id === laptopId);
 
     if (!laptop) {
@@ -315,15 +454,11 @@ app.get('/laptop/:id', (req, res) => {
     res.render('laptop-details', { laptop });
 });
 
-
-
 app.get('/api/laptop/:id', (req, res) => {
     const laptopId = req.params.id;
     
-
     let laptop = laptopModels.find(l => l.id === laptopId);
     
-
     if (!laptop) {
         const numericId = parseInt(laptopId);
         laptop = laptopModels.find(l => l.id === numericId);
@@ -347,7 +482,6 @@ app.get('/earphone/:id', (req, res) => {
     res.render('earphones-details', { earphone });
 });
 
-
 app.get('/api/earphone/:id', (req, res) => {
     const earphoneId = req.params.id;
     const earphone = accessoriesData.earphones.find(p => p.id === earphoneId);
@@ -359,7 +493,6 @@ app.get('/api/earphone/:id', (req, res) => {
     res.json(earphone);
 });
 
-
 app.get('/charger/:id', (req, res) => {
     const chargerId = req.params.id;
     const charger = accessoriesData.chargers.find(e => e.id === chargerId);
@@ -370,7 +503,6 @@ app.get('/charger/:id', (req, res) => {
     
     res.render('charger-details', { charger });
 });
-
 
 app.get('/api/charger/:id', (req, res) => {
     const chargerId = req.params.id;
@@ -393,7 +525,6 @@ app.get('/mouse/:id', (req, res) => {
     
     res.render('mouse-details', { mouse });
 });
-
 
 app.get('/api/mouse/:id', (req, res) => {
     const mouseId = req.params.id;

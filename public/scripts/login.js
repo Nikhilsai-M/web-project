@@ -79,14 +79,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('remember').checked = true;
     }
 
-    // Handle social login buttons (placeholders)
-    const socialButtons = document.querySelectorAll('.social-button');
-    socialButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const platform = this.classList.contains('google') ? 'Google' : 'Facebook';
-            showNotification(`${platform} login is not implemented in this demo`, 'info');
-        });
-    });
 
     // Handle forgot password link
     const forgotPasswordLink = document.querySelector('.forgot-password');

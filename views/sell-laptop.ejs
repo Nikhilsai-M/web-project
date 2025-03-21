@@ -9,7 +9,7 @@
 <body>
     <%- include('partials/header') %> 
     <div class="container">
-        <form id="laptopSellForm">
+        <form id="laptopSellForm" action="/api/sell-laptop" method="POST" enctype="multipart/form-data">
             <div class="form-section">
                 <h2>Laptop Information</h2>
                 
@@ -146,6 +146,17 @@
                     <label for="phone">Phone Number (Required)</label>
                     <input type="tel" id="phone" name="phone" required>
                 </div>
+
+                <div class="form-section">
+                    <h2>Device Image</h2>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="device-image">Upload Device Image</label>
+                        <input type="file" id="device-image" name="device-image" accept="image/*" required>
+                      </div>
+                    </div>
+                  </div>
+
                 <div class="form-action">
                     <button type="submit" class="submit-btn">Get Your Quote</button>
                 </div>
@@ -154,7 +165,7 @@
 
         </form>
     </div>
-    <footer><%- include('partials/footer') %> </footer>
+    <script src="/scripts/sell-laptop.js"></script>
 </body>
-
+<footer><%- include('partials/footer') %> </footer>
 </html>

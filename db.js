@@ -56,6 +56,16 @@ export async function initializeDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    // Add columns if they don't exist (for existing databases)
+    await db.exec(`
+      ALTER TABLE customers ADD COLUMN orders_count INTEGER DEFAULT 0;
+    `).catch(() => {}); // Ignore if column already exists
+    await db.exec(`
+      ALTER TABLE customers ADD COLUMN items_sold_count INTEGER DEFAULT 0;
+    `).catch(() => {});
+    await db.exec(`
+      ALTER TABLE customers ADD COLUMN password_last_changed DATETIME DEFAULT CURRENT_TIMESTAMP;
+    `).catch(() => {});
     
     // Create laptops table if it doesn't exist
     await db.exec(`
@@ -102,6 +112,60 @@ export async function initializeDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS phone_applications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT,
+        brand TEXT NOT NULL,
+        model TEXT NOT NULL,
+        ram TEXT NOT NULL,
+        rom TEXT NOT NULL,
+        processor TEXT NOT NULL,
+        network TEXT NOT NULL,
+        size TEXT,
+        weight TEXT,
+        device_age TEXT NOT NULL,
+        switching_on TEXT NOT NULL,
+        phone_calls TEXT NOT NULL,
+        cameras_working TEXT NOT NULL,
+        battery_issues TEXT NOT NULL,
+        physically_damaged TEXT NOT NULL,
+        sound_issues TEXT NOT NULL,
+        location TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        image_path TEXT,  
+        status TEXT DEFAULT 'pending',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS laptop_applications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT,
+        brand TEXT NOT NULL,
+        model TEXT NOT NULL,
+        ram TEXT NOT NULL,
+        storage TEXT NOT NULL,
+        processor TEXT NOT NULL,
+        generation TEXT,
+        display_size TEXT,
+        weight TEXT,
+        os TEXT,
+        device_age TEXT,
+        battery_issues TEXT,
+        location TEXT NOT NULL,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        image_path TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+ 
     
     await db.exec(`
       CREATE TABLE IF NOT EXISTS earphones (
@@ -188,7 +252,6 @@ export async function initializeDatabase() {
         [100, 'Acer', 'Aspire 3', 'Intel Core i3', '12th Gen', 45999, 10, '8GB', 
          'SSD', '512GB', 15.6, 1.7, 'Superb', 'Windows 11', 'images/buy-laptops/aspire3.webp']
       );
-      
       await db.run(
         `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, 
                              base_price, discount, ram, storage_type, storage_capacity, 
@@ -198,6 +261,11 @@ export async function initializeDatabase() {
          'SSD', '512GB', 14, 1.6, 'Superb', 'Windows 11', 'images/buy-laptops/aspire5.webp']
       );
     }
+
+    // Check if any phones exist, add initial data if not
+    const phoneCount = await db.get('SELECT COUNT(*) as count FROM phones');
+    
+    
     const chargercount=await db.get('SELECT COUNT(*) as count FROM chargers');
     if(chargercount.count===0){
       await db.run(  
@@ -243,7 +311,7 @@ export async function initializeDatabase() {
     );  
     }
     // Check if any phones exist, add initial data if not
-    const phoneCount = await db.get('SELECT COUNT(*) as count FROM phones');
+   
     
     if (phoneCount.count === 0) {
       // Insert the sample phone data
@@ -813,7 +881,6 @@ export async function deletePhone(id) {
     return { success: false, message: error.message };
   }
 }
-
 // Customer authentication functions
 export async function createCustomer(firstName, lastName, email, phone, password) {
   try {
@@ -833,8 +900,8 @@ export async function createCustomer(firstName, lastName, email, phone, password
     
     // Insert the new customer
     await db.run(
-      'INSERT INTO customers (user_id, first_name, last_name, email, phone, password) VALUES (?, ?, ?, ?, ?, ?)',
-      [userId, firstName, lastName, email, phone, hashedPassword]
+      'INSERT INTO customers (user_id, first_name, last_name, email, phone, password, orders_count, items_sold_count, password_last_changed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [userId, firstName, lastName, email, phone, hashedPassword, 0, 0, new Date().toISOString()]
     );
     
     return { success: true, userId };
@@ -843,8 +910,6 @@ export async function createCustomer(firstName, lastName, email, phone, password
     return { success: false, message: 'Database error' };
   }
 }
-
-
 
 export async function authenticateCustomer(email, password) {
   try {
@@ -870,6 +935,243 @@ export async function authenticateCustomer(email, password) {
   } catch (error) {
     console.error('Authentication error:', error);
     return { success: false, message: 'Authentication error' };
+  }
+}
+
+export async function createPhoneApplication(applicationData) {
+  try {
+    const db = await getDb();
+
+    const result = await db.run(
+      `INSERT INTO phone_applications (
+        user_id, brand, model, ram, rom, processor, network, size, weight, 
+        device_age, switching_on, phone_calls, cameras_working, battery_issues, 
+        physically_damaged, sound_issues, location, email, phone, image_path
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        applicationData.userId || null,
+        applicationData.brand,
+        applicationData.model,
+        applicationData.ram,
+        applicationData.rom,
+        applicationData.processor,
+        applicationData.network,
+        applicationData.size || '',
+        applicationData.weight || '',
+        applicationData.deviceAge,
+        applicationData.switchingOn,
+        applicationData.phoneCalls,
+        applicationData.camerasWorking,
+        applicationData.batteryIssues,
+        applicationData.physicallyDamaged,
+        applicationData.soundIssues,
+        applicationData.location,
+        applicationData.email,
+        applicationData.phone,
+        applicationData.imagepath || '', // Cloudinary URL
+      ]
+    );
+
+    return { success: true, id: result.lastID };
+  } catch (error) {
+    console.error('Error creating phone application:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getAllPhoneApplications() {
+  try {
+    const db = await getDb();
+    const applications = await db.all('SELECT * FROM phone_applications ORDER BY created_at DESC');
+    return applications;
+  } catch (error) {
+    console.error('Error getting phone applications:', error);
+    throw error;
+  }
+}
+
+export async function getPhoneApplicationsByUserId(userId) {
+  try {
+    const db = await getDb();
+    const applications = await db.all(
+      'SELECT * FROM phone_applications WHERE user_id = ? ORDER BY created_at DESC',
+      [userId]
+    );
+    return applications;
+  } catch (error) {
+    console.error('Error getting user phone applications:', error);
+    throw error;
+  }
+}
+
+export async function getPhoneApplicationById(id) {
+  try {
+    const db = await getDb();
+    const application = await db.get('SELECT * FROM phone_applications WHERE id = ?', [id]);
+    return application;
+  } catch (error) {
+    console.error('Error getting phone application by id:', error);
+    throw error;
+  }
+}
+
+export async function updatePhoneApplicationStatus(id, status) {
+  try {
+    const db = await getDb();
+    await db.run(
+      'UPDATE phone_applications SET status = ? WHERE id = ?',
+      [status, id]
+    );
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating phone application status:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function deletePhoneApplication(id) {
+  try {
+    const db = await getDb();
+    await db.run('DELETE FROM phone_applications WHERE id = ?', [id]);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting phone application:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function createLaptopApplication(applicationData) {
+  try {
+    const db = await getDb();
+
+    const result = await db.run(
+      `INSERT INTO laptop_applications (
+        user_id, brand, model, ram, storage, processor, generation, display_size, 
+        weight, os, device_age, battery_issues, location, name, email, phone, image_path
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        applicationData.userId || null,
+        applicationData.brand,
+        applicationData.model,
+        applicationData.ram,
+        applicationData.storage,
+        applicationData.processor,
+        applicationData.generation || '',
+        applicationData.displaySize || '',
+        applicationData.weight || '',
+        applicationData.os || '',
+        applicationData.deviceAge || '',
+        applicationData.batteryIssues || '',
+        applicationData.location,
+        applicationData.name,
+        applicationData.email,
+        applicationData.phone,
+        applicationData.imagepath || '', // Cloudinary URL
+      ]
+    );
+
+    return { success: true, id: result.lastID };
+  } catch (error) {
+    console.error('Error creating laptop application:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getAllLaptopApplications() {
+  try {
+    const db = await getDb();
+    const applications = await db.all('SELECT * FROM laptop_applications ORDER BY created_at DESC');
+    return applications;
+  } catch (error) {
+    console.error('Error getting laptop applications:', error);
+    throw error;
+  }
+}
+
+export async function getLaptopApplicationsByUserId(userId) {
+  try {
+    const db = await getDb();
+    const applications = await db.all(
+      'SELECT * FROM laptop_applications WHERE user_id = ? ORDER BY created_at DESC',
+      [userId]
+    );
+    return applications;
+  } catch (error) {
+    console.error('Error getting user laptop applications:', error);
+    throw error;
+  }
+}
+
+export async function getLaptopApplicationById(id) {
+  try {
+    const db = await getDb();
+    const application = await db.get('SELECT * FROM laptop_applications WHERE id = ?', [id]);
+    return application;
+  } catch (error) {
+    console.error('Error getting laptop application by id:', error);
+    throw error;
+  }
+}
+
+export async function updateLaptopApplicationStatus(id, status) {
+  try {
+    const db = await getDb();
+    await db.run(
+      'UPDATE laptop_applications SET status = ? WHERE id = ?',
+      [status, id]
+    );
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating laptop application status:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function deleteLaptopApplication(id) {
+  try {
+    const db = await getDb();
+    await db.run('DELETE FROM laptop_applications WHERE id = ?', [id]);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting laptop application:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// In db.js
+export async function updateCustomer(userId, updates) {
+  try {
+    const db = await getDb();
+    
+    const { first_name, last_name, email, phone } = updates;
+    
+    await db.run(
+      'UPDATE customers SET first_name = ?, last_name = ?, email = ?, phone = ? WHERE user_id = ?',
+      [first_name, last_name, email, phone, userId]
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating customer:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function updateCustomerPassword(userId, newPassword) {
+  try {
+    const db = await getDb();
+    
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    await db.run(
+      'UPDATE customers SET password = ?, password_last_changed = ? WHERE user_id = ?',
+      [hashedPassword, new Date().toISOString(), userId]
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating customer password:', error);
+    return { success: false, message: error.message };
   }
 }
 // Function to get all earphones

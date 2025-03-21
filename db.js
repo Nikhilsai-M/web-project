@@ -16,7 +16,7 @@ let db;
 export async function initializeDatabase() {
   try {
     db = await open({
-      filename: dbPath,
+      filename: ":memory:",
       driver: sqlite3.Database
     });
     
@@ -183,6 +183,36 @@ await db.exec(`
       )
     `);
  
+    
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS earphones (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        image TEXT NOT NULL,
+        brand TEXT NOT NULL,
+        original_price REAL NOT NULL,
+        discount TEXT NOT NULL,
+        design TEXT NOT NULL,
+        battery_life TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS chargers (
+          id TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          image TEXT NOT NULL,
+          brand TEXT NOT NULL,
+          wattage TEXT NOT NULL,
+          type TEXT NOT NULL,
+          originalPrice REAL NOT NULL,
+          discount TEXT NOT NULL,
+          outputCurrent TEXT NOT NULL
+    )
+      `);
+  
+   
     // Check if any supervisors exist, add test ones if not
     const supervisorCount = await db.get('SELECT COUNT(*) as count FROM supervisors');
     
@@ -239,10 +269,66 @@ await db.exec(`
         [100, 'Acer', 'Aspire 3', 'Intel Core i3', '12th Gen', 45999, 10, '8GB', 
          'SSD', '512GB', 15.6, 1.7, 'Superb', 'Windows 11', 'images/buy-laptops/aspire3.webp']
       );
+      await db.run(
+        `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, 
+                             base_price, discount, ram, storage_type, storage_capacity, 
+                             display_size, weight, condition, os, image) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [101, 'Acer', 'Aspire 5', 'Intel Core i5', '13th Gen', 57999, 12, '16GB', 
+         'SSD', '512GB', 14, 1.6, 'Superb', 'Windows 11', 'images/buy-laptops/aspire5.webp']
+      );
     }
 
     // Check if any phones exist, add initial data if not
     const phoneCount = await db.get('SELECT COUNT(*) as count FROM phones');
+    
+    
+    const chargercount=await db.get('SELECT COUNT(*) as count FROM chargers');
+    if(chargercount.count===0){
+      await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg001", "Apple 20W USB-C Power Adapter", "images/accessories/chargers/apple_20w.webp", "Apple", "20", "USB C", 1900, "10%", "3A"]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg002", "Samsung 25W Fast Charger", "images/accessories/chargers/samsung_25.webp", "Samsung", "25", "USB C", 1800, "15%", "2.5A"]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg003", "RoarX 33 W SuperVOOC 6 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)", "images/accessories/chargers/roar_33v.webp", "RoarX", "33", "USB C", 2999, "87%", "6A"]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg004", "EYNK 44 W Quick Charge 5 A Wall Charger for Mobile with Detachable Cable  (Supported All Flash Charge 2.0 devices, White, Cable Included)", "images/accessories/chargers/eynk_44.webp", "EYNK", "44", "USB C", 2999, "71%", "5A"]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg005", "Pacificdeals 44 W Supercharge 4 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)", "images/accessories/chargers/PACIFIC.webp", "Pacificdeals", "44", "USB C", 1999, "63%", "4A"]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg006", "SB 80 W SuperVOOC 7.3 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)", "images/accessories/chargers/sb_80.webp", "SB", "80", "USB C", 2499, "86%", "7.3A"]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg007", "Apple Lightning Cable 2 m MW2R3ZM/A  (Compatible with Mobile, Tablet, White)", "images/accessories/chargers/apple_light.webp", "Apple", "20", "lightning", 2900, "0%", "3A"]  
+    );  
+    }
+    // Check if any phones exist, add initial data if not
+   
     
     if (phoneCount.count === 0) {
       // Insert the sample phone data
@@ -252,9 +338,208 @@ await db.exec(`
         [1, 'OnePlus', 'Nord 2', 'Blue Haze', 'images/buy-page-phones/img11.webp', 'Snapdragon 8 Gen 1', 
          '6.43-inch Fluid AMOLED display', 4500, '48MP + 8MP + 50MP | 32MP Front Camera', 
          'Android 11', '5G', '200g', '12GB', '256GB', 27999, 50, 'Good']
-      );
+    );
+    
+ 
       
-      console.log('Initial phone data added to database');
+    }
+    const earphoneCount=await db.get('SELECT COUNT(*) as count FROM earphones');
+    if(earphoneCount.count ===0) {
+      
+
+      await db.run(
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'boat_airdopes_456',
+          'boAt Airdopes 181 Pro w/ 100 HRS Playback, 4 Mics ENx Technology & ASAP Charge Bluetooth  (Frosted Mint, True Wireless)',
+          'images/accessories/earphones/boat_airdopes.webp',
+          'Boat',
+          4990,
+          '81%',
+          'Earbuds',
+          '100',
+        ]
+      );
+
+      await db.run(
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'boult_y1_789',
+          'Boult Y1 with Zen ENC Mic, 50H Battery, Fast Charging, Pro+ Calling, Knurled Design Bluetooth  (Black, True Wireless)',
+          'images/accessories/earphones/boult_y1.webp',
+          'Boult',
+          5499,
+          '85%',
+          'Earbuds',
+          '50',
+        ]
+      );
+      await db.run(
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'oneplus_bullet_404',
+          'OnePlus Bullets Wireless Z2 Bluetooth 5.0 in Ear Earphones, Bombastic Bass E310A Bluetooth  (Blue, In the Ear)',
+          'images/accessories/earphones/oneplus_bullet.webp',
+          'OnePlus',
+          2999,
+          '10%',
+          'behind the neck',
+          '50',
+        ]
+      );
+
+      await db.run(
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'realme_neo_505',
+          'realme Buds Air Neo Bluetooth  (White, True Wireless)',
+          'images/accessories/earphones/realme_neo.webp',
+          'realme',
+          3999,
+          '25%',
+          'Earbuds',
+          '17',
+        ]
+      );
+
+      await db.run(
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'realme_t110_606',
+          'realme Buds T110 (RMA2306) with AI ENC for calls, 38 hours of Playback and Deep Bass Bluetooth  (Jazz Blue, True Wireless)',
+          'images/accessories/earphones/realme_t110.webp',
+          'realme',
+          2999,
+          '63%',
+          'Earbuds',
+          '38',
+        ]
+      );
+
+      await db.run(
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'realme_neckneo_707',
+          'realme Buds Wireless 3 Neo with 13.4mm Driver, 32 hrs Playback, Dual Device Connection Bluetooth  (Black, In the Ear)',
+          'images/accessories/earphones/realme_neckneo.webp',
+          'realme',
+          2499,
+          '60%',
+          'behind the neck',
+          '32',
+        ]
+      );
+
+      await db.run(
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'samsung_sm_808',
+          'SAMSUNG SM-R400NZ Bluetooth  (Graphite, True Wireless)',
+          'images/accessories/earphones/samsung_sm.webp',
+          'SAMSUNG',
+          12999,
+          '52%',
+          'Earbuds',
+          '43',
+        ]
+      );
+      await db.run(  
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
+        [  
+            'noise_vs_222',  
+            'Noise Buds VS102 Plus with 70 Hrs Playtime, Environmental Noise Cancellation, Quad Mic Bluetooth  (Deep Wine, True Wireless)',  
+            'images/accessories/earphones/noise_vs.webp',  
+            'Noise',  
+            3999,  
+            '75%',  
+            'Earbuds',  
+            '70',  
+        ]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
+        [  
+            'noise_airwave_333',  
+            'Noise Airwave Pro with ANC, 60 Hrs of Playtime, Low latency(Up to 40ms), 3 EQ Modes Bluetooth  (Metallic Blue, In the Ear)',  
+            'images/accessories/earphones/noise_airwave.webp',  
+            'Noise',  
+            3999,  
+            '62%',  
+            'behind the neck',  
+            '60',  
+        ]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
+        [  
+            'portronics_s16_444',  
+            'Portronics Twins S16 in Ear Earbuds Bluetooth  (Green, In the Ear)',  
+            'images/accessories/earphones/portronics_s16.webp',  
+            'Portronics',  
+            1999,  
+            '62%',  
+            'Earbuds',  
+            '24',  
+        ]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
+        [  
+            'portronics_s5_555',  
+            'Portronics Harmonics Twins S5 Smart TWS Earbuds,15Hrs Playtime, LED Display, Game Mode,5.2v Bluetooth  (Black, In the Ear)',  
+            'images/accessories/earphones/portronics_s5.webp',  
+            'Portronics',  
+            2999,  
+            '82%',  
+            'Earbuds',  
+            '15',  
+        ]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
+        [  
+            'jbl_beam_888',  
+            'JBL Wave Beam TWS, 32Hr Playtime, IP54, Smart Ambient & TalkThru Mode, JBL App Bluetooth  (Beige, In the Ear)',  
+            'images/accessories/earphones/jbl_beam.webp',  
+            'JBL',  
+            4999,  
+            '50%',  
+            'Earbuds',  
+            '32',  
+        ]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
+        [  
+            'jbl_125bt_999',  
+            'JBL Tune 125BT Flex Neckband with 16 Hour Playtime, Quick Charge, Multipoint Connect Bluetooth  (Grey, In the Ear)',  
+            'images/accessories/earphones/jbl_125bt.webp',  
+            'JBL',  
+            2999,  
+            '33%',  
+            'behind the neck',  
+            '16',  
+        ]  
+    );  
+
     }
     
     return db;
@@ -517,7 +802,7 @@ export async function getAllPhones() {
       ram: phone.ram,
       rom: phone.rom,
       pricing: {
-        basePrice: phone.base_price,
+        basePrice: phone.price,
         discount: phone.discount
       },
       condition: phone.condition
@@ -953,6 +1238,224 @@ export async function updateCustomerPassword(userId, newPassword) {
     return { success: true };
   } catch (error) {
     console.error('Error updating customer password:', error);
+    return { success: false, message: error.message };
+  }
+}
+// Function to get all earphones
+// Function to get all earphones
+export async function getAllEarphones() {
+  try {
+    const db = await getDb();
+    const earphones = await db.all('SELECT * FROM earphones'); // Fetch all rows from the earphones table
+
+    // Transform the SQLite table data into an array of objects
+    return earphones.map(earphone => ({
+      id: earphone.id,
+      title: earphone.title,
+      image: earphone.image,
+      brand: earphone.brand,
+      originalPrice: earphone.original_price, // Map SQL column names to JavaScript object keys
+      discount: earphone.discount,
+      design: earphone.design,
+      batteryLife: earphone.battery_life,
+    }));
+  } catch (error) {
+    console.error('Error getting earphones:', error);
+    throw error;
+  }
+}
+
+// Function to get earphones by ID
+export async function getEarphonesById(id) {
+  try {
+    const db = await getDb();
+    const earphone = await db.get('SELECT * FROM earphones WHERE id = ?', [id]);
+
+    if (!earphone) {
+      return null;
+    }
+
+    return {
+      id: earphone.id,
+      title: earphone.title,
+      image: earphone.image,
+      brand: earphone.brand,
+      pricing: {
+        originalPrice: Number(earphone.original_price),
+        discount: earphone.discount,
+      },
+      design: earphone.design,
+      batteryLife: earphone.battery_life,
+    };
+  } catch (error) {
+    console.error('Error getting earphones by ID:', error);
+    throw error;
+  }
+}
+
+// Function to add new earphones
+export async function addEarphones(earphonesData) {
+  try {
+    const db = await getDb();
+    const { id, title, image, brand, pricing, design, batteryLife } = earphonesData;
+
+    await db.run(
+      `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, title, image, brand, pricing.originalPrice, pricing.discount, design, batteryLife]
+    );
+
+    return { success: true, id };
+  } catch (error) {
+    console.error('Error adding earphones:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to update earphones
+export async function updateEarphones(id, earphonesData) {
+  try {
+    const db = await getDb();
+    const { title, image, brand, pricing, design, batteryLife } = earphonesData;
+
+    await db.run(
+      `UPDATE earphones SET 
+        title = ?, 
+        image = ?, 
+        brand = ?, 
+        original_price = ?, 
+        discount = ?, 
+        design = ?, 
+        battery_life = ? 
+       WHERE id = ?`,
+      [title, image, brand, pricing.originalPrice, pricing.discount, design, batteryLife, id]
+    );
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating earphones:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to delete earphones
+export async function deleteEarphones(id) {
+  try {
+    const db = await getDb();
+    await db.run('DELETE FROM earphones WHERE id = ?', [id]);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting earphones:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getAllChargers() {
+  try {
+    const db = await getDb();
+    const chargers = await db.all('SELECT * FROM chargers'); // Fetch all rows from the chargers table
+
+    // Transform the SQLite table data into an array of objects
+    return chargers.map(charger => ({
+      id: charger.id,
+      title: charger.title,
+      image: charger.image,
+      brand: charger.brand,
+      wattage: charger.wattage,
+      type: charger.type,
+      originalPrice: charger.originalPrice, // Map SQL column names to JavaScript object keys
+      discount: charger.discount,
+      outputCurrent: charger.outputCurrent,
+    }));
+  } catch (error) {
+    console.error('Error getting chargers:', error);
+    throw error;
+  }
+}
+
+// Function to get a charger by ID
+export async function getChargerById(id) {
+  try {
+    const db = await getDb();
+    const charger = await db.get('SELECT * FROM chargers WHERE id = ?', [id]);
+
+    if (!charger) {
+      return null;
+    }
+
+    return {
+      id: charger.id,
+      title: charger.title,
+      image: charger.image,
+      brand: charger.brand,
+      wattage: charger.wattage,
+      type: charger.type,
+      pricing: {
+        originalPrice: Number(charger.originalPrice),
+        discount: charger.discount,
+      },
+      outputCurrent: charger.outputCurrent,
+    };
+  } catch (error) {
+    console.error('Error getting charger by ID:', error);
+    throw error;
+  }
+}
+
+// Function to add a new charger
+export async function addCharger(chargerData) {
+  try {
+    const db = await getDb();
+    const { id, title, image, brand, wattage, type, pricing, outputCurrent } = chargerData;
+
+    await db.run(
+      `INSERT INTO chargers (id, title, image, brand, wattage, type, original_price, discount, output_current) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, title, image, brand, wattage, type, pricing.originalPrice, pricing.discount, outputCurrent]
+    );
+
+    return { success: true, id };
+  } catch (error) {
+    console.error('Error adding charger:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to update a charger
+export async function updateCharger(id, chargerData) {
+  try {
+    const db = await getDb();
+    const { title, image, brand, wattage, type, pricing, outputCurrent } = chargerData;
+
+    await db.run(
+      `UPDATE chargers SET 
+        title = ?, 
+        image = ?, 
+        brand = ?, 
+        wattage = ?, 
+        type = ?, 
+        original_price = ?, 
+        discount = ?, 
+        output_current = ? 
+       WHERE id = ?`,
+      [title, image, brand, wattage, type, pricing.originalPrice, pricing.discount, outputCurrent, id]
+    );
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating charger:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to delete a charger
+export async function deleteCharger(id) {
+  try {
+    const db = await getDb();
+    await db.run('DELETE FROM chargers WHERE id = ?', [id]);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting charger:', error);
     return { success: false, message: error.message };
   }
 }

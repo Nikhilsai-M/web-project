@@ -65,7 +65,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const app = express();
-const port = 3000;
+const port = 5000;
 
 // Initialize database before setting up routes
 (async () => {
@@ -891,12 +891,21 @@ app.get('/buy-laptop', async (req, res) => {
     }
 });
 
-app.get('/chargers', (req, res) => {
-    res.render("chargers");
+app.get('/chargers', async(req, res) => {
+    const chargers = await getAllChargers();
+        
+    res.render("chargers",{chargers}); 
 });
 
-app.get('/earbuds', (req, res) => {
-    res.render("earpods");
+app.get('/earbuds', async (req, res) => {
+    try {
+        const earphones = await getAllEarphones();
+        
+        res.render("earpods",{earphones}); // Pass earphones data to the view
+    } catch (error) {
+        console.error('Error fetching earphones:', error);
+        res.status(500).render('error', { message: 'Failed to load earphones' });
+    }
 });
 
 app.get('/mouses', (req, res) => {
@@ -991,78 +1000,6 @@ app.get('/admin/home', requireAdminAuth, (req, res) => {
 });
 
 // Admin laptop management routes
-app.get('/admin/laptops', requireAdminAuth, async (req, res) => {
-    try {
-        const laptops = await getAllLaptops();
-        res.render("admin/laptops", { laptops, user: req.session.user });
-    } catch (error) {
-        console.error('Error fetching laptops for admin:', error);
-        res.status(500).render('error', { message: 'Failed to load laptops' });
-    }
-});
-
-app.get('/admin/laptops/add', requireAdminAuth, (req, res) => {
-    res.render("admin/laptop-form", { 
-        user: req.session.user,
-        laptop: null,
-        action: 'add'
-    });
-});
-
-app.get('/admin/laptops/edit/:id', requireAdminAuth, async (req, res) => {
-    try {
-        const laptop = await getLaptopById(req.params.id);
-        if (!laptop) {
-            return res.status(404).render('404', { message: 'Laptop not found' });
-        }
-        
-        res.render("admin/laptop-form", { 
-            user: req.session.user,
-            laptop,
-            action: 'edit'
-        });
-    } catch (error) {
-        console.error('Error fetching laptop for edit:', error);
-        res.status(500).render('error', { message: 'Failed to load laptop details' });
-    }
-});
-
-// Admin phone management routes
-app.get('/admin/phones', requireAdminAuth, async (req, res) => {
-    try {
-        const phones = await getAllPhones();
-        res.render("admin/phones", { phones, user: req.session.user });
-    } catch (error) {
-        console.error('Error fetching phones for admin:', error);
-        res.status(500).render('error', { message: 'Failed to load phones' });
-    }
-});
-
-app.get('/admin/phones/add', requireAdminAuth, (req, res) => {
-    res.render("admin/phone-form", { 
-        user: req.session.user,
-        phone: null,
-        action: 'add'
-    });
-});
-
-app.get('/admin/phones/edit/:id', requireAdminAuth, async (req, res) => {
-    try {
-        const phone = await getPhoneById(req.params.id);
-        if (!phone) {
-            return res.status(404).render('404', { message: 'Phone not found' });
-        }
-        
-        res.render("admin/phone-form", { 
-            user: req.session.user,
-            phone,
-            action: 'edit'
-        });
-    } catch (error) {
-        console.error('Error fetching phone for edit:', error);
-        res.status(500).render('error', { message: 'Failed to load phone details' });
-    }
-});
 
 app.post('/api/admin/login', async (req, res) => {
     const { admin_id, password, security_token } = req.body;
@@ -1133,51 +1070,7 @@ app.get('/api/laptops/:id', async (req, res) => {
     }
 });
 
-app.post('/api/laptops', requireAdminAuth, async (req, res) => {
-    try {
-        const result = await addLaptop(req.body);
-        
-        if (result.success) {
-            res.status(201).json({ success: true, id: result.id });
-        } else {
-            res.status(400).json({ success: false, message: result.message });
-        }
-    } catch (error) {
-        console.error('Error adding laptop:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-});
 
-app.put('/api/laptops/:id', requireAdminAuth, async (req, res) => {
-    try {
-        const id = req.params.id;
-        const result = await updateLaptop(id, req.body);
-        
-        if (result.success) {
-            res.json({ success: true });
-        } else {
-            res.status(400).json({ success: false, message: result.message });
-        }
-    } catch (error) {
-        console.error('Error updating laptop:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-});
-
-app.delete('/api/laptops/:id', requireAdminAuth, async (req, res) => {
-    try {
-        const result = await deleteLaptop(req.params.id);
-        
-        if (result.success) {
-            res.json({ success: true });
-        } else {
-            res.status(400).json({ success: false, message: result.message });
-        }
-    } catch (error) {
-        console.error('Error deleting laptop:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-});
 
 // API routes for phone management
 app.get('/api/product', async (req, res) => {
@@ -1205,52 +1098,24 @@ app.get('/api/product/:id', async (req, res) => {
     }
 });
 
-app.post('/api/product', requireAdminAuth, async (req, res) => {
+app.get('/api/earbuds', async (req, res) => {
     try {
-        const result = await addPhone(req.body);
-        
-        if (result.success) {
-            res.status(201).json({ success: true, id: result.id });
-        } else {
-            res.status(400).json({ success: false, message: result.message });
-        }
+      const earphones = await getAllEarphones(); // Fetch all earphones from the database
+      res.json(earphones); // Return earphones data as JSON
     } catch (error) {
-        console.error('Error adding phone:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
+      console.error('Error fetching earphones:', error);
+      res.status(500).json({ error: 'Failed to fetch earphones' });
     }
-});
-
-app.put('/api/product/:id', requireAdminAuth, async (req, res) => {
+  });
+  app.get('/api/chargers', async (req, res) => {
     try {
-        const id = req.params.id;
-        const result = await updatePhone(id, req.body);
-        
-        if (result.success) {
-            res.json({ success: true });
-        } else {
-            res.status(400).json({ success: false, message: result.message });
-        }
+      const chargers = await getAllChargers(); // Fetch all earphones from the database
+      res.json(chargers); // Return earphones data as JSON
     } catch (error) {
-        console.error('Error updating phone:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
+      console.error('Error fetching chargers:', error);
+      res.status(500).json({ error: 'Failed to fetch chargers' });
     }
-});
-
-app.delete('/api/product/:id', requireAdminAuth, async (req, res) => {
-    try {
-        const result = await deletePhone(req.params.id);
-        
-        if (result.success) {
-            res.json({ success: true });
-        } else {
-            res.status(400).json({ success: false, message: result.message });
-        }
-    } catch (error) {
-        console.error('Error deleting phone:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-});
-
+  });
 // Updated route to get laptop details from database
 app.get('/laptop/:id', async (req, res) => {
     try {
@@ -1274,9 +1139,8 @@ app.get('/product/:id', async (req, res) => {
         const phoneId = parseInt(req.params.id);
         const phone = await getPhoneById(phoneId);
         
-        if (!phone) {
-            return res.status(404).render('404', { message: 'Phone not found' });
-        }
+        
+        
         
         res.render('product-details', { phone });
     } catch (error) {
@@ -1286,43 +1150,59 @@ app.get('/product/:id', async (req, res) => {
 });
 
 
+// Route to render earphone details page
+app.get('/earphone/:id', async (req, res) => {
+    try {
+        const earphoneId = req.params.id;
+        const earphone = await getEarphonesById(earphoneId); // Fetch earphone from database
 
-app.get('/earphone/:id', (req, res) => {
-    const earphoneId = req.params.id;
-    const earphone = accessoriesData.earphones.find(e => e.id === earphoneId);
-    
-    if (!earphone) {
-        return res.status(404).render('404', { message: 'Product not found' });
+        if (!earphone) {
+            return res.status(404).render('404', { message: 'Earphone not found' });
+        }
+
+        res.render('earphones-details', { earphone });
+    } catch (error) {
+        console.error('Error fetching earphone details:', error);
+        res.status(500).render('error', { message: 'Failed to load earphone details' });
     }
-    
-    res.render('earphones-details', { earphone });
 });
 
-app.get('/api/earphone/:id', (req, res) => {
-    const earphoneId = req.params.id;
-    const earphone = accessoriesData.earphones.find(p => p.id === earphoneId);
-    
-    if (!earphone) {
-        return res.status(404).json({ error: 'Product not found' });
+// Route to fetch earphone data as JSON
+app.get('/api/earphone/:id', async (req, res) => {
+    try {
+        const earphoneId = req.params.id;
+        const earphone = await getEarphonesById(earphoneId); // Fetch earphone from database
+
+        if (!earphone) {
+            return res.status(404).json({ error: 'Earphone not found' });
+        }
+
+        res.json(earphone);
+    } catch (error) {
+        console.error('Error fetching earphone:', error);
+        res.status(500).json({ error: 'Failed to fetch earphone' });
     }
-    
-    res.json(earphone);
 });
 
-app.get('/charger/:id', (req, res) => {
+app.get('/charger/:id', async (req, res) => {
+    try {
+        const chargerId = req.params.id;
+        const charger= await getChargerById(chargerId); // Fetch earphone from database
+
+        if (!charger) {
+            return res.status(404).render('404', { message: 'Charger not found' });
+        }
+
+        res.render('charger-details', { charger });
+    } catch (error) {
+        console.error('Error fetching charger details:', error);
+        res.status(500).render('error', { message: 'Failed to load charger details' });
+    }
+});
+
+app.get('/api/charger/:id', async(req, res) => {
     const chargerId = req.params.id;
-    const charger = accessoriesData.chargers.find(e => e.id === chargerId);
-    
-    if (!charger) {
-        return res.status(404).render('404', { message: 'Product not found' });
-    }
-    
-    res.render('charger-details', { charger });
-});
-
-app.get('/api/charger/:id', (req, res) => {
-    const chargerId = req.params.id;
-    const charger = accessoriesData.chargers.find(p => p.id === chargerId);
+    const charger = await getChargerById();
     
     if (!charger) {
         return res.status(404).json({ error: 'Product not found' });

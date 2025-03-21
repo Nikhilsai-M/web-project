@@ -170,6 +170,10 @@
     color: #007bff; /* Highlight field labels */
   }
   
+ .status-rejected{
+    color: #d9534f; /* Bootstrap's danger red, or use any red like #ff0000 */
+    font-weight: bold; /* Optional: makes it stand out more */
+  }
   /* Image Styling in Modal */
   #modalBody img {
     max-width: 100%;

@@ -29,16 +29,15 @@ import {
   getPhoneApplicationById,
   updatePhoneApplicationStatus,
   deletePhoneApplication,
+  createLaptopApplication,
+  getAllLaptopApplications,
+  getLaptopApplicationsByUserId,
+  getLaptopApplicationById,
+  updateLaptopApplicationStatus,
+  deleteLaptopApplication,
+  authenticateSupervisor, // Add new import
+  updateSupervisorPassword // Add new import
 } from './db.js';
-
-import {
-    createLaptopApplication,
-    getAllLaptopApplications,
-    getLaptopApplicationsByUserId,
-    getLaptopApplicationById,
-    updateLaptopApplicationStatus,
-    deleteLaptopApplication,
-  } from './db.js'; 
 
 // Import only the accessoriesData since laptops and phones are now in the database
 import { accessoriesData } from './public/scripts/accessories-data.js';
@@ -56,10 +55,10 @@ cloudinary.config({
 // Set up storage engine for multer (temporary storage for Cloudinary upload)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, 'public', 'uploads')); // Temporary storage
+    cb(null, path.join(__dirname, 'public', 'uploads'));
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname)); // Append the file extension
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
 
@@ -132,45 +131,153 @@ app.get('/api/test-db', async (req, res) => {
   }
 });
 
+// Supervisor Routes
+app.get('/supervisor/login', (req, res) => {
+  res.render("supervisor/supervisor-login", { error: null });
+});
+
+// Supervisor homepage (updated to match supervisor-portal-home.ejs)
+app.get('/supervisor', requireSupervisorAuth, async (req, res) => {
+  const supervisor = req.session.user;
+  res.render('supervisor/supervisor-portal-home', { supervisor });
+});
+
+// Supervisor dashboard data
+app.get('/api/supervisor/dashboard', requireSupervisorAuth, async (req, res) => {
+  try {
+    const db = await getDb();
+    const pendingPhones = await db.all("SELECT * FROM phone_applications WHERE status = 'pending'");
+    const pendingLaptops = await db.all("SELECT * FROM laptop_applications WHERE status = 'pending'");
+    const pendingListings = (pendingPhones.length || 0) + (pendingLaptops.length || 0);
+
+    const today = new Date().toISOString().split('T')[0];
+    const itemsAddedTodayPhones = await db.all("SELECT * FROM phones WHERE created_at LIKE ?", [`${today}%`]);
+    const itemsAddedTodayLaptops = await db.all("SELECT * FROM laptops WHERE created_at LIKE ?", [`${today}%`]);
+    const itemsAddedToday = (itemsAddedTodayPhones.length || 0) + (itemsAddedTodayLaptops.length || 0);
+
+    const recentActivity = await db.all(
+      "SELECT action FROM supervisor_activity WHERE supervisor_id = ? ORDER BY timestamp DESC LIMIT 5",
+      [req.session.user.userId]
+    );
+    const recentActivityList = recentActivity.map(item => item.action);
+
+    res.json({
+      success: true,
+      pendingListings,
+      itemsAddedToday,
+      recentActivity: recentActivityList
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    res.status(500).json({ success: false, message: 'Error fetching dashboard data' });
+  }
+});
+
+app.post('/api/supervisor/login', async (req, res) => {
+  const { username, password } = req.body;
+  
+  try {
+    const result = await authenticateSupervisor(username, password);
+    
+    if (result.success) {
+      req.session.user = {
+        userId: result.supervisor.user_id,
+        first_name: result.supervisor.first_name,
+        last_name: result.supervisor.last_name,
+        email: result.supervisor.email,
+        phone: result.supervisor.phone,
+        username: result.supervisor.username,
+        role: 'supervisor'
+      };
+      
+      return res.json({ 
+        success: true, 
+        firstName: result.supervisor.first_name,
+        lastName: result.supervisor.last_name
+      });
+    } else {
+      return res.status(401).json({ success: false, message: result.message });
+    }
+  } catch (error) {
+    console.error('Supervisor login error:', error);
+    return res.status(500).json({ success: false, message: 'Server error during login' });
+  }
+});
+
+// Supervisor logout route
+app.get('/api/supervisor/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+      return res.status(500).json({ success: false, message: 'Error logging out' });
+    }
+    res.json({ success: true, message: 'Logged out successfully' });
+  });
+});
+
+app.post('/api/supervisor/password', requireSupervisorAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.userId;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Current and new passwords are required' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 6 characters' });
+    }
+
+    const db = await getDb();
+    const supervisor = await db.get('SELECT password FROM supervisors WHERE user_id = ?', [userId]);
+    
+    const passwordMatch = await bcrypt.compare(currentPassword, supervisor.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+    }
+
+    const result = await updateSupervisorPassword(userId, newPassword);
+
+    if (result.success) {
+      return res.json({ success: true, message: 'Password updated successfully' });
+    } else {
+      return res.status(500).json({ success: false, message: result.message || 'Error updating password' });
+    }
+  } catch (error) {
+    console.error('Error updating supervisor password:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 // Customer signup route
 app.post('/api/signup', async (req, res) => {
   try {
     const { firstName, lastName, email, phone, password } = req.body;
 
-    // Basic validation
     const errors = {};
-
     if (!firstName || firstName.length < 2) {
       errors.firstName = 'First name must be at least 2 characters';
     }
-
     if (!lastName || lastName.length < 2) {
       errors.lastName = 'Last name must be at least 2 characters';
     }
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
       errors.email = 'Please enter a valid email address';
     }
-
     if (!phone || phone.length < 10) {
       errors.phone = 'Please enter a valid phone number';
     }
-
     if (!password || password.length < 6) {
       errors.password = 'Password must be at least 6 characters';
     }
 
-    // Return errors if validation fails
     if (Object.keys(errors).length > 0) {
       return res.status(400).json({ success: false, errors });
     }
 
-    // Create new customer using the function from db.js
     const result = await createCustomer(firstName, lastName, email, phone, password);
 
     if (result.success) {
-      // Set session for automatic login (optional)
       req.session.user = {
         userId: result.userId,
         firstName,
@@ -185,14 +292,12 @@ app.post('/api/signup', async (req, res) => {
         userId: result.userId,
       });
     } else {
-      // Handle database errors or duplicate email
       if (result.message === 'Email already registered') {
         return res.status(409).json({
           success: false,
           errors: { email: 'Email is already registered' },
         });
       }
-
       return res.status(500).json({
         success: false,
         message: 'Error creating account',
@@ -212,7 +317,6 @@ app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Basic validation
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -220,11 +324,9 @@ app.post('/api/login', async (req, res) => {
       });
     }
 
-    // Authenticate customer
     const result = await authenticateCustomer(email, password);
 
     if (result.success) {
-      // Set session
       req.session.user = {
         userId: result.user.user_id,
         firstName: result.user.first_name,
@@ -259,103 +361,102 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.post('/api/sell-phone', upload.single('device-image'), async (req, res) => {
-    try {
-      console.log('Request body:', req.body); // Log form data
-      console.log('Uploaded file:', req.file); // Log uploaded file
-  
-      // Upload image to Cloudinary
-      const result = await cloudinary.v2.uploader.upload(req.file.path, {
-        folder: 'phone-applications',
-      });
-  
-      console.log('Cloudinary upload result:', result); // Log Cloudinary response
-  
-      const applicationData = {
-        userId: req.session.user ? req.session.user.userId : null,
-        brand: req.body.brand,
-        model: req.body.model,
-        ram: req.body.ram,
-        rom: req.body.rom,
-        processor: req.body.processor,
-        network: req.body.network,
-        size: req.body.size,
-        weight: req.body.weight,
-        deviceAge: req.body.device-age,
-        switchingOn: req.body.switching-on,
-        phoneCalls: req.body.phone-calls,
-        camerasWorking: req.body.cameras-working,
-        batteryIssues: req.body.battery-issues,
-        physicallyDamaged: req.body.physically-damaged,
-        soundIssues: req.body.sound-issues,
-        location: req.body.location,
-        email: req.body.email,
-        phone: req.body.phone,
-        imagepath: result.secure_url, // Store the Cloudinary URL
-      };
-  
-      console.log('Application data:', applicationData); // Log application data
-  
-      // Validate required fields
-      const requiredFields = [
-        'brand',
-        'model',
-        'ram',
-        'rom',
-        'processor',
-        'network',
-        'deviceAge',
-        'switchingOn',
-        'phoneCalls',
-        'camerasWorking',
-        'batteryIssues',
-        'physicallyDamaged',
-        'soundIssues',
-        'location',
-        'email',
-        'phone',
-      ];
-  
-      for (const field of requiredFields) {
-        if (!applicationData[field]) {
-          return res.status(400).json({
-            success: false,
-            message: `${field.replace(/([A-Z])/g, ' $1').trim()} is required`,
-          });
-        }
-      }
-  
-      // Ensure an image is uploaded
-      if (!req.file) {
+  try {
+    console.log('Request body:', req.body); // Log form data
+    console.log('Uploaded file:', req.file); // Log uploaded file
+
+    // Upload image to Cloudinary
+    const result = await cloudinary.v2.uploader.upload(req.file.path, {
+      folder: 'phone-applications',
+    });
+
+    console.log('Cloudinary upload result:', result); // Log Cloudinary response
+
+    const applicationData = {
+      userId: req.session.user ? req.session.user.userId : null,
+      brand: req.body.brand,
+      model: req.body.model,
+      ram: req.body.ram,
+      rom: req.body.rom,
+      processor: req.body.processor,
+      network: req.body.network,
+      size: req.body.size,
+      weight: req.body.weight,
+      deviceAge: req.body.deviceAge,
+      switchingOn: req.body.switchingOn,
+      phoneCalls: req.body.phoneCalls,
+      camerasWorking: req.body.camerasWorking,
+      batteryIssues: req.body.batteryIssues,
+      physicallyDamaged: req.body.physicallyDamaged,
+      soundIssues: req.body.soundIssues,
+      location: req.body.location,
+      email: req.body.email,
+      phone: req.body.phone,
+      imagepath: result.secure_url, // Store the Cloudinary URL
+    };
+
+    console.log('Application data:', applicationData); // Log application data
+
+    // Validate required fields
+    const requiredFields = [
+      'brand',
+      'model',
+      'ram',
+      'rom',
+      'processor',
+      'network',
+      'deviceAge',
+      'switchingOn',
+      'phoneCalls',
+      'camerasWorking',
+      'batteryIssues',
+      'physicallyDamaged',
+      'soundIssues',
+      'location',
+      'email',
+      'phone',
+    ];
+
+    for (const field of requiredFields) {
+      if (!applicationData[field]) {
         return res.status(400).json({
           success: false,
-          message: 'Device image is required',
+          message: `${field.replace(/([A-Z])/g, ' $1').trim()} is required`,
         });
       }
-  
-      // Create application in the database
-      const dbResult = await createPhoneApplication(applicationData);
-  
-      if (dbResult.success) {
-        return res.status(201).json({
-          success: true,
-          message: 'Application submitted successfully',
-          applicationId: dbResult.id,
-        });
-      } else {
-        return res.status(500).json({
-          success: false,
-          message: dbResult.message || 'Error submitting application',
-        });
-      }
-    } catch (error) {
-      console.error('Phone application submission error:', error); // Log the full error
-      res.status(500).json({
+    }
+
+    // Ensure an image is uploaded
+    if (!req.file) {
+      return res.status(400).json({
         success: false,
-        message: 'Server error',
+        message: 'Device image is required',
       });
     }
-  });
 
+    // Create application in the database
+    const dbResult = await createPhoneApplication(applicationData);
+
+    if (dbResult.success) {
+      return res.status(201).json({
+        success: true,
+        message: 'Application submitted successfully',
+        applicationId: dbResult.id,
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: dbResult.message || 'Error submitting application',
+      });
+    }
+  } catch (error) {
+    console.error('Phone application submission error:', error); // Log the full error
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+    });
+  }
+});
   app.post('/api/sell-laptop', upload.single('device-image'), async (req, res) => {
     try {
       console.log('Request body:', req.body); // Log form data
@@ -444,53 +545,41 @@ app.post('/api/sell-phone', upload.single('device-image'), async (req, res) => {
     }
   });
 
-  // Route to get all applications (for supervisors)
-  app.get('/api/supervisor/phone-applications', requireSupervisorAuth, async (req, res) => {
-    try {
-      const applications = await getAllPhoneApplications();
-      res.json({ success: true, applications });
-    } catch (error) {
-      console.error('Error fetching phone applications:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Error fetching applications' 
-      });
-    }
-  });
-  
-  // Route to get a specific application
-  app.get('/api/phone-applications/:id', async (req, res) => {
-    try {
-      const id = req.params.id;
-      const application = await getPhoneApplicationById(id);
-      
-      if (!application) {
-        return res.status(404).json({ 
-          success: false, 
-          message: 'Application not found' 
-        });
-      }
-      
-      // Check if the user is authorized to view this application
-      if (!req.session.user || 
-          (req.session.user.role !== 'supervisor' && 
-           req.session.user.role !== 'admin' && 
-           application.user_id !== req.session.user.userId)) {
-        return res.status(403).json({ 
-          success: false, 
-          message: 'Unauthorized' 
-        });
-      }
-      
-      res.json({ success: true, application });
-    } catch (error) {
-      console.error('Error fetching phone application:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Error fetching application' 
-      });
-    }
-  });
+  // Supervisor routes for phone applications
+app.get('/supervisor/phone-applications', requireSupervisorAuth, (req, res) => {
+  res.render('supervisor/phone-applications');
+});
+
+app.get('/api/supervisor/phone-applications', requireSupervisorAuth, async (req, res) => {
+  try {
+    const applications = await getAllPhoneApplications();
+    res.json({ success: true, applications });
+  } catch (error) {
+    console.error('Error fetching phone applications:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching applications' 
+    });
+  }
+});
+
+// Supervisor routes for laptop applications
+app.get('/supervisor/laptop-applications', requireSupervisorAuth, (req, res) => {
+  res.render('supervisor/laptop-applications');
+});
+
+app.get('/api/supervisor/laptop-applications', requireSupervisorAuth, async (req, res) => {
+  try {
+    const applications = await getAllLaptopApplications();
+    res.json({ success: true, applications });
+  } catch (error) {
+    console.error('Error fetching laptop applications:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching applications' 
+    });
+  }
+});
 // Route to get user profile data
 app.get('/api/customer/profile', requireCustomerAuth, async (req, res) => {
     try {
@@ -665,21 +754,6 @@ app.get('/api/customer/listings', requireCustomerAuth, async (req, res) => {
       res.status(500).json({ 
         success: false, 
         message: 'Server error' 
-      });
-    }
-  });
-  
-
-  // Route to get all laptop applications (for supervisors)
-app.get('/api/supervisor/laptop-applications', requireSupervisorAuth, async (req, res) => {
-    try {
-      const applications = await getAllLaptopApplications();
-      res.json({ success: true, applications });
-    } catch (error) {
-      console.error('Error fetching laptop applications:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Error fetching applications' 
       });
     }
   });
@@ -901,40 +975,6 @@ app.get('/supervisor/home', requireSupervisorAuth, (req, res) => {
     res.render("supervisor/home", { user: req.session.user });
 });
 
-app.post('/api/supervisor/login', async (req, res) => {
-    const { employee_id, password } = req.body;
-    
-    try {
-        const db = await getDb();
-        
-        const supervisor = await db.get(
-            'SELECT * FROM supervisors WHERE employee_id = ?',
-            [employee_id]
-        );
-        
-        if (!supervisor) {
-            return res.status(401).json({ success: false, message: 'Invalid employee ID or password' });
-        }
-
-        const passwordMatch = await bcrypt.compare(password, supervisor.password);
-        
-        if (passwordMatch) {
-            req.session.user = {
-                employeeId: supervisor.employee_id,
-                name: supervisor.name,
-                role: 'supervisor'
-            };
-            console.log("Login request received: ",req.session.user);
-            
-            return res.json({ success: true, name: supervisor.name });
-        } else {
-            return res.status(401).json({ success: false, message: 'Invalid employee ID or password' });
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        return res.status(500).json({ success: false, message: 'Server error during login' });
-    }
-});
 
 app.get('/api/supervisor/logout', (req, res) => {
     req.session.destroy();
@@ -1349,6 +1389,87 @@ app.get('/sell-phone', (req, res) => {
     res.render('customer/phone-applications');
   });
 
+// Add these routes under "Supervisor Routes" section in app.js
+
+// Verify Listings Page
+app.get('/supervisor/verify-listings', requireSupervisorAuth, (req, res) => {
+  res.render('supervisor/verify-listings', { supervisor: req.session.user });
+});
+
+// API to get all pending applications (phones and laptops)
+app.get('/api/supervisor/pending-applications', requireSupervisorAuth, async (req, res) => {
+  try {
+    const phoneApps = await getAllPhoneApplications();
+    const laptopApps = await getAllLaptopApplications();
+    const pendingApplications = [
+      ...phoneApps.filter(app => app.status === 'pending').map(app => ({ ...app, type: 'phone' })),
+      ...laptopApps.filter(app => app.status === 'pending').map(app => ({ ...app, type: 'laptop' })),
+    ];
+    res.json({ success: true, applications: pendingApplications });
+  } catch (error) {
+    console.error('Error fetching pending applications:', error);
+    res.status(500).json({ success: false, message: 'Error fetching pending applications' });
+  }
+});
+
+// API to get specific application details
+app.get('/api/supervisor/application/:type/:id', requireSupervisorAuth, async (req, res) => {
+  try {
+    const { type, id } = req.params;
+    let application;
+    if (type === 'phone') {
+      application = await getPhoneApplicationById(id);
+    } else if (type === 'laptop') {
+      application = await getLaptopApplicationById(id);
+    } else {
+      return res.status(400).json({ success: false, message: 'Invalid application type' });
+    }
+
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    res.json({ success: true, application, type });
+  } catch (error) {
+    console.error('Error fetching application details:', error);
+    res.status(500).json({ success: false, message: 'Error fetching application details' });
+  }
+});
+
+// API to update application status with supervisor actions
+app.put('/api/supervisor/application/:type/:id/status', requireSupervisorAuth, async (req, res) => {
+  try {
+    const { type, id } = req.params;
+    const { status, rejectionReason } = req.body;
+
+    if (!status || !['pending', 'approved', 'rejected', 'processing'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status' });
+    }
+
+    let result;
+    if (type === 'phone') {
+      result = await updatePhoneApplicationStatus(id, status, status === 'rejected' ? rejectionReason : null);
+    } else if (type === 'laptop') {
+      result = await updateLaptopApplicationStatus(id, status, status === 'rejected' ? rejectionReason : null);
+    } else {
+      return res.status(400).json({ success: false, message: 'Invalid application type' });
+    }
+
+    if (result.success) {
+      const db = await getDb();
+      await db.run(
+        'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
+        [req.session.user.userId, `Updated ${type} application #${id} to ${status}${status === 'rejected' && rejectionReason ? `: ${rejectionReason}` : ''}`, new Date().toISOString()]
+      );
+      res.json({ success: true, message: 'Status updated successfully' });
+    } else {
+      res.status(500).json({ success: false, message: result.message || 'Error updating status' });
+    }
+  } catch (error) {
+    console.error('Error updating application status:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

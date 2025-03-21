@@ -19,9 +19,9 @@
                 <h1 class="product-title"><%= charger.brand %> <%= charger.title %></h1>
                 
                 <div class="product-price-container">
-                    <span class="discounted-price">₹<%= (parseFloat(charger.originalPrice) - (parseFloat(charger.originalPrice) * parseFloat(charger.discount) / 100)).toLocaleString('en-IN') %></span>
-                    <span class="original-price">₹<%= charger.originalPrice.toLocaleString('en-IN') %></span>
-                    <span class="discount"><%= charger.discount %> Off</span>
+                    <span class="discounted-price">₹<%= (parseFloat(charger.pricing.originalPrice) - (parseFloat(charger.pricing.originalPrice) * parseFloat(charger.pricing.discount) / 100)).toLocaleString('en-IN') %></span>
+                    <span class="original-price">₹<%= charger.pricing.originalPrice.toLocaleString('en-IN') %></span>
+                    <span class="discount"><%= charger.pricing.discount %> Off</span>
                 </div>
                 
                 <div class="product-actions">
@@ -37,7 +37,7 @@
                     <ul>
                         <li><i class="fas fa-bolt"></i> <strong>Wattage:</strong> <%= charger.wattage %>W</li>
                         <li><i class="fas fa-plug"></i> <strong>Type:</strong> <%= charger.type %></li>
-                        <li><i class="fas fa-battery-full"></i> <strong>Output Current:</strong> <%= charger.outputCurrent %>A</li>
+                        <li><i class="fas fa-battery-full"></i> <strong>Output Current:</strong> <%= charger.outputCurrent %></li>
                     </ul>
                 </div>
             </div>

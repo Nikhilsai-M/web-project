@@ -16,7 +16,7 @@ let db;
 export async function initializeDatabase() {
   try {
     db = await open({
-      filename: dbPath,
+      filename: ":memory:",
       driver: sqlite3.Database
     });
     
@@ -103,6 +103,35 @@ export async function initializeDatabase() {
       )
     `);
     
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS earphones (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        image TEXT NOT NULL,
+        brand TEXT NOT NULL,
+        original_price REAL NOT NULL,
+        discount TEXT NOT NULL,
+        design TEXT NOT NULL,
+        battery_life TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS chargers (
+          id TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          image TEXT NOT NULL,
+          brand TEXT NOT NULL,
+          wattage TEXT NOT NULL,
+          type TEXT NOT NULL,
+          originalPrice REAL NOT NULL,
+          discount TEXT NOT NULL,
+          outputCurrent TEXT NOT NULL
+    )
+      `);
+  
+   
     // Check if any supervisors exist, add test ones if not
     const supervisorCount = await db.get('SELECT COUNT(*) as count FROM supervisors');
     
@@ -169,7 +198,50 @@ export async function initializeDatabase() {
          'SSD', '512GB', 14, 1.6, 'Superb', 'Windows 11', 'images/buy-laptops/aspire5.webp']
       );
     }
-    await db.run('DELETE FROM phones');
+    const chargercount=await db.get('SELECT COUNT(*) as count FROM chargers');
+    if(chargercount.count===0){
+      await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg001", "Apple 20W USB-C Power Adapter", "images/accessories/chargers/apple_20w.webp", "Apple", "20", "USB C", 1900, "10%", "3A"]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg002", "Samsung 25W Fast Charger", "images/accessories/chargers/samsung_25.webp", "Samsung", "25", "USB C", 1800, "15%", "2.5A"]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg003", "RoarX 33 W SuperVOOC 6 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)", "images/accessories/chargers/roar_33v.webp", "RoarX", "33", "USB C", 2999, "87%", "6A"]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg004", "EYNK 44 W Quick Charge 5 A Wall Charger for Mobile with Detachable Cable  (Supported All Flash Charge 2.0 devices, White, Cable Included)", "images/accessories/chargers/eynk_44.webp", "EYNK", "44", "USB C", 2999, "71%", "5A"]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg005", "Pacificdeals 44 W Supercharge 4 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)", "images/accessories/chargers/PACIFIC.webp", "Pacificdeals", "44", "USB C", 1999, "63%", "4A"]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg006", "SB 80 W SuperVOOC 7.3 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)", "images/accessories/chargers/sb_80.webp", "SB", "80", "USB C", 2499, "86%", "7.3A"]  
+    );  
+    
+    await db.run(  
+        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
+        ["chg007", "Apple Lightning Cable 2 m MW2R3ZM/A  (Compatible with Mobile, Tablet, White)", "images/accessories/chargers/apple_light.webp", "Apple", "20", "lightning", 2900, "0%", "3A"]  
+    );  
+    }
     // Check if any phones exist, add initial data if not
     const phoneCount = await db.get('SELECT COUNT(*) as count FROM phones');
     
@@ -183,269 +255,206 @@ export async function initializeDatabase() {
          'Android 11', '5G', '200g', '12GB', '256GB', 27999, 50, 'Good']
     );
     
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [2, 'OnePlus', '8T 5G', 'Lunar Silver', 'images/buy-page-phones/img12.webp', 'Snapdragon 8 Gen 1', 
-         '6.55-inch Fluid AMOLED display', 4500, '48MP + 8MP + 50MP | 32MP Front Camera', 
-         'Android 11', '5G', '200g', '8GB', '128GB', 19999, 53, 'Very Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [3, 'OnePlus', '10T 5G', 'Jade Green', 'images/buy-page-phones/img13.webp', 'Snapdragon 8 Gen 1', 
-         '6.7-inch Fluid AMOLED display', 4800, '48MP + 8MP + 50MP | 32MP Front Camera', 
-         'Android 12', '5G', '210g', '12GB', '256GB', 28999, 47, 'Superb']
-    );
-    
+ 
+      
+    }
+    const earphoneCount=await db.get('SELECT COUNT(*) as count FROM earphones');
+    if(earphoneCount.count ===0) {
+      
 
       await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [17, 'Google', 'Pixel 8', 'Hazel', 'images/buy-page-phones/img7.webp', 'Google Tensor G3', 
-         '6.2-inch Full HD Plus display', 4575, '50MP + 8MP + 50MP | 10.5MP Front Camera', 
-         'Android 14', '5G', '187g', '8GB', '256GB', 58999, 26, 'Superb']
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'boat_airdopes_456',
+          'boAt Airdopes 181 Pro w/ 100 HRS Playback, 4 Mics ENx Technology & ASAP Charge Bluetooth  (Frosted Mint, True Wireless)',
+          'images/accessories/earphones/boat_airdopes.webp',
+          'Boat',
+          4990,
+          '81%',
+          'Earbuds',
+          '100',
+        ]
+      );
+
+      await db.run(
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'boult_y1_789',
+          'Boult Y1 with Zen ENC Mic, 50H Battery, Fast Charging, Pro+ Calling, Knurled Design Bluetooth  (Black, True Wireless)',
+          'images/accessories/earphones/boult_y1.webp',
+          'Boult',
+          5499,
+          '85%',
+          'Earbuds',
+          '50',
+        ]
       );
       await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [18, 'Google', 'Pixel 8', 'Mint', 'images/buy-page-phones/img8.webp', 'Google Tensor G3', 
-         '6.2-inch Full HD Plus display', 4575, '50MP + 8MP + 50MP | 10.5MP Front Camera', 
-         'Android 14', '5G', '187g', '8GB', '128GB', 52999, 45, 'Superb']
-    );
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'oneplus_bullet_404',
+          'OnePlus Bullets Wireless Z2 Bluetooth 5.0 in Ear Earphones, Bombastic Bass E310A Bluetooth  (Blue, In the Ear)',
+          'images/accessories/earphones/oneplus_bullet.webp',
+          'OnePlus',
+          2999,
+          '10%',
+          'behind the neck',
+          '50',
+        ]
+      );
+
+      await db.run(
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'realme_neo_505',
+          'realme Buds Air Neo Bluetooth  (White, True Wireless)',
+          'images/accessories/earphones/realme_neo.webp',
+          'realme',
+          3999,
+          '25%',
+          'Earbuds',
+          '17',
+        ]
+      );
+
+      await db.run(
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'realme_t110_606',
+          'realme Buds T110 (RMA2306) with AI ENC for calls, 38 hours of Playback and Deep Bass Bluetooth  (Jazz Blue, True Wireless)',
+          'images/accessories/earphones/realme_t110.webp',
+          'realme',
+          2999,
+          '63%',
+          'Earbuds',
+          '38',
+        ]
+      );
+
+      await db.run(
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'realme_neckneo_707',
+          'realme Buds Wireless 3 Neo with 13.4mm Driver, 32 hrs Playback, Dual Device Connection Bluetooth  (Black, In the Ear)',
+          'images/accessories/earphones/realme_neckneo.webp',
+          'realme',
+          2499,
+          '60%',
+          'behind the neck',
+          '32',
+        ]
+      );
+
+      await db.run(
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          'samsung_sm_808',
+          'SAMSUNG SM-R400NZ Bluetooth  (Graphite, True Wireless)',
+          'images/accessories/earphones/samsung_sm.webp',
+          'SAMSUNG',
+          12999,
+          '52%',
+          'Earbuds',
+          '43',
+        ]
+      );
+      await db.run(  
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
+        [  
+            'noise_vs_222',  
+            'Noise Buds VS102 Plus with 70 Hrs Playtime, Environmental Noise Cancellation, Quad Mic Bluetooth  (Deep Wine, True Wireless)',  
+            'images/accessories/earphones/noise_vs.webp',  
+            'Noise',  
+            3999,  
+            '75%',  
+            'Earbuds',  
+            '70',  
+        ]  
+    );  
     
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [19, 'Google', 'Pixel 8 Pro', 'Bay', 'images/buy-page-phones/img9.webp', 'Google Tensor G3', 
-         '6.7-inch Full HD Plus display', 5050, '50MP + 8MP + 50MP | 10.5MP Front Camera', 
-         'Android 14', '5G', '213g', '12GB', '128GB', 84999, 20, 'Superb']
-    );
+    await db.run(  
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
+        [  
+            'noise_airwave_333',  
+            'Noise Airwave Pro with ANC, 60 Hrs of Playtime, Low latency(Up to 40ms), 3 EQ Modes Bluetooth  (Metallic Blue, In the Ear)',  
+            'images/accessories/earphones/noise_airwave.webp',  
+            'Noise',  
+            3999,  
+            '62%',  
+            'behind the neck',  
+            '60',  
+        ]  
+    );  
     
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [23, 'Apple', 'iPhone 13 (Green, 512 GB)', 'Green', 'images/buy-page-phones/i-13.webp', 'A15 Bionic Chip Processor', 
-         '15.49 cm (6.1 inch) Super Retina XDR Display', 4200, '12MP + 12MP | 12MP Front Camera', 
-         'iOS 15', '5G', '170g', '6GB', '512GB', 74999, 10, 'Superb']
-    );
+    await db.run(  
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
+        [  
+            'portronics_s16_444',  
+            'Portronics Twins S16 in Ear Earbuds Bluetooth  (Green, In the Ear)',  
+            'images/accessories/earphones/portronics_s16.webp',  
+            'Portronics',  
+            1999,  
+            '62%',  
+            'Earbuds',  
+            '24',  
+        ]  
+    );  
     
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [24, 'Apple', 'iPhone 15 Plus (Pink, 128 GB)', 'Pink', 'images/buy-page-phones/i-15plus.webp', 'A16 Bionic Chip,6 core Processor', 
-         '17.02 cm (6.7 inch) Super Retina XDR OLED Display', 4700, '48MP + 12MP | 12MP Front Camera', 
-         'iOS 17', '5G', '201g', '6GB', '128GB', 70999, 5, 'Superb']
-    );
+    await db.run(  
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
+        [  
+            'portronics_s5_555',  
+            'Portronics Harmonics Twins S5 Smart TWS Earbuds,15Hrs Playtime, LED Display, Game Mode,5.2v Bluetooth  (Black, In the Ear)',  
+            'images/accessories/earphones/portronics_s5.webp',  
+            'Portronics',  
+            2999,  
+            '82%',  
+            'Earbuds',  
+            '15',  
+        ]  
+    );  
     
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [25, 'Apple', 'iPhone 15 Plus (Pink, 256 GB)', 'Pink', 'images/buy-page-phones/i-15plus.webp', 'A16 Bionic Chip,6 core Processor', 
-         '17.02 cm (6.7 inch) Super Retina XDR OLED Display', 4700, '48MP + 12MP | 12MP Front Camera', 
-         'iOS 17', '5G', '201g', '8GB', '256GB', 73999, 5, 'Superb']
-    );
+    await db.run(  
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
+        [  
+            'jbl_beam_888',  
+            'JBL Wave Beam TWS, 32Hr Playtime, IP54, Smart Ambient & TalkThru Mode, JBL App Bluetooth  (Beige, In the Ear)',  
+            'images/accessories/earphones/jbl_beam.webp',  
+            'JBL',  
+            4999,  
+            '50%',  
+            'Earbuds',  
+            '32',  
+        ]  
+    );  
     
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [26, 'Apple', 'iPhone 15 Plus (Green, 128 GB)', 'Green', 'images/buy-page-phones/i-15plus-green.webp', 'A16 Bionic Chip,6 core Processor', 
-         '17.02 cm (6.7 inch) Super Retina XDR OLED Display', 4700, '48MP + 12MP | 12MP Front Camera', 
-         'iOS 17', '5G', '201g', '6GB', '128GB', 70999, 5, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [33, 'Lenovo', 'K8 Note (Venom Black, 64 GB)', 'Venom Black', 'images/buy-page-phones/l-k8.jpeg', 'Mediatek MTK X23', 
-         '13.97 cm (5.5 inch) IPS Display', 4000, '13MP + 5MP | 13MP Front Camera', 
-         'Android Nougat 7.1', '4G', '182g', '4GB', '64GB', 12999, 10, 'Very Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [34, 'Lenovo', 'K8 Note (Gold, 32 GB)', 'Gold', 'images/buy-page-phones/l-k8-gold.webp', 'Mediatek MTK X23', 
-         '13.97 cm (5.5 inch) IPS Display', 4000, '13MP + 5MP | 13MP Front Camera', 
-         'Android Nougat 7.1', '4G', '182g', '3GB', '32GB', 7999, 10, 'Very Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [35, 'Lenovo', 'A6 Note (Blue, 32 GB)', 'Blue', 'images/buy-page-phones/l-a6.webp', 'MediaTek P22 Octa Core Processor', 
-         '15.5 cm (6.102 inch) HD+ Display', 4000, '13MP + 2MP | 5MP Front Camera', 
-         'Android Pie 9.0', '4G', '182g', '3GB', '32GB', 9999, 10, 'Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [38, 'Xiaomi', '14 CIVI', 'Cruise Blue', 'images/buy-page-phones/Xiaomi 14CIVI.webp', 'Snapdragon 8s Gen3', 
-         '6.55-inch Curved AMOLED Display', 4700, '32MP + 32MP | 32MP Front Camera', 
-         'Android 14', '5G', '179.3g', '8GB', '256GB', 54999, 27, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [39, 'Xiaomi', '14 CIVI', 'Panda White', 'images/buy-page-phones/Xiaomi 14CIVI Panda White.webp', 'Snapdragon 8s Gen3', 
-         '6.55-inch Curved AMOLED Display', 4700, '32MP + 32MP | 32MP Front Camera', 
-         'Android 14', '5G', '179.3g', '12GB', '512GB', 59999, 25, 'Very Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [40, 'Xiaomi', '11 Lite', 'Vinyl Black', 'images/buy-page-phones/Xiaomi 11Lite.webp', 'Snapdragon 732G', 
-         '6.55-inch HD Display', 4250, '64MP + 8MP | 16MP Front Camera', 
-         'Android 11', '4G', '157g', '8GB', '128GB', 25999, 7, 'Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [41, 'Xiaomi', '10T', 'Cosmic Black', 'images/buy-page-phones/Xiaomi 10T.webp', 'Snapdragon 865', 
-         '6.67-inch Full HD Display', 5000, '64MP + 13MP | 20MP Front Camera', 
-         'Android 10', '5G', '216g', '6GB', '128GB', 35999, 54, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [42, 'Xiaomi', '11i Hypercharge 5G', 'Purple Mist', 'images/buy-page-phones/Xiaomi 11i Hypercharge 5G.webp', 'Snapdragon 865', 
-         '6.67-inch Full HD AMOLED Display', 4500, '108MP + 8MP | 16MP Front Camera', 
-         'Android 11', '5G', '178g', '8GB', '128GB', 33999, 14, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [45, 'Vivo', 'V20 Pro', 'Midnight Jazz', 'images/buy-page-phones/vivo v20 pro.webp', 'Snapdragon 765G', 
-         '6.44-inch Full HD + AMOLED Display', 4000, '64MP + 8MP + 2MP | 44MP Front Camera', 
-         'Android 12', '5G', '176g', '8GB', '128GB', 34990, 66, 'Very Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [46, 'Vivo', 'X50 Pro', 'Alpha Grey', 'images/buy-page-phones/vivo x50 pro.webp', 'Snapdragon 765G', 
-         '6.56-inch Full HD + E3 AMOLED Display', 4315, '48MP + 13MP + 8MP | 32MP Front Camera', 
-         'Android 14', '5G', '176g', '8GB', '256GB', 54990, 2, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [47, 'Vivo', 'T3 Pro 5G', 'Emerald Green', 'images/buy-page-phones/vivo t3 pro 5g emerald green.webp', 'Snapdragon 7 Gen3', 
-         '6.77-inch Full HD + AMOLED Display', 5500, '50MP + 8MP | 16MP Front Camera', 
-         'Android 14', '5G', '189g', '8GB', '128GB', 29999, 23, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [48, 'Vivo', 'T3 Pro 5G', 'Sandstone Orange', 'images/buy-page-phones/vivo t3 pro 5g sandstone orange.webp', 'Snapdragon 7 Gen3', 
-         '6.77-inch Full HD + AMOLED Display', 5500, '50MP + 8MP | 16MP Front Camera', 
-         'Android 14', '5G', '189g', '8GB', '128GB', 29999, 23, 'Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [56, 'Samsung', 'Galaxy S10 Lite', 'Prism White', 'images/buy-page-phones/galaxy s10 lite.webp', 'Exynos 9 9820', 
-         '6.1-inch Dynamic AMOLED Display', 3400, '16MP + 12MP | 10MP Front Camera', 
-         'Android Pie 9.0', '4G', '157g', '8GB', '512GB', 22800, 10, 'Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [57, 'Samsung', 'Galaxy Z Flip5', 'Cream', 'images/buy-page-phones/galaxy zflip5.webp', 'Snapdragon 8 Gen2', 
-         '6.7-inch Dynamic AMOLED 2X Display', 3700, '12MP + 12MP | 10MP Front Camera', 
-         'Android 13', '5G', '187g', '8GB', '512GB', 71999, 25, 'Very Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [58, 'Samsung', 'Galaxy S24 FE 5G', 'Blue', 'images/buy-page-phones/galaxy s24fe.webp', 'Exynos 2400e', 
-         '6.7-inch Dynamic AMOLED 2X Display', 4700, '50MP + 12MP | 10MP Front Camera', 
-         'Android 14', '5G', '213g', '8GB', '128GB', 49999, 33, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [67, 'Realme', 'C61 (Marble Black, 128 GB)', 'Marble Black', 'images/buy-page-phones/realmec61.webp', 'T612 Octacore processor', 
-         '17.13 cm (6.745 inch) HD+ Display', 5000, '32MP Rear Camera | 5MP Front Camera', 
-         'Android 14', '4G', '187g', '6GB', '128GB', 10999, 25, 'Very Good']
-    );
-    await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [68, 'Realme', 'C63 (Leather Blue, 64 GB)', 'Leather Blue', 'images/buy-page-phones/realmec63.webp', 'T612 Octacore processor', 
-       '17.13 cm (6.745 inch) HD+ Display', 5000, '50MP Rear Camera | 8MP Front Camera', 
-       'Android 14', '5G', '191g', '4GB', '64GB', 9999, 15, 'Good']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [69, 'Realme', 'P2 Pro 5G (Parrot Green, 512 GB)', 'Parrot Green', 'images/buy-page-phones/realmep2pro.webp', 'Snapdragon 7s Gen2 processor', 
-       '17.02 cm (6.7 inch) Full HD+ Display', 5200, '50MP + 8MP | 32MP Front Camera', 
-       'Android 14', '5G', '180g', '12GB', '512GB', 30999, 25, 'Good']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [77, 'Motorola', 'G73 5G (Lucent White, 128 GB)', 'Lucent White', 'images/buy-page-phones/motog73.webp', 'MediaTek Dimensity 930 Processor', 
-       '16.51 cm (6.5 inch) Full HD+ Display', 5000, '50MP + 8MP | 16MP Front Camera', 
-       'Android 13', '5G', '181g', '8GB', '128GB', 18999, 20, 'Very Good']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [78, 'Motorola', 'G62 5G (Midnight Gray, 128 GB)', 'Midnight Gray', 'images/buy-page-phones/motog62.webp', 'Qualcomm Snapdragon 695 Processor', 
-       '16.94 cm (6.67 inch) Full HD+ Display', 5000, '50MP + 8MP + 2MP | 16MP Front Camera', 
-       'Android 12', '5G', '184g', '6GB', '128GB', 17999, 22, 'Superb']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [79, 'Motorola', 'G82 5G (Meteorite Gray, 128 GB)', 'Meteorite Gray', 'images/buy-page-phones/motog82.webp', 'Qualcomm Snapdragon 695 Processor', 
-       '16.76 cm (6.6 inch) Full HD+ AMOLED Display', 5000, '50MP + 8MP + 2MP | 16MP Front Camera', 
-       'Android 12', '5G', '173g', '6GB', '128GB', 21999, 18, 'Good']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [87, 'Nothing', 'Phone 2 (White, 256 GB)', 'White', 'images/buy-page-phones/nothingphone2.webp', 'Qualcomm Snapdragon 8+ Gen 1 Processor', 
-       '17.02 cm (6.7 inch) Full HD+ LTPO OLED Display', 4700, '50MP + 50MP | 32MP Front Camera', 
-       'Android 13', '5G', '201g', '12GB', '256GB', 44999, 15, 'Very Good']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [88, 'Nothing', 'Phone 1 (Black, 128 GB)', 'Black', 'images/buy-page-phones/nothingphone1.webp', 'Qualcomm Snapdragon 778G+ Processor', 
-       '16.63 cm (6.55 inch) Full HD+ OLED Display', 4500, '50MP + 50MP | 16MP Front Camera', 
-       'Android 12', '5G', '193.5g', '8GB', '128GB', 29999, 20, 'Good']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [89, 'Nothing', 'Phone 2 (Dark Gray, 512 GB)', 'Dark Gray', 'images/buy-page-phones/nothingphone2gray.webp', 'Qualcomm Snapdragon 8+ Gen 1 Processor', 
-       '17.02 cm (6.7 inch) Full HD+ LTPO OLED Display', 4700, '50MP + 50MP | 32MP Front Camera', 
-       'Android 13', '5G', '201g', '12GB', '512GB', 49999, 10, 'Good']
-  );
-      console.log('Initial phone data added to database');
+    await db.run(  
+        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
+        [  
+            'jbl_125bt_999',  
+            'JBL Tune 125BT Flex Neckband with 16 Hour Playtime, Quick Charge, Multipoint Connect Bluetooth  (Grey, In the Ear)',  
+            'images/accessories/earphones/jbl_125bt.webp',  
+            'JBL',  
+            2999,  
+            '33%',  
+            'behind the neck',  
+            '16',  
+        ]  
+    );  
+
     }
     
     return db;
@@ -659,7 +668,7 @@ export async function getAllPhones() {
       ram: phone.ram,
       rom: phone.rom,
       pricing: {
-        basePrice: phone.base_price,
+        basePrice: phone.price,
         discount: phone.discount
       },
       condition: phone.condition
@@ -861,5 +870,223 @@ export async function authenticateCustomer(email, password) {
   } catch (error) {
     console.error('Authentication error:', error);
     return { success: false, message: 'Authentication error' };
+  }
+}
+// Function to get all earphones
+// Function to get all earphones
+export async function getAllEarphones() {
+  try {
+    const db = await getDb();
+    const earphones = await db.all('SELECT * FROM earphones'); // Fetch all rows from the earphones table
+
+    // Transform the SQLite table data into an array of objects
+    return earphones.map(earphone => ({
+      id: earphone.id,
+      title: earphone.title,
+      image: earphone.image,
+      brand: earphone.brand,
+      originalPrice: earphone.original_price, // Map SQL column names to JavaScript object keys
+      discount: earphone.discount,
+      design: earphone.design,
+      batteryLife: earphone.battery_life,
+    }));
+  } catch (error) {
+    console.error('Error getting earphones:', error);
+    throw error;
+  }
+}
+
+// Function to get earphones by ID
+export async function getEarphonesById(id) {
+  try {
+    const db = await getDb();
+    const earphone = await db.get('SELECT * FROM earphones WHERE id = ?', [id]);
+
+    if (!earphone) {
+      return null;
+    }
+
+    return {
+      id: earphone.id,
+      title: earphone.title,
+      image: earphone.image,
+      brand: earphone.brand,
+      pricing: {
+        originalPrice: Number(earphone.original_price),
+        discount: earphone.discount,
+      },
+      design: earphone.design,
+      batteryLife: earphone.battery_life,
+    };
+  } catch (error) {
+    console.error('Error getting earphones by ID:', error);
+    throw error;
+  }
+}
+
+// Function to add new earphones
+export async function addEarphones(earphonesData) {
+  try {
+    const db = await getDb();
+    const { id, title, image, brand, pricing, design, batteryLife } = earphonesData;
+
+    await db.run(
+      `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, title, image, brand, pricing.originalPrice, pricing.discount, design, batteryLife]
+    );
+
+    return { success: true, id };
+  } catch (error) {
+    console.error('Error adding earphones:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to update earphones
+export async function updateEarphones(id, earphonesData) {
+  try {
+    const db = await getDb();
+    const { title, image, brand, pricing, design, batteryLife } = earphonesData;
+
+    await db.run(
+      `UPDATE earphones SET 
+        title = ?, 
+        image = ?, 
+        brand = ?, 
+        original_price = ?, 
+        discount = ?, 
+        design = ?, 
+        battery_life = ? 
+       WHERE id = ?`,
+      [title, image, brand, pricing.originalPrice, pricing.discount, design, batteryLife, id]
+    );
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating earphones:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to delete earphones
+export async function deleteEarphones(id) {
+  try {
+    const db = await getDb();
+    await db.run('DELETE FROM earphones WHERE id = ?', [id]);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting earphones:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getAllChargers() {
+  try {
+    const db = await getDb();
+    const chargers = await db.all('SELECT * FROM chargers'); // Fetch all rows from the chargers table
+
+    // Transform the SQLite table data into an array of objects
+    return chargers.map(charger => ({
+      id: charger.id,
+      title: charger.title,
+      image: charger.image,
+      brand: charger.brand,
+      wattage: charger.wattage,
+      type: charger.type,
+      originalPrice: charger.originalPrice, // Map SQL column names to JavaScript object keys
+      discount: charger.discount,
+      outputCurrent: charger.outputCurrent,
+    }));
+  } catch (error) {
+    console.error('Error getting chargers:', error);
+    throw error;
+  }
+}
+
+// Function to get a charger by ID
+export async function getChargerById(id) {
+  try {
+    const db = await getDb();
+    const charger = await db.get('SELECT * FROM chargers WHERE id = ?', [id]);
+
+    if (!charger) {
+      return null;
+    }
+
+    return {
+      id: charger.id,
+      title: charger.title,
+      image: charger.image,
+      brand: charger.brand,
+      wattage: charger.wattage,
+      type: charger.type,
+      pricing: {
+        originalPrice: Number(charger.originalPrice),
+        discount: charger.discount,
+      },
+      outputCurrent: charger.outputCurrent,
+    };
+  } catch (error) {
+    console.error('Error getting charger by ID:', error);
+    throw error;
+  }
+}
+
+// Function to add a new charger
+export async function addCharger(chargerData) {
+  try {
+    const db = await getDb();
+    const { id, title, image, brand, wattage, type, pricing, outputCurrent } = chargerData;
+
+    await db.run(
+      `INSERT INTO chargers (id, title, image, brand, wattage, type, original_price, discount, output_current) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, title, image, brand, wattage, type, pricing.originalPrice, pricing.discount, outputCurrent]
+    );
+
+    return { success: true, id };
+  } catch (error) {
+    console.error('Error adding charger:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to update a charger
+export async function updateCharger(id, chargerData) {
+  try {
+    const db = await getDb();
+    const { title, image, brand, wattage, type, pricing, outputCurrent } = chargerData;
+
+    await db.run(
+      `UPDATE chargers SET 
+        title = ?, 
+        image = ?, 
+        brand = ?, 
+        wattage = ?, 
+        type = ?, 
+        original_price = ?, 
+        discount = ?, 
+        output_current = ? 
+       WHERE id = ?`,
+      [title, image, brand, wattage, type, pricing.originalPrice, pricing.discount, outputCurrent, id]
+    );
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating charger:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to delete a charger
+export async function deleteCharger(id) {
+  try {
+    const db = await getDb();
+    await db.run('DELETE FROM chargers WHERE id = ?', [id]);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting charger:', error);
+    return { success: false, message: error.message };
   }
 }

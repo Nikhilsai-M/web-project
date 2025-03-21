@@ -66,8 +66,8 @@ function addToCart(chargerId) {
                         type: charger.type,
                         outputCurrent: charger.outputCurrent,
                         image: charger.image,
-                        price: charger.originalPrice,
-                        discount: parseFloat(charger.discount),
+                        price: charger.pricing.originalPrice,
+                        discount: parseFloat(charger.pricing.discount),
                         quantity: 1,
                     });
                 }

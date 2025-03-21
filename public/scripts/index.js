@@ -57,19 +57,39 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Add logout functionality
                 const logoutButton = document.getElementById("logout-button");
                 if (logoutButton) {
-                    logoutButton.addEventListener("click", function(e) {
+                    logoutButton.addEventListener("click", async function(e) {
                         e.preventDefault();
-                        
-                        // Clear session data
-                        localStorage.removeItem("currentSession");
-                        
-                        // Keep remember me if it exists
-                        if (!localStorage.getItem("rememberUser")) {
-                            localStorage.removeItem("rememberUser");
+
+                        try {
+                            // Call the logout endpoint to destroy the server-side session
+                            const response = await fetch('/api/customer/logout', {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+
+                            const data = await response.json();
+
+                            if (data.success) {
+                                // Clear client-side session data
+                                localStorage.removeItem("currentSession");
+
+                                // Keep remember me if it exists
+                                if (!localStorage.getItem("rememberUser")) {
+                                    localStorage.removeItem("rememberUser");
+                                }
+
+                                // Redirect to the homepage
+                                window.location.href = '/';
+                            } else {
+                                console.error('Logout failed:', data.message);
+                                alert('Failed to log out. Please try again.');
+                            }
+                        } catch (error) {
+                            console.error('Error during logout:', error);
+                            alert('Error during logout. Please try again.');
                         }
-                        
-                        // Refresh the page
-                        window.location.reload();
                     });
                 }
             } else {
@@ -86,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const loginLink = document.getElementById("login-link");
         const profileLink = document.getElementById("profile-link");
         const userProfileContainer = document.querySelector(".user-profile-container");
+        const icon = document.querySelector(".profile-icon");
         
         // Update text back to Sign in
         loginLink.textContent = "Sign in";
@@ -99,6 +120,11 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // Remove the class that enables hover functionality
         userProfileContainer.classList.remove("dropdown-enabled");
+
+        // Ensure the profile icon is visible when not logged in
+        if (icon) {
+            icon.classList.add("profile-icon");
+        }
     }
     
     // Initialize user interface based on login state
@@ -118,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
         userProfileContainer.addEventListener("mouseleave", function() {
             timeoutId = setTimeout(function() {
                 userDropdown.style.display = "none";
-            }, 300); // 500ms delay gives you time to move to the dropdown
+            }, 300); // 300ms delay gives you time to move to the dropdown
         });
         
         userDropdown.addEventListener("mouseenter", function() {

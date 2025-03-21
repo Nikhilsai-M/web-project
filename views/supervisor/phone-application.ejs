@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phone Applications - Supervisor Dashboard</title>
+  <link rel="stylesheet" href="/styles/supervisor/phone-application.css">
+</head>
+<body>
+  
+  <div class="dashboard-container">
+    <div class="sidebar">
+      <%- include('./sidebar') %>
+    </div>
+    
+    <div class="main-content">
+      <h1>Phone Selling Applications</h1>
+      
+      <div class="filter-controls">
+        <select id="status-filter">
+          <option value="all">All Applications</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="processing">Processing</option>
+        </select>
+      </div>
+      
+      <div class="applications-container">
+        <table id="applications-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Brand</th>
+              <th>Model</th>
+              <th>RAM/Storage</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="applications-body">
+            <!-- Applications will be loaded here via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+      
+      <div id="application-details" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2>Application Details</h2>
+          <div id="application-details-content"></div>
+          
+          <div class="status-controls">
+            <h3>Update Status</h3>
+            <div class="status-buttons">
+              <button class="status-btn" data-status="pending">Pending</button>
+              <button class="status-btn" data-status="approved">Approve</button>
+              <button class="status-btn" data-status="rejected">Reject</button>
+              <button class="status-btn" data-status="processing">Processing</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/scripts/supervisor/phone-applications.js"></script>
+</body>
+</html>

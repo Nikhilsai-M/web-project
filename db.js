@@ -56,6 +56,16 @@ export async function initializeDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    // Add columns if they don't exist (for existing databases)
+    await db.exec(`
+      ALTER TABLE customers ADD COLUMN orders_count INTEGER DEFAULT 0;
+    `).catch(() => {}); // Ignore if column already exists
+    await db.exec(`
+      ALTER TABLE customers ADD COLUMN items_sold_count INTEGER DEFAULT 0;
+    `).catch(() => {});
+    await db.exec(`
+      ALTER TABLE customers ADD COLUMN password_last_changed DATETIME DEFAULT CURRENT_TIMESTAMP;
+    `).catch(() => {});
     
     // Create laptops table if it doesn't exist
     await db.exec(`
@@ -102,7 +112,60 @@ export async function initializeDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
-    
+
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS phone_applications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT,
+        brand TEXT NOT NULL,
+        model TEXT NOT NULL,
+        ram TEXT NOT NULL,
+        rom TEXT NOT NULL,
+        processor TEXT NOT NULL,
+        network TEXT NOT NULL,
+        size TEXT,
+        weight TEXT,
+        device_age TEXT NOT NULL,
+        switching_on TEXT NOT NULL,
+        phone_calls TEXT NOT NULL,
+        cameras_working TEXT NOT NULL,
+        battery_issues TEXT NOT NULL,
+        physically_damaged TEXT NOT NULL,
+        sound_issues TEXT NOT NULL,
+        location TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        image_path TEXT,  
+        status TEXT DEFAULT 'pending',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS laptop_applications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT,
+        brand TEXT NOT NULL,
+        model TEXT NOT NULL,
+        ram TEXT NOT NULL,
+        storage TEXT NOT NULL,
+        processor TEXT NOT NULL,
+        generation TEXT,
+        display_size TEXT,
+        weight TEXT,
+        os TEXT,
+        device_age TEXT,
+        battery_issues TEXT,
+        location TEXT NOT NULL,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        image_path TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+ 
     // Check if any supervisors exist, add test ones if not
     const supervisorCount = await db.get('SELECT COUNT(*) as count FROM supervisors');
     
@@ -159,17 +222,8 @@ export async function initializeDatabase() {
         [100, 'Acer', 'Aspire 3', 'Intel Core i3', '12th Gen', 45999, 10, '8GB', 
          'SSD', '512GB', 15.6, 1.7, 'Superb', 'Windows 11', 'images/buy-laptops/aspire3.webp']
       );
-      
-      await db.run(
-        `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, 
-                             base_price, discount, ram, storage_type, storage_capacity, 
-                             display_size, weight, condition, os, image) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [101, 'Acer', 'Aspire 5', 'Intel Core i5', '13th Gen', 57999, 12, '16GB', 
-         'SSD', '512GB', 14, 1.6, 'Superb', 'Windows 11', 'images/buy-laptops/aspire5.webp']
-      );
     }
-    await db.run('DELETE FROM phones');
+
     // Check if any phones exist, add initial data if not
     const phoneCount = await db.get('SELECT COUNT(*) as count FROM phones');
     
@@ -181,270 +235,8 @@ export async function initializeDatabase() {
         [1, 'OnePlus', 'Nord 2', 'Blue Haze', 'images/buy-page-phones/img11.webp', 'Snapdragon 8 Gen 1', 
          '6.43-inch Fluid AMOLED display', 4500, '48MP + 8MP + 50MP | 32MP Front Camera', 
          'Android 11', '5G', '200g', '12GB', '256GB', 27999, 50, 'Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [2, 'OnePlus', '8T 5G', 'Lunar Silver', 'images/buy-page-phones/img12.webp', 'Snapdragon 8 Gen 1', 
-         '6.55-inch Fluid AMOLED display', 4500, '48MP + 8MP + 50MP | 32MP Front Camera', 
-         'Android 11', '5G', '200g', '8GB', '128GB', 19999, 53, 'Very Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [3, 'OnePlus', '10T 5G', 'Jade Green', 'images/buy-page-phones/img13.webp', 'Snapdragon 8 Gen 1', 
-         '6.7-inch Fluid AMOLED display', 4800, '48MP + 8MP + 50MP | 32MP Front Camera', 
-         'Android 12', '5G', '210g', '12GB', '256GB', 28999, 47, 'Superb']
-    );
-    
-
-      await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [17, 'Google', 'Pixel 8', 'Hazel', 'images/buy-page-phones/img7.webp', 'Google Tensor G3', 
-         '6.2-inch Full HD Plus display', 4575, '50MP + 8MP + 50MP | 10.5MP Front Camera', 
-         'Android 14', '5G', '187g', '8GB', '256GB', 58999, 26, 'Superb']
       );
-      await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [18, 'Google', 'Pixel 8', 'Mint', 'images/buy-page-phones/img8.webp', 'Google Tensor G3', 
-         '6.2-inch Full HD Plus display', 4575, '50MP + 8MP + 50MP | 10.5MP Front Camera', 
-         'Android 14', '5G', '187g', '8GB', '128GB', 52999, 45, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [19, 'Google', 'Pixel 8 Pro', 'Bay', 'images/buy-page-phones/img9.webp', 'Google Tensor G3', 
-         '6.7-inch Full HD Plus display', 5050, '50MP + 8MP + 50MP | 10.5MP Front Camera', 
-         'Android 14', '5G', '213g', '12GB', '128GB', 84999, 20, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [23, 'Apple', 'iPhone 13 (Green, 512 GB)', 'Green', 'images/buy-page-phones/i-13.webp', 'A15 Bionic Chip Processor', 
-         '15.49 cm (6.1 inch) Super Retina XDR Display', 4200, '12MP + 12MP | 12MP Front Camera', 
-         'iOS 15', '5G', '170g', '6GB', '512GB', 74999, 10, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [24, 'Apple', 'iPhone 15 Plus (Pink, 128 GB)', 'Pink', 'images/buy-page-phones/i-15plus.webp', 'A16 Bionic Chip,6 core Processor', 
-         '17.02 cm (6.7 inch) Super Retina XDR OLED Display', 4700, '48MP + 12MP | 12MP Front Camera', 
-         'iOS 17', '5G', '201g', '6GB', '128GB', 70999, 5, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [25, 'Apple', 'iPhone 15 Plus (Pink, 256 GB)', 'Pink', 'images/buy-page-phones/i-15plus.webp', 'A16 Bionic Chip,6 core Processor', 
-         '17.02 cm (6.7 inch) Super Retina XDR OLED Display', 4700, '48MP + 12MP | 12MP Front Camera', 
-         'iOS 17', '5G', '201g', '8GB', '256GB', 73999, 5, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [26, 'Apple', 'iPhone 15 Plus (Green, 128 GB)', 'Green', 'images/buy-page-phones/i-15plus-green.webp', 'A16 Bionic Chip,6 core Processor', 
-         '17.02 cm (6.7 inch) Super Retina XDR OLED Display', 4700, '48MP + 12MP | 12MP Front Camera', 
-         'iOS 17', '5G', '201g', '6GB', '128GB', 70999, 5, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [33, 'Lenovo', 'K8 Note (Venom Black, 64 GB)', 'Venom Black', 'images/buy-page-phones/l-k8.jpeg', 'Mediatek MTK X23', 
-         '13.97 cm (5.5 inch) IPS Display', 4000, '13MP + 5MP | 13MP Front Camera', 
-         'Android Nougat 7.1', '4G', '182g', '4GB', '64GB', 12999, 10, 'Very Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [34, 'Lenovo', 'K8 Note (Gold, 32 GB)', 'Gold', 'images/buy-page-phones/l-k8-gold.webp', 'Mediatek MTK X23', 
-         '13.97 cm (5.5 inch) IPS Display', 4000, '13MP + 5MP | 13MP Front Camera', 
-         'Android Nougat 7.1', '4G', '182g', '3GB', '32GB', 7999, 10, 'Very Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [35, 'Lenovo', 'A6 Note (Blue, 32 GB)', 'Blue', 'images/buy-page-phones/l-a6.webp', 'MediaTek P22 Octa Core Processor', 
-         '15.5 cm (6.102 inch) HD+ Display', 4000, '13MP + 2MP | 5MP Front Camera', 
-         'Android Pie 9.0', '4G', '182g', '3GB', '32GB', 9999, 10, 'Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [38, 'Xiaomi', '14 CIVI', 'Cruise Blue', 'images/buy-page-phones/Xiaomi 14CIVI.webp', 'Snapdragon 8s Gen3', 
-         '6.55-inch Curved AMOLED Display', 4700, '32MP + 32MP | 32MP Front Camera', 
-         'Android 14', '5G', '179.3g', '8GB', '256GB', 54999, 27, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [39, 'Xiaomi', '14 CIVI', 'Panda White', 'images/buy-page-phones/Xiaomi 14CIVI Panda White.webp', 'Snapdragon 8s Gen3', 
-         '6.55-inch Curved AMOLED Display', 4700, '32MP + 32MP | 32MP Front Camera', 
-         'Android 14', '5G', '179.3g', '12GB', '512GB', 59999, 25, 'Very Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [40, 'Xiaomi', '11 Lite', 'Vinyl Black', 'images/buy-page-phones/Xiaomi 11Lite.webp', 'Snapdragon 732G', 
-         '6.55-inch HD Display', 4250, '64MP + 8MP | 16MP Front Camera', 
-         'Android 11', '4G', '157g', '8GB', '128GB', 25999, 7, 'Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [41, 'Xiaomi', '10T', 'Cosmic Black', 'images/buy-page-phones/Xiaomi 10T.webp', 'Snapdragon 865', 
-         '6.67-inch Full HD Display', 5000, '64MP + 13MP | 20MP Front Camera', 
-         'Android 10', '5G', '216g', '6GB', '128GB', 35999, 54, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [42, 'Xiaomi', '11i Hypercharge 5G', 'Purple Mist', 'images/buy-page-phones/Xiaomi 11i Hypercharge 5G.webp', 'Snapdragon 865', 
-         '6.67-inch Full HD AMOLED Display', 4500, '108MP + 8MP | 16MP Front Camera', 
-         'Android 11', '5G', '178g', '8GB', '128GB', 33999, 14, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [45, 'Vivo', 'V20 Pro', 'Midnight Jazz', 'images/buy-page-phones/vivo v20 pro.webp', 'Snapdragon 765G', 
-         '6.44-inch Full HD + AMOLED Display', 4000, '64MP + 8MP + 2MP | 44MP Front Camera', 
-         'Android 12', '5G', '176g', '8GB', '128GB', 34990, 66, 'Very Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [46, 'Vivo', 'X50 Pro', 'Alpha Grey', 'images/buy-page-phones/vivo x50 pro.webp', 'Snapdragon 765G', 
-         '6.56-inch Full HD + E3 AMOLED Display', 4315, '48MP + 13MP + 8MP | 32MP Front Camera', 
-         'Android 14', '5G', '176g', '8GB', '256GB', 54990, 2, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [47, 'Vivo', 'T3 Pro 5G', 'Emerald Green', 'images/buy-page-phones/vivo t3 pro 5g emerald green.webp', 'Snapdragon 7 Gen3', 
-         '6.77-inch Full HD + AMOLED Display', 5500, '50MP + 8MP | 16MP Front Camera', 
-         'Android 14', '5G', '189g', '8GB', '128GB', 29999, 23, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [48, 'Vivo', 'T3 Pro 5G', 'Sandstone Orange', 'images/buy-page-phones/vivo t3 pro 5g sandstone orange.webp', 'Snapdragon 7 Gen3', 
-         '6.77-inch Full HD + AMOLED Display', 5500, '50MP + 8MP | 16MP Front Camera', 
-         'Android 14', '5G', '189g', '8GB', '128GB', 29999, 23, 'Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [56, 'Samsung', 'Galaxy S10 Lite', 'Prism White', 'images/buy-page-phones/galaxy s10 lite.webp', 'Exynos 9 9820', 
-         '6.1-inch Dynamic AMOLED Display', 3400, '16MP + 12MP | 10MP Front Camera', 
-         'Android Pie 9.0', '4G', '157g', '8GB', '512GB', 22800, 10, 'Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [57, 'Samsung', 'Galaxy Z Flip5', 'Cream', 'images/buy-page-phones/galaxy zflip5.webp', 'Snapdragon 8 Gen2', 
-         '6.7-inch Dynamic AMOLED 2X Display', 3700, '12MP + 12MP | 10MP Front Camera', 
-         'Android 13', '5G', '187g', '8GB', '512GB', 71999, 25, 'Very Good']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [58, 'Samsung', 'Galaxy S24 FE 5G', 'Blue', 'images/buy-page-phones/galaxy s24fe.webp', 'Exynos 2400e', 
-         '6.7-inch Dynamic AMOLED 2X Display', 4700, '50MP + 12MP | 10MP Front Camera', 
-         'Android 14', '5G', '213g', '8GB', '128GB', 49999, 33, 'Superb']
-    );
-    
-    await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [67, 'Realme', 'C61 (Marble Black, 128 GB)', 'Marble Black', 'images/buy-page-phones/realmec61.webp', 'T612 Octacore processor', 
-         '17.13 cm (6.745 inch) HD+ Display', 5000, '32MP Rear Camera | 5MP Front Camera', 
-         'Android 14', '4G', '187g', '6GB', '128GB', 10999, 25, 'Very Good']
-    );
-    await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [68, 'Realme', 'C63 (Leather Blue, 64 GB)', 'Leather Blue', 'images/buy-page-phones/realmec63.webp', 'T612 Octacore processor', 
-       '17.13 cm (6.745 inch) HD+ Display', 5000, '50MP Rear Camera | 8MP Front Camera', 
-       'Android 14', '5G', '191g', '4GB', '64GB', 9999, 15, 'Good']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [69, 'Realme', 'P2 Pro 5G (Parrot Green, 512 GB)', 'Parrot Green', 'images/buy-page-phones/realmep2pro.webp', 'Snapdragon 7s Gen2 processor', 
-       '17.02 cm (6.7 inch) Full HD+ Display', 5200, '50MP + 8MP | 32MP Front Camera', 
-       'Android 14', '5G', '180g', '12GB', '512GB', 30999, 25, 'Good']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [77, 'Motorola', 'G73 5G (Lucent White, 128 GB)', 'Lucent White', 'images/buy-page-phones/motog73.webp', 'MediaTek Dimensity 930 Processor', 
-       '16.51 cm (6.5 inch) Full HD+ Display', 5000, '50MP + 8MP | 16MP Front Camera', 
-       'Android 13', '5G', '181g', '8GB', '128GB', 18999, 20, 'Very Good']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [78, 'Motorola', 'G62 5G (Midnight Gray, 128 GB)', 'Midnight Gray', 'images/buy-page-phones/motog62.webp', 'Qualcomm Snapdragon 695 Processor', 
-       '16.94 cm (6.67 inch) Full HD+ Display', 5000, '50MP + 8MP + 2MP | 16MP Front Camera', 
-       'Android 12', '5G', '184g', '6GB', '128GB', 17999, 22, 'Superb']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [79, 'Motorola', 'G82 5G (Meteorite Gray, 128 GB)', 'Meteorite Gray', 'images/buy-page-phones/motog82.webp', 'Qualcomm Snapdragon 695 Processor', 
-       '16.76 cm (6.6 inch) Full HD+ AMOLED Display', 5000, '50MP + 8MP + 2MP | 16MP Front Camera', 
-       'Android 12', '5G', '173g', '6GB', '128GB', 21999, 18, 'Good']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [87, 'Nothing', 'Phone 2 (White, 256 GB)', 'White', 'images/buy-page-phones/nothingphone2.webp', 'Qualcomm Snapdragon 8+ Gen 1 Processor', 
-       '17.02 cm (6.7 inch) Full HD+ LTPO OLED Display', 4700, '50MP + 50MP | 32MP Front Camera', 
-       'Android 13', '5G', '201g', '12GB', '256GB', 44999, 15, 'Very Good']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [88, 'Nothing', 'Phone 1 (Black, 128 GB)', 'Black', 'images/buy-page-phones/nothingphone1.webp', 'Qualcomm Snapdragon 778G+ Processor', 
-       '16.63 cm (6.55 inch) Full HD+ OLED Display', 4500, '50MP + 50MP | 16MP Front Camera', 
-       'Android 12', '5G', '193.5g', '8GB', '128GB', 29999, 20, 'Good']
-  );
-  
-  await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [89, 'Nothing', 'Phone 2 (Dark Gray, 512 GB)', 'Dark Gray', 'images/buy-page-phones/nothingphone2gray.webp', 'Qualcomm Snapdragon 8+ Gen 1 Processor', 
-       '17.02 cm (6.7 inch) Full HD+ LTPO OLED Display', 4700, '50MP + 50MP | 32MP Front Camera', 
-       'Android 13', '5G', '201g', '12GB', '512GB', 49999, 10, 'Good']
-  );
+      
       console.log('Initial phone data added to database');
     }
     
@@ -804,7 +596,6 @@ export async function deletePhone(id) {
     return { success: false, message: error.message };
   }
 }
-
 // Customer authentication functions
 export async function createCustomer(firstName, lastName, email, phone, password) {
   try {
@@ -824,8 +615,8 @@ export async function createCustomer(firstName, lastName, email, phone, password
     
     // Insert the new customer
     await db.run(
-      'INSERT INTO customers (user_id, first_name, last_name, email, phone, password) VALUES (?, ?, ?, ?, ?, ?)',
-      [userId, firstName, lastName, email, phone, hashedPassword]
+      'INSERT INTO customers (user_id, first_name, last_name, email, phone, password, orders_count, items_sold_count, password_last_changed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [userId, firstName, lastName, email, phone, hashedPassword, 0, 0, new Date().toISOString()]
     );
     
     return { success: true, userId };
@@ -834,8 +625,6 @@ export async function createCustomer(firstName, lastName, email, phone, password
     return { success: false, message: 'Database error' };
   }
 }
-
-
 
 export async function authenticateCustomer(email, password) {
   try {
@@ -861,5 +650,242 @@ export async function authenticateCustomer(email, password) {
   } catch (error) {
     console.error('Authentication error:', error);
     return { success: false, message: 'Authentication error' };
+  }
+}
+
+export async function createPhoneApplication(applicationData) {
+  try {
+    const db = await getDb();
+
+    const result = await db.run(
+      `INSERT INTO phone_applications (
+        user_id, brand, model, ram, rom, processor, network, size, weight, 
+        device_age, switching_on, phone_calls, cameras_working, battery_issues, 
+        physically_damaged, sound_issues, location, email, phone, image_path
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        applicationData.userId || null,
+        applicationData.brand,
+        applicationData.model,
+        applicationData.ram,
+        applicationData.rom,
+        applicationData.processor,
+        applicationData.network,
+        applicationData.size || '',
+        applicationData.weight || '',
+        applicationData.deviceAge,
+        applicationData.switchingOn,
+        applicationData.phoneCalls,
+        applicationData.camerasWorking,
+        applicationData.batteryIssues,
+        applicationData.physicallyDamaged,
+        applicationData.soundIssues,
+        applicationData.location,
+        applicationData.email,
+        applicationData.phone,
+        applicationData.imagepath || '', // Cloudinary URL
+      ]
+    );
+
+    return { success: true, id: result.lastID };
+  } catch (error) {
+    console.error('Error creating phone application:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getAllPhoneApplications() {
+  try {
+    const db = await getDb();
+    const applications = await db.all('SELECT * FROM phone_applications ORDER BY created_at DESC');
+    return applications;
+  } catch (error) {
+    console.error('Error getting phone applications:', error);
+    throw error;
+  }
+}
+
+export async function getPhoneApplicationsByUserId(userId) {
+  try {
+    const db = await getDb();
+    const applications = await db.all(
+      'SELECT * FROM phone_applications WHERE user_id = ? ORDER BY created_at DESC',
+      [userId]
+    );
+    return applications;
+  } catch (error) {
+    console.error('Error getting user phone applications:', error);
+    throw error;
+  }
+}
+
+export async function getPhoneApplicationById(id) {
+  try {
+    const db = await getDb();
+    const application = await db.get('SELECT * FROM phone_applications WHERE id = ?', [id]);
+    return application;
+  } catch (error) {
+    console.error('Error getting phone application by id:', error);
+    throw error;
+  }
+}
+
+export async function updatePhoneApplicationStatus(id, status) {
+  try {
+    const db = await getDb();
+    await db.run(
+      'UPDATE phone_applications SET status = ? WHERE id = ?',
+      [status, id]
+    );
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating phone application status:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function deletePhoneApplication(id) {
+  try {
+    const db = await getDb();
+    await db.run('DELETE FROM phone_applications WHERE id = ?', [id]);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting phone application:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function createLaptopApplication(applicationData) {
+  try {
+    const db = await getDb();
+
+    const result = await db.run(
+      `INSERT INTO laptop_applications (
+        user_id, brand, model, ram, storage, processor, generation, display_size, 
+        weight, os, device_age, battery_issues, location, name, email, phone, image_path
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        applicationData.userId || null,
+        applicationData.brand,
+        applicationData.model,
+        applicationData.ram,
+        applicationData.storage,
+        applicationData.processor,
+        applicationData.generation || '',
+        applicationData.displaySize || '',
+        applicationData.weight || '',
+        applicationData.os || '',
+        applicationData.deviceAge || '',
+        applicationData.batteryIssues || '',
+        applicationData.location,
+        applicationData.name,
+        applicationData.email,
+        applicationData.phone,
+        applicationData.imagepath || '', // Cloudinary URL
+      ]
+    );
+
+    return { success: true, id: result.lastID };
+  } catch (error) {
+    console.error('Error creating laptop application:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getAllLaptopApplications() {
+  try {
+    const db = await getDb();
+    const applications = await db.all('SELECT * FROM laptop_applications ORDER BY created_at DESC');
+    return applications;
+  } catch (error) {
+    console.error('Error getting laptop applications:', error);
+    throw error;
+  }
+}
+
+export async function getLaptopApplicationsByUserId(userId) {
+  try {
+    const db = await getDb();
+    const applications = await db.all(
+      'SELECT * FROM laptop_applications WHERE user_id = ? ORDER BY created_at DESC',
+      [userId]
+    );
+    return applications;
+  } catch (error) {
+    console.error('Error getting user laptop applications:', error);
+    throw error;
+  }
+}
+
+export async function getLaptopApplicationById(id) {
+  try {
+    const db = await getDb();
+    const application = await db.get('SELECT * FROM laptop_applications WHERE id = ?', [id]);
+    return application;
+  } catch (error) {
+    console.error('Error getting laptop application by id:', error);
+    throw error;
+  }
+}
+
+export async function updateLaptopApplicationStatus(id, status) {
+  try {
+    const db = await getDb();
+    await db.run(
+      'UPDATE laptop_applications SET status = ? WHERE id = ?',
+      [status, id]
+    );
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating laptop application status:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function deleteLaptopApplication(id) {
+  try {
+    const db = await getDb();
+    await db.run('DELETE FROM laptop_applications WHERE id = ?', [id]);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting laptop application:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// In db.js
+export async function updateCustomer(userId, updates) {
+  try {
+    const db = await getDb();
+    
+    const { first_name, last_name, email, phone } = updates;
+    
+    await db.run(
+      'UPDATE customers SET first_name = ?, last_name = ?, email = ?, phone = ? WHERE user_id = ?',
+      [first_name, last_name, email, phone, userId]
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating customer:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function updateCustomerPassword(userId, newPassword) {
+  try {
+    const db = await getDb();
+    
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    await db.run(
+      'UPDATE customers SET password = ?, password_last_changed = ? WHERE user_id = ?',
+      [hashedPassword, new Date().toISOString(), userId]
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating customer password:', error);
+    return { success: false, message: error.message };
   }
 }

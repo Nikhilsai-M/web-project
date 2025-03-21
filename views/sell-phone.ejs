@@ -9,212 +9,60 @@
 <body>
     <%- include('partials/header') %> 
   <div class="container">
-    <div class="header">
-      <h1>Sell Your Phone</h1>
-      <p>Fill out the form below to get an instant quote for your device</p>
-    </div>
-    
-    <form id="phone-selling-form">
-      <div class="form-card">
-        <div class="form-section">
-          <h2>Device Information</h2>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="brand">Brand (All Caps)*</label>
-              <input type="text" id="brand" name="brand" required pattern="[A-Z\s]+" placeholder="SAMSUNG">
-            </div>
-            
-            <div class="form-group">
-              <label for="model">Model*</label>
-              <input type="text" id="model" name="model" required placeholder="Galaxy S22">
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="ram">RAM*</label>
-              <select id="ram" name="ram" required>
-                <option value="">Select RAM</option>
-                <option value="2">2 GB</option>
-                <option value="3">3 GB</option>
-                <option value="4">4 GB</option>
-                <option value="6">6 GB</option>
-                <option value="8">8 GB</option>
-                <option value="12">12 GB</option>
-                <option value="16">16 GB</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label for="rom">Storage*</label>
-              <select id="rom" name="rom" required>
-                <option value="">Select Storage</option>
-                <option value="16">16 GB</option>
-                <option value="32">32 GB</option>
-                <option value="64">64 GB</option>
-                <option value="128">128 GB</option>
-                <option value="256">256 GB</option>
-                <option value="512">512 GB</option>
-                <option value="1024">1 TB</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="processor">Processor*</label>
-              <input type="text" id="processor" name="processor" required placeholder="Snapdragon 8 Gen 1">
-            </div>
-            
-            <div class="form-group">
-              <label for="network">Network*</label>
-              <select id="network" name="network" required>
-                <option value="">Select Network</option>
-                <option value="4G">4G</option>
-                <option value="5G">5G</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="size">Approximate Size (in inches)</label>
-              <input type="text" id="size" name="size" placeholder="6.1">
-            </div>
-            
-            <div class="form-group">
-              <label for="weight">Approximate Weight (in grams)</label>
-              <input type="text" id="weight" name="weight" placeholder="167">
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="device-age">Device Age*</label>
-              <select id="device-age" name="device-age" required>
-                <option value="">Select Age</option>
-                <option value="less-than-6-months">Less than 6 months</option>
-                <option value="6-12-months">6-12 months</option>
-                <option value="1-2-years">1-2 years</option>
-                <option value="2-3-years">2-3 years</option>
-                <option value="more-than-3-years">More than 3 years</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-section">
-          <h2>Device Condition</h2>
-          
-          <div class="form-row condition-row">
-            <div class="form-group condition-group">
-              <label>Is the device switching on?*</label>
-              <div class="radio-group">
-                <label class="radio-label">
-                  <input type="radio" name="switching-on" value="yes" required> Yes
-                </label>
-                <label class="radio-label">
-                  <input type="radio" name="switching-on" value="no"> No
-                </label>
-              </div>
-            </div>
-            
-            <div class="form-group condition-group">
-              <label>Can make/receive phone calls?*</label>
-              <div class="radio-group">
-                <label class="radio-label">
-                  <input type="radio" name="phone-calls" value="yes" required> Yes
-                </label>
-                <label class="radio-label">
-                  <input type="radio" name="phone-calls" value="no"> No
-                </label>
-              </div>
-            </div>
-          </div>
-          
-          <div class="form-row condition-row">
-            <div class="form-group condition-group">
-              <label>Are cameras working?*</label>
-              <div class="radio-group">
-                <label class="radio-label">
-                  <input type="radio" name="cameras-working" value="yes" required> Yes
-                </label>
-                <label class="radio-label">
-                  <input type="radio" name="cameras-working" value="no"> No
-                </label>
-              </div>
-            </div>
-            
-            <div class="form-group condition-group">
-              <label>Any battery issues?*</label>
-              <div class="radio-group">
-                <label class="radio-label">
-                  <input type="radio" name="battery-issues" value="yes" required> Yes
-                </label>
-                <label class="radio-label">
-                  <input type="radio" name="battery-issues" value="no"> No
-                </label>
-              </div>
-            </div>
-          </div>
-          
-          <div class="form-row condition-row">
-            <div class="form-group condition-group">
-              <label>Is the device physically damaged?*</label>
-              <div class="radio-group">
-                <label class="radio-label">
-                  <input type="radio" name="physically-damaged" value="yes" required> Yes
-                </label>
-                <label class="radio-label">
-                  <input type="radio" name="physically-damaged" value="no"> No
-                </label>
-              </div>
-            </div>
-            
-            <div class="form-group condition-group">
-              <label>Any sound issues?*</label>
-              <div class="radio-group">
-                <label class="radio-label">
-                  <input type="radio" name="sound-issues" value="yes" required> Yes
-                </label>
-                <label class="radio-label">
-                  <input type="radio" name="sound-issues" value="no"> No
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-section">
-          <h2>Contact Information</h2>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="location">Location*</label>
-              <input type="text" id="location" name="location" required placeholder="City, State">
-            </div>
-            
-            <div class="form-group">
-              <label for="email">Email Address*</label>
-              <input type="email" id="email" name="email" required placeholder="your@email.com">
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="phone">Phone Number*</label>
-              <input type="tel" id="phone" name="phone" required placeholder="123-456-7890">
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-submit">
-          <button type="submit" class="submit-button">Submit Application</button>
-        </div>
-      </div>
+    <form id="sellPhoneForm" enctype="multipart/form-data" method="POST" action="/api/sell-phone">
+      <label>Brand: <input type="text" name="brand" required></label><br>
+      <label>Model: <input type="text" name="model" required></label><br>
+      <label>RAM: <input type="text" name="ram" required></label><br>
+      <label>ROM: <input type="text" name="rom" required></label><br>
+      <label>Processor: <input type="text" name="processor" required></label><br>
+      <label>Network: <input type="text" name="network" required></label><br>
+      <label>Size: <input type="text" name="size"></label><br>
+      <label>Weight: <input type="text" name="weight"></label><br>
+      <label>Device Age: <input type="text" name="device-age" required></label><br>
+      <label>Switching On: 
+        <select name="switching-on" required>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </label><br>
+      <label>Phone Calls: 
+        <select name="phone-calls" required>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </label><br>
+      <label>Cameras Working: 
+        <select name="cameras-working" required>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </label><br>
+      <label>Battery Issues: 
+        <select name="battery-issues" required>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </label><br>
+      <label>Physically Damaged: 
+        <select name="physically-damaged" required>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </label><br>
+      <label>Sound Issues: 
+        <select name="sound-issues" required>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </label><br>
+      <label>Location: <input type="text" name="location" required></label><br>
+      <label>Email: <input type="email" name="email" required></label><br>
+      <label>Phone: <input type="text" name="phone" required></label><br>
+      <label>Device Image: <input type="file" name="device-image" required></label><br>
+      <button type="submit">Submit</button>
     </form>
   </div>
 </body>
+<script src="/scripts/sell-phone.js"></script>
 <footer><%- include('partials/footer') %> </footer>
 </html>

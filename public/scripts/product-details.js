@@ -56,8 +56,8 @@ function addToCart(productId) {
                         rom: product.rom,
                         condition: product.condition,
                         image: product.image,
-                        price: product.price,
-                        discount: product.discount,
+                        price: product.pricing.price,
+                        discount:parseFloat( product.pricing.discount),
                         quantity: 1
                     });
                 }

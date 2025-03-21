@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('supervisorLoginForm');
-    const employeeIdInput = document.getElementById('employee_id');
+    const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
-    const employeeIdError = document.getElementById('employee_id_error');
+    const usernameError = document.getElementById('username_error');
     const passwordError = document.getElementById('password_error');
     const loginMessage = document.getElementById('login_message');
 
-    function validateEmployeeId(employeeId) {
-        return employeeId.length > 0;
+    function validateUsername(username) {
+        return username.length > 0;
     }
 
     function validatePassword(password) {
@@ -16,16 +16,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        employeeIdError.textContent = '';
+        usernameError.textContent = '';
         passwordError.textContent = '';
         loginMessage.textContent = '';
         loginMessage.classList.remove('success', 'error');
 
-        const employee_id = employeeIdInput.value.trim();
+        const username = usernameInput.value.trim();
         const password = passwordInput.value;
 
-        if (!validateEmployeeId(employee_id)) {
-            employeeIdError.textContent = 'Employee ID is required';
+        if (!validateUsername(username)) {
+            usernameError.textContent = 'Username is required';
             return;
         }
 
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ employee_id, password })
+                body: JSON.stringify({ username, password })
             });
 
             const data = await response.json();
@@ -56,14 +56,14 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.disabled = false;
 
             if (data.success) {
-                loginMessage.textContent = `Welcome, ${data.name}! Login successful.`;
+                loginMessage.textContent = `Welcome, ${data.firstName} ${data.lastName}! Login successful.`;
                 loginMessage.classList.add('success');
                 
                 setTimeout(() => {
-                    window.location.href = '/supervisor/home';
+                    window.location.href = '/supervisor';
                 }, 1500);
             } else {
-                loginMessage.textContent = data.message || 'Invalid employee ID or password';
+                loginMessage.textContent = data.message || 'Invalid username or password';
                 loginMessage.classList.add('error');
             }
         } catch (error) {

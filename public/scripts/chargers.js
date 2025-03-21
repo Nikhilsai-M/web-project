@@ -1,8 +1,16 @@
-import { accessoriesData } from './accessories-data.js';
-
-const productList = document.getElementById('product-list');
-// Access the chargers array from the imported object
-const chargers = accessoriesData.chargers;
+async function fetchChargerData() {
+    try {
+        const response = await fetch('/api/chargers'); // Replace with your API endpoint
+        if (!response.ok) {
+            throw new Error('Failed to fetch charger data');
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching charger data:', error);
+        return []; // Return an empty array in case of error
+    }
+}
 
 // Function to calculate discounted price
 function calculateDiscountedPrice(price, discount) {
@@ -11,6 +19,7 @@ function calculateDiscountedPrice(price, discount) {
 
 // Function to display chargers
 function displayChargers(filteredChargers) {
+    const productList = document.getElementById('product-list');
     productList.innerHTML = ''; // Clear the product list
     
     if (filteredChargers.length === 0) {
@@ -30,7 +39,7 @@ function displayChargers(filteredChargers) {
     }
     
     filteredChargers.forEach(charger => {
-        const discountPrice = (charger.originalPrice - (charger.originalPrice * parseFloat(charger.discount) / 100)).toFixed(2);
+        const discountPrice = calculateDiscountedPrice(charger.originalPrice, parseFloat(charger.discount)).toFixed(2);
         const productHTML = `
             <a href="/charger/${charger.id}" class="product-link"> 
             <div class="product" data-id="${charger.id}">
@@ -58,7 +67,7 @@ function displayChargers(filteredChargers) {
         button.addEventListener("click", function(e) {
             const productDiv = e.target.closest(".product");
             const productId = productDiv.dataset.id;
-            const charger = filteredChargers.find(p => p.id == productId);
+            const charger = filteredChargers.find(p => p.id === productId);
             
             if (charger) {
                 addToCart(charger);
@@ -126,7 +135,7 @@ function addToCart(charger) {
 }
 
 // Function to filter chargers
-function filterChargers() {
+function filterChargers(chargers) {
     const checkedBrands = Array.from(document.querySelectorAll('.brand-filter:checked')).map(checkbox => checkbox.value);
     const checkedWattages = Array.from(document.querySelectorAll('.wattage-filter:checked')).map(checkbox => checkbox.value);
     const checkedTypes = Array.from(document.querySelectorAll('.type-filter:checked')).map(checkbox => checkbox.value);
@@ -167,7 +176,11 @@ function updateCartCount(cart) {
 }
 
 // Initial setup when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async() => {
+    // Fetch charger data
+    const chargers = await fetchChargerData();
+    console.log("Chargers data:", chargers); // Log the data
+    
     // Check if user is logged in
     const session = JSON.parse(localStorage.getItem("currentSession"));
     
@@ -184,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add event listeners for filters
     document.querySelectorAll('.brand-filter, .wattage-filter, .type-filter, .discount-filter').forEach(checkbox => {
-        checkbox.addEventListener('change', filterChargers);
+        checkbox.addEventListener('change', () => filterChargers(chargers)); // Pass chargers to filter function
     });
     
     // Add event listener for clear filters button if it exists

@@ -1,5 +1,6 @@
 function calculateDiscountedPrice(price, discount) {
-    // Convert price and discount to numbers
+
+
     const numericPrice = parseFloat(price);
     const numericDiscount = parseFloat(discount);
 
@@ -125,8 +126,8 @@ function addToCart(product) {
             rom: product.rom,
             condition: product.condition,
             image: product.image,
-            price: product.price,
-            discount: product.discount,
+            price: product.pricing.basePrice,
+            discount: parseFloat( product.pricing.discount),
             quantity: 1
         });
     }

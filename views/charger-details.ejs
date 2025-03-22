@@ -16,7 +16,7 @@
                 <img src="/<%= charger.image %>" alt="<%= charger.brand %> <%= charger.title %>">
             </div>
             <div class="product-info">
-                <h1 class="product-title"><%= charger.brand %> <%= charger.title %></h1>
+                <h1 class="product-title"><%= charger.title %></h1>
                 
                 <div class="product-price-container">
                     <span class="discounted-price">₹<%= (parseFloat(charger.pricing.originalPrice) - (parseFloat(charger.pricing.originalPrice) * parseFloat(charger.pricing.discount) / 100)).toLocaleString('en-IN') %></span>

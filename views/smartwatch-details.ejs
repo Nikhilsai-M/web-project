@@ -19,9 +19,9 @@
                 <h1 class="product-title"><%= smartwatch.brand %> <%= smartwatch.title %></h1>
                 
                 <div class="product-price-container">
-                    <span class="discounted-price">₹<%= (parseFloat(smartwatch.originalPrice) - (parseFloat(smartwatch.originalPrice) * parseFloat(smartwatch.discount) / 100)).toLocaleString('en-IN') %></span>
-                    <span class="original-price">₹<%= smartwatch.originalPrice.toLocaleString('en-IN') %></span>
-                    <span class="discount"><%= smartwatch.discount %> Off</span>
+                    <span class="discounted-price">₹<%= (parseFloat(smartwatch.pricing.originalPrice) - (parseFloat(smartwatch.pricing.originalPrice) * parseFloat(smartwatch.pricing.discount) / 100)).toLocaleString('en-IN') %></span>
+                    <span class="original-price">₹<%= smartwatch.pricing.originalPrice.toLocaleString('en-IN') %></span>
+                    <span class="discount"><%= smartwatch.pricing.discount %> Off</span>
                 </div>
                 
                 <div class="product-actions">

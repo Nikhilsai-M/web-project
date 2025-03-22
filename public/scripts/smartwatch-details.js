@@ -66,8 +66,8 @@ function addToCart(smartwatchId) {
                         displayType: smartwatch.displayType,
                         batteryRuntime: smartwatch.batteryRuntime,
                         image: smartwatch.image,
-                        price: smartwatch.originalPrice,
-                        discount: parseFloat(smartwatch.discount),
+                        price: smartwatch.pricing.originalPrice,
+                        discount: parseFloat(smartwatch.pricing.discount),
                         quantity: 1,
                     });
                 }

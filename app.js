@@ -15,6 +15,8 @@ import {
   updateCustomerPassword,
   getAllLaptops,
   getLaptopById,
+  getAllMouses,
+  getMouseById,
   addLaptop,
   updateLaptop,
   deleteLaptop,
@@ -23,6 +25,10 @@ import {
   addPhone,
   updatePhone,
   deletePhone,
+  getAllChargers,
+  getChargerById,
+  getAllEarphones,
+  getEarphonesById,
   createPhoneApplication,
   getAllPhoneApplications,
   getPhoneApplicationsByUserId,
@@ -36,7 +42,9 @@ import {
   updateLaptopApplicationStatus,
   deleteLaptopApplication,
   authenticateSupervisor, // Add new import
-  updateSupervisorPassword // Add new import
+  updateSupervisorPassword, // Add new import
+  getAllSmartwatches,
+  getSmartwatchById
 } from './db.js';
 
 // Import only the accessoriesData since laptops and phones are now in the database
@@ -895,12 +903,15 @@ app.get('/earbuds', async (req, res) => {
     }
 });
 
-app.get('/mouses', (req, res) => {
-    res.render("mouse");
+app.get('/mouses',async  (req, res) => {
+  const mouses = await getAllMouses();
+        
+  res.render("mouse",{mouses}); 
 });
 
-app.get('/smartwatches', (req, res) => {
-    res.render("smartwatch");
+app.get('/smartwatches', async (req, res) => {
+  const smartwatches=await getAllSmartwatches();
+    res.render("smartwatch",{smartwatches});
 });
 
 app.get('/filter-buy-phone', async (req, res) => {
@@ -1103,6 +1114,24 @@ app.get('/api/earbuds', async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch chargers' });
     }
   });
+  app.get('/api/mouses', async (req, res) => {
+    try {
+      const mouses= await getAllMouses(); // Fetch all earphones from the database
+      res.json(mouses); // Return earphones data as JSON
+    } catch (error) {
+      console.error('Error fetching mouses:', error);
+      res.status(500).json({ error: 'Failed to fetch mouses' });
+    }
+  });
+  app.get('/api/smartwatches', async (req, res) => {
+    try {
+      const smartwatches= await getAllSmartwatches(); // Fetch all earphones from the database
+      res.json(smartwatches); // Return earphones data as JSON
+    } catch (error) {
+      console.error('Error fetching smartwatches:', error);
+      res.status(500).json({ error: 'Failed to fetch smartwatches' });
+    }
+  });
 // Updated route to get laptop details from database
 app.get('/laptop/:id', async (req, res) => {
     try {
@@ -1189,7 +1218,7 @@ app.get('/charger/:id', async (req, res) => {
 
 app.get('/api/charger/:id', async(req, res) => {
     const chargerId = req.params.id;
-    const charger = await getChargerById();
+    const charger = await getChargerById(chargerId);
     
     if (!charger) {
         return res.status(404).json({ error: 'Product not found' });
@@ -1198,9 +1227,9 @@ app.get('/api/charger/:id', async(req, res) => {
     res.json(charger);
 });
 
-app.get('/mouse/:id', (req, res) => {
+app.get('/mouse/:id', async(req, res) => {
     const mouseId = req.params.id;
-    const mouse = accessoriesData.mouses.find(e => e.id === mouseId);
+    const mouse = await getMouseById(mouseId);
     
     if (!mouse) {
         return res.status(404).render('404', { message: 'Product not found' });
@@ -1209,10 +1238,9 @@ app.get('/mouse/:id', (req, res) => {
     res.render('mouse-details', { mouse });
 });
 
-app.get('/api/mouse/:id', (req, res) => {
+app.get('/api/mouse/:id', async(req, res) => {
     const mouseId = req.params.id;
-    const mouse = accessoriesData.mouses.find(p => p.id === mouseId);
-    
+    const mouse = await getMouseById(mouseId);
     if (!mouse) {
         return res.status(404).json({ error: 'Product not found' });
     }
@@ -1220,9 +1248,9 @@ app.get('/api/mouse/:id', (req, res) => {
     res.json(mouse);
 });
 
-app.get('/smartwatch/:id', (req, res) => {
+app.get('/smartwatch/:id', async (req, res) => {
     const smartwatchId = req.params.id;
-    const smartwatch = accessoriesData.smartwatches.find(e => e.id === smartwatchId);
+    const smartwatch = await getSmartwatchById(smartwatchId);
     
     if (!smartwatch) {
         return res.status(404).render('404', { message: 'Product not found' });
@@ -1231,9 +1259,9 @@ app.get('/smartwatch/:id', (req, res) => {
     res.render('smartwatch-details', { smartwatch });
 });
 
-app.get('/api/smartwatch/:id', (req, res) => {
+app.get('/api/smartwatch/:id',async (req, res) => {
     const smartwatchId = req.params.id;
-    const smartwatch = accessoriesData.smartwatches.find(p => p.id === smartwatchId);
+    const smartwatch = await getSmartwatchById(smartwatchId);
     
     if (!smartwatch) {
         return res.status(404).json({ error: 'Product not found' });

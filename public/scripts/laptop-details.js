@@ -32,7 +32,7 @@ function addToCart(laptopId) {
     }
 
     // Get laptop details from the server
-    fetch(`/api/laptop/${laptopId}`)
+    fetch(`/api/laptops/${laptopId}`)
         .then(response => response.json())
         .then(laptop => {
             if (laptop) {

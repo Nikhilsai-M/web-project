@@ -217,6 +217,36 @@ await db.exec(`
     )
       `);
   
+      await db.exec(`
+        CREATE TABLE IF NOT EXISTS mouses (
+          id TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          image TEXT NOT NULL,
+          brand TEXT NOT NULL,
+          original_price REAL NOT NULL,
+          discount TEXT NOT NULL,
+          type TEXT NOT NULL,
+          connectivity TEXT NOT NULL,
+          resolution TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      await db.exec(`
+        CREATE TABLE IF NOT EXISTS smartwatches (
+          id TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          image TEXT NOT NULL,
+          brand TEXT NOT NULL,
+          original_price REAL NOT NULL,
+          discount TEXT NOT NULL,
+          display_size TEXT NOT NULL,
+          display_type TEXT NOT NULL,
+          battery_runtime TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      
    
     // Check if any supervisors exist, add test ones if not
     const supervisorCount = await db.get('SELECT COUNT(*) as count FROM supervisors');
@@ -283,7 +313,70 @@ await db.exec(`
          'SSD', '512GB', 14, 1.6, 'Superb', 'Windows 11', 'images/buy-laptops/aspire5.webp']
       );
     }
+    const mouseCount = await db.get('SELECT COUNT(*) as count FROM mouses');
 
+if (mouseCount.count === 0) {
+  // Insert the sample mouse data
+  await db.run(
+    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["logitech_m196_202", "Logitech M196 Wireless Optical Mouse with Bluetooth", "images/accessories/mouses/Logitech M196.webp", "Logitech", 1125, "20%", "Wireless", "Bluetooth & USB", "4600"]
+  );
+
+  await db.run(
+    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["logitech_g502_303", "Logitech G502 Hero / Hero 25K Sensor, Adj DPI Upto 25600, RGB, 11 Programmable Buttons Wired Optical Gaming Mouse", "images/accessories/mouses/Logotech G502 Hero.webp", "Logitech", 5495, "25%", "Wired", "USB", "5600"]
+  );
+
+  await db.run(
+    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["arctic_fox_breathing_404", "Arctic Fox Breathing Lights and DPI Upto 3600 Wired Optical Gaming Mouse", "images/accessories/mouses/Arctic Fox Breathing Lights.webp", "Arctic Fox", 599, "35%", "Wired", "USB", "3600"]
+  );
+
+  await db.run(
+    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["zebronics_jaguar_606", "ZEBRONICS Zeb-Jaguar Wireless Optical Mouse", "images/accessories/mouses/Zebronics Zeb Jaguar.webp", "ZEBRONICS", 1190, "39%", "Wireless", "USB", "1700"]
+  );
+
+  await db.run(
+    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["zebronics_rise_707", "ZEBRONICS ZEB-RISE Wired Optical Mouse", "images/accessories/mouses/Zebronics Zeb Rise.webp", "ZEBRONICS", 699, "19%", "Wired", "USB", "1200"]
+  );
+
+  await db.run(
+    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["zebronics_blanc_808", "ZEBRONICS Zeb-Blanc /Dual Mode,Type C rechargeable built-in battery,upto 1600 DPI Wireless Optical Mouse", "images/accessories/mouses/Zebronics Zeb Blanc.webp", "ZEBRONICS", 999, "15%", "Wireless", "Bluetooth & USB", "1600"]
+  );
+
+  await db.run(
+    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["dell_ms116_909", "DELL MS 116-BK Wired Optical Mouse", "images/accessories/mouses/Dell MS 116-BK.webp", "DELL", 650, "30%", "Wired", "USB", "1000"]
+  );
+
+  await db.run(
+    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["hp_m160_1010", "HP M160 Wired Optical Gaming Mouse", "images/accessories/mouses/HP M160.webp", "HP", 799, "40%", "Wired", "USB", "1000"]
+  );
+
+  await db.run(
+    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["hp_z3700_1111", "HP Z3700 /Slim form with USB receiver,16 month battery life, 1200DPI Wireless Optical Mouse", "images/accessories/mouses/HP Z3700.webp", "HP", 1499, "30%", "Wireless", "USB", "1200"]
+  );
+
+  await db.run(
+    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["logitech_b175_101", "Logitech B175 / Optical Tracking, 12-Months Battery Life, Ambidextrous Wireless Optical Mouse", "images/accessories/mouses/Logitech B175.webp", "Logitech", 995, "49%", "Wireless", "USB", "3000"]
+  );
+}
     // Check if any phones exist, add initial data if not
     const phoneCount = await db.get('SELECT COUNT(*) as count FROM phones');
     
@@ -332,6 +425,125 @@ await db.exec(`
         ["chg007", "Apple Lightning Cable 2 m MW2R3ZM/A  (Compatible with Mobile, Tablet, White)", "images/accessories/chargers/apple_light.webp", "Apple", "20", "lightning", 2900, "0%", "3A"]  
     );  
     }
+
+    const smartwatchCount = await db.get('SELECT COUNT(*) as count FROM smartwatches');
+
+if (smartwatchCount.count === 0) {
+  // Insert the sample smartwatch data
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw1", "Apple Watch Series 8, 41mm GPS + Cellular ECG app, Temperature sensor, Crash Detection", "images/accessories/smartwatches/Apple Watch Series8.webp", "Apple", 55900, "5%", "41", "Retina Display", "18"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw2", "Apple Watch Series 10 GPS 46mm Silver Aluminium with Denim Sport Band", "images/accessories/smartwatches/Apple Watch Series10.webp", "Apple", 49900, "15%", "46", "Retina Display", "18"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw3", "Apple Watch Series 9 GPS 45mm Aluminium Case with Sport Band - S/M", "images/accessories/smartwatches/Apple Watch Series9.webp", "Apple", 59900, "18%", "45", "Retina Display", "18"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw8", "Fire-Boltt Ninja Calling Pro Plus 46.5mm (1.83) Display Bluetooth Calling, AI Voice Smartwatch", "images/accessories/smartwatches/Fire-Boltt Ninja.webp", "Fire-Boltt", 1999, "50%", "46.5", "HD Display", "5"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw9", "Fire-Boltt Hurricane 33.02mm (1.3) Curved Glass Display with BT Calling, 100+ Sports Modes Smartwatch", "images/accessories/smartwatches/Fire-Boltt Hurricane.webp", "Fire-Boltt", 8999, "86%", "33.02", "Retina HD Color Display", "15"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw12", "Fire-Boltt Blizzard 32.5mm (1.28) Luxury watch with BT Calling, Stainless Steel Body Smartwatch", "images/accessories/smartwatches/Fire-Boltt Blizzard.webp", "Fire-Boltt", 19999, "93%", "32.5", "circular 1.28 inch HD display", "7"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw13", "Fire-Boltt Gladiator 49.7mm Display, Stainless Steel, Bluetooth Call, 123 sports modes Smartwatch", "images/accessories/smartwatches/Fire-Boltt Gladiator.webp", "Fire-Boltt", 9999, "87%", "49.7", "HD display", "15"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw14", "Fire-Boltt Clickk 54.1mm (2.12 inch) AMOLED Display, Front Camera, Nano SIM Slot, 1000mAh Smartwatch", "images/accessories/smartwatches/Fire-Boltt Clickk.webp", "Fire-Boltt", 24999, "84%", "54.1", "AMOLED display", "5"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw16", "boAt Wave Fury with 1.83'' HD Display, Bluetooth Calling & Functional Crown Smartwatch", "images/accessories/smartwatches/boAt Wave Fury.webp", "boAt", 6999, "64%", "48", "HD display", "7"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw17", "boAt Storm Call 3 Plus w/ Turn by Turn Navigation, QR Tray, 4.97cm(1.96'') HD Display Smartwatch", "images/accessories/smartwatches/boAt Storm.webp", "boAt", 7499, "84%", "49", "HD display", "7"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw18", "boAt Lunar Discovery w/ Turn by Turn Navigation, 3.53 cm HD Display & BT Calling Smartwatch", "images/accessories/smartwatches/boAt Lunar Discovery.webp", "boAt", 8499, "83%", "35.3", "HD display", "7"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw23", "Noise Icon 2 1.8'' Display with Bluetooth Calling, Women's Edition, AI Voice Assistant Smartwatch", "images/accessories/smartwatches/Noise Icon2.webp", "Noise", 5999, "80%", "48", "HD display", "7"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw24", "Noise Colorfit Icon 2 1.8'' Display with Bluetooth Calling, AI Voice Assistant Smartwatch", "images/accessories/smartwatches/Noise Colorfit Icon2.webp", "Noise", 5999, "81%", "48", "HD display", "7"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw25", "Noise Loop 1.85'' Display with Advanced Bluetooth Calling, 550 Nits Brightness Smartwatch", "images/accessories/smartwatches/Noise Loop.webp", "Noise", 6999, "85%", "49", "TFT LCD display", "7"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw31", "SAMSUNG Galaxy Fit3 | AMOLED Display & Aluminium Body | Upto 13Day Battery | 5ATM & IP68", "images/accessories/smartwatches/Samsung Galaxy Fit3.webp", "Samsung", 9999, "65%", "40.64", "AMOLED display", "13"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw32", "SAMSUNG Galaxy Watch FE, 40mm BT, Sapphire Crystal Display, Sleep Coach, Fall Detection", "images/accessories/smartwatches/Samsung Galaxy WatchFE.webp", "Samsung", 29999, "66%", "40", "Sapphire Crystal display", "40"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw33", "SAMSUNG Watch7 40mm BT", "images/accessories/smartwatches/Samsung Watch7.webp", "Samsung", 32999, "10%", "40", "AMOLED display", "20"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw34", "SAMSUNG Galaxy Watch6 Bluetooth", "images/accessories/smartwatches/Samsung Galaxy Watch6.webp", "Samsung", 36999, "56%", "44", "AMOLED display", "40"]
+  );
+
+  await db.run(
+    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ["sw35", "SAMSUNG Galaxy Watch Ultra LTE", "images/accessories/smartwatches/Samsung Galaxy Ultra.webp", "Samsung", 69999, "14%", "47", "AMOLED display", "20"]
+  );
+}
     // Check if any phones exist, add initial data if not
    
     
@@ -807,7 +1019,7 @@ export async function getAllPhones() {
       ram: phone.ram,
       rom: phone.rom,
       pricing: {
-        basePrice: phone.price,
+        basePrice: phone.base_price,
         discount: phone.discount
       },
       condition: phone.condition
@@ -1465,6 +1677,230 @@ export async function deleteCharger(id) {
     return { success: true };
   } catch (error) {
     console.error('Error deleting charger:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+
+
+// Function to get all mouses
+export async function getAllMouses() {
+  try {
+    const db = await getDb();
+    const mouses = await db.all('SELECT * FROM mouses'); // Fetch all rows from the mouses table
+
+    // Transform the SQLite table data into an array of objects
+    return mouses.map(mouse => ({
+      id: mouse.id,
+      title: mouse.title,
+      image: mouse.image,
+      brand: mouse.brand,
+      originalPrice: mouse.original_price, // Map SQL column names to JavaScript object keys
+      discount: mouse.discount,
+      type: mouse.type,
+      connectivity: mouse.connectivity,
+      resolution: mouse.resolution,
+    }));
+  } catch (error) {
+    console.error('Error getting mouses:', error);
+    throw error;
+  }
+}
+
+// Function to get a mouse by ID
+export async function getMouseById(id) {
+  try {
+    const db = await getDb();
+    const mouse = await db.get('SELECT * FROM mouses WHERE id = ?', [id]);
+
+    if (!mouse) {
+      return null;
+    }
+
+    return {
+      id: mouse.id,
+      title: mouse.title,
+      image: mouse.image,
+      brand: mouse.brand,
+      pricing: {
+        originalPrice: Number(mouse.original_price),
+        discount: mouse.discount,
+      },
+      type: mouse.type,
+      connectivity: mouse.connectivity,
+      resolution: mouse.resolution,
+    };
+  } catch (error) {
+    console.error('Error getting mouse by ID:', error);
+    throw error;
+  }
+}
+
+// Function to add a new mouse
+export async function addMouse(mouseData) {
+  try {
+    const db = await getDb();
+    const { id, title, image, brand, pricing, type, connectivity, resolution } = mouseData;
+
+    await db.run(
+      `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, title, image, brand, pricing.originalPrice, pricing.discount, type, connectivity, resolution]
+    );
+
+    return { success: true, id };
+  } catch (error) {
+    console.error('Error adding mouse:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to update a mouse
+export async function updateMouse(id, mouseData) {
+  try {
+    const db = await getDb();
+    const { title, image, brand, pricing, type, connectivity, resolution } = mouseData;
+
+    await db.run(
+      `UPDATE mouses SET 
+        title = ?, 
+        image = ?, 
+        brand = ?, 
+        original_price = ?, 
+        discount = ?, 
+        type = ?, 
+        connectivity = ?, 
+        resolution = ? 
+       WHERE id = ?`,
+      [title, image, brand, pricing.originalPrice, pricing.discount, type, connectivity, resolution, id]
+    );
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating mouse:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to delete a mouse
+export async function deleteMouse(id) {
+  try {
+    const db = await getDb();
+    await db.run('DELETE FROM mouses WHERE id = ?', [id]);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting mouse:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to get all smartwatches
+export async function getAllSmartwatches() {
+  try {
+    const db = await getDb();
+    const smartwatches = await db.all('SELECT * FROM smartwatches'); // Fetch all rows from the smartwatches table
+
+    // Transform the SQLite table data into an array of objects
+    return smartwatches.map(smartwatch => ({
+      id: smartwatch.id,
+      title: smartwatch.title,
+      image: smartwatch.image,
+      brand: smartwatch.brand,
+      originalPrice: smartwatch.original_price, // Map SQL column names to JavaScript object keys
+      discount: smartwatch.discount,
+      displaySize: smartwatch.display_size,
+      displayType: smartwatch.display_type,
+      batteryRuntime: smartwatch.battery_runtime,
+    }));
+  } catch (error) {
+    console.error('Error getting smartwatches:', error);
+    throw error;
+  }
+}
+
+// Function to get a smartwatch by ID
+export async function getSmartwatchById(id) {
+  try {
+    const db = await getDb();
+    const smartwatch = await db.get('SELECT * FROM smartwatches WHERE id = ?', [id]);
+
+    if (!smartwatch) {
+      return null;
+    }
+
+    return {
+      id: smartwatch.id,
+      title: smartwatch.title,
+      image: smartwatch.image,
+      brand: smartwatch.brand,
+      pricing: {
+        originalPrice: Number(smartwatch.original_price),
+        discount: smartwatch.discount,
+      },
+      displaySize: smartwatch.display_size,
+      displayType: smartwatch.display_type,
+      batteryRuntime: smartwatch.battery_runtime,
+    };
+  } catch (error) {
+    console.error('Error getting smartwatch by ID:', error);
+    throw error;
+  }
+}
+
+// Function to add a new smartwatch
+export async function addSmartwatch(smartwatchData) {
+  try {
+    const db = await getDb();
+    const { id, title, image, brand, pricing, displaySize, displayType, batteryRuntime } = smartwatchData;
+
+    await db.run(
+      `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, title, image, brand, pricing.originalPrice, pricing.discount, displaySize, displayType, batteryRuntime]
+    );
+
+    return { success: true, id };
+  } catch (error) {
+    console.error('Error adding smartwatch:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to update a smartwatch
+export async function updateSmartwatch(id, smartwatchData) {
+  try {
+    const db = await getDb();
+    const { title, image, brand, pricing, displaySize, displayType, batteryRuntime } = smartwatchData;
+
+    await db.run(
+      `UPDATE smartwatches SET 
+        title = ?, 
+        image = ?, 
+        brand = ?, 
+        original_price = ?, 
+        discount = ?, 
+        display_size = ?, 
+        display_type = ?, 
+        battery_runtime = ? 
+       WHERE id = ?`,
+      [title, image, brand, pricing.originalPrice, pricing.discount, displaySize, displayType, batteryRuntime, id]
+    );
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating smartwatch:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Function to delete a smartwatch
+export async function deleteSmartwatch(id) {
+  try {
+    const db = await getDb();
+    await db.run('DELETE FROM smartwatches WHERE id = ?', [id]);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting smartwatch:', error);
     return { success: false, message: error.message };
   }
 }

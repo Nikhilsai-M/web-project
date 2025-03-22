@@ -127,61 +127,66 @@ export async function initializeDatabase() {
       )
     `);
 
-// In initializeDatabase function, update the table creation:
-await db.exec(`
-  CREATE TABLE IF NOT EXISTS phone_applications (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT,
-    brand TEXT NOT NULL,
-    model TEXT NOT NULL,
-    ram TEXT NOT NULL,
-    rom TEXT NOT NULL,
-    processor TEXT NOT NULL,
-    network TEXT NOT NULL,
-    size TEXT,
-    weight TEXT,
-    device_age TEXT NOT NULL,
-    switching_on TEXT NOT NULL,
-    phone_calls TEXT NOT NULL,
-    cameras_working TEXT NOT NULL,
-    battery_issues TEXT NOT NULL,
-    physically_damaged TEXT NOT NULL,
-    sound_issues TEXT NOT NULL,
-    location TEXT NOT NULL,
-    email TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    image_path TEXT,
-    status TEXT DEFAULT 'pending',
-    rejection_reason TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`);
-
     await db.exec(`
-      CREATE TABLE IF NOT EXISTS laptop_applications (
+      CREATE TABLE IF NOT EXISTS phone_applications (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT,
         brand TEXT NOT NULL,
         model TEXT NOT NULL,
         ram TEXT NOT NULL,
-        storage TEXT NOT NULL,
+        rom TEXT NOT NULL,
         processor TEXT NOT NULL,
-        generation TEXT,
-        display_size TEXT,
+        network TEXT NOT NULL,
+        size TEXT,
         weight TEXT,
-        os TEXT,
-        device_age TEXT,
-        battery_issues TEXT,
+        device_age TEXT NOT NULL,
+        switching_on TEXT NOT NULL,
+        phone_calls TEXT NOT NULL,
+        cameras_working TEXT NOT NULL,
+        battery_issues TEXT NOT NULL,
+        physically_damaged TEXT NOT NULL,
+        sound_issues TEXT NOT NULL,
         location TEXT NOT NULL,
-        name TEXT NOT NULL,
         email TEXT NOT NULL,
         phone TEXT NOT NULL,
+        battery TEXT NOT NULL,          -- New column
+        camera TEXT NOT NULL,           -- New column
+        os TEXT NOT NULL,               -- New column
         image_path TEXT,
         status TEXT DEFAULT 'pending',
-        rejection_reason TEXT,  -- New column
+        rejection_reason TEXT,
+        price REAL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+// Update laptop_applications table
+await db.exec(`
+  CREATE TABLE IF NOT EXISTS laptop_applications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT,
+    brand TEXT NOT NULL,
+    model TEXT NOT NULL,
+    ram TEXT NOT NULL,
+    storage TEXT NOT NULL,
+    processor TEXT NOT NULL,
+    generation TEXT,
+    display_size TEXT,
+    weight TEXT,
+    os TEXT,
+    device_age TEXT,
+    battery_issues TEXT,
+    location TEXT NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    image_path TEXT,
+    status TEXT DEFAULT 'pending',
+    rejection_reason TEXT,
+    price REAL,  -- New column for price
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`);
  
     
     await db.exec(`
@@ -1003,7 +1008,6 @@ export async function authenticateCustomer(email, password) {
     return { success: false, message: 'Authentication error' };
   }
 }
-
 export async function createPhoneApplication(applicationData) {
   try {
     const db = await getDb();
@@ -1012,8 +1016,8 @@ export async function createPhoneApplication(applicationData) {
       `INSERT INTO phone_applications (
         user_id, brand, model, ram, rom, processor, network, size, weight, 
         device_age, switching_on, phone_calls, cameras_working, battery_issues, 
-        physically_damaged, sound_issues, location, email, phone, image_path
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        physically_damaged, sound_issues, location, email, phone, battery, camera, os, image_path
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         applicationData.userId || null,
         applicationData.brand,
@@ -1034,7 +1038,10 @@ export async function createPhoneApplication(applicationData) {
         applicationData.location,
         applicationData.email,
         applicationData.phone,
-        applicationData.imagepath || '', // Cloudinary URL
+        applicationData.battery,        // New field
+        applicationData.camera,         // New field
+        applicationData.os,             // New field
+        applicationData.imagepath || '',
       ]
     );
 
@@ -1044,7 +1051,6 @@ export async function createPhoneApplication(applicationData) {
     return { success: false, message: error.message };
   }
 }
-
 export async function getAllPhoneApplications() {
   try {
     const db = await getDb();
@@ -1063,12 +1069,14 @@ export async function getPhoneApplicationsByUserId(userId) {
       'SELECT * FROM phone_applications WHERE user_id = ? ORDER BY created_at DESC',
       [userId]
     );
+    console.log(`Fetched ${applications.length} phone applications for user ${userId}`);
     return applications;
   } catch (error) {
-    console.error('Error getting user phone applications:', error);
+    console.error('Error getting user phone applications:', error.message, error.stack);
     throw error;
   }
 }
+
 
 export async function getPhoneApplicationById(id) {
   try {
@@ -1081,12 +1089,12 @@ export async function getPhoneApplicationById(id) {
   }
 }
 
-export async function updatePhoneApplicationStatus(id, status, rejectionReason = null) {
+export async function updatePhoneApplicationStatus(id, status, rejectionReason = null, price = null) {
   try {
     const db = await getDb();
     await db.run(
-      'UPDATE phone_applications SET status = ?, rejection_reason = ? WHERE id = ?',
-      [status, rejectionReason, id]
+      'UPDATE phone_applications SET status = ?, rejection_reason = ?, price = ? WHERE id = ?',
+      [status, rejectionReason, price, id]
     );
     return { success: true };
   } catch (error) {
@@ -1162,9 +1170,10 @@ export async function getLaptopApplicationsByUserId(userId) {
       'SELECT * FROM laptop_applications WHERE user_id = ? ORDER BY created_at DESC',
       [userId]
     );
+    console.log(`Fetched ${applications.length} laptop applications for user ${userId}`);
     return applications;
   } catch (error) {
-    console.error('Error getting user laptop applications:', error);
+    console.error('Error getting user laptop applications:', error.message, error.stack);
     throw error;
   }
 }
@@ -1180,12 +1189,12 @@ export async function getLaptopApplicationById(id) {
   }
 }
 
-export async function updateLaptopApplicationStatus(id, status, rejectionReason = null) {
+export async function updateLaptopApplicationStatus(id, status, rejectionReason = null, price = null) {
   try {
     const db = await getDb();
     await db.run(
-      'UPDATE laptop_applications SET status = ?, rejection_reason = ? WHERE id = ?',
-      [status, rejectionReason, id]
+      'UPDATE laptop_applications SET status = ?, rejection_reason = ?, price = ? WHERE id = ?',
+      [status, rejectionReason, price, id]
     );
     return { success: true };
   } catch (error) {

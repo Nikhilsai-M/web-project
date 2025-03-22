@@ -65,7 +65,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const app = express();
-const port = 5000;
+const port = 3000;
 
 // Initialize database before setting up routes
 (async () => {
@@ -362,15 +362,12 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/sell-phone', upload.single('device-image'), async (req, res) => {
   try {
-    console.log('Request body:', req.body); // Log form data
-    console.log('Uploaded file:', req.file); // Log uploaded file
+    console.log('Request body:', req.body); // Log all incoming form fields
+    console.log('Uploaded file:', req.file);
 
-    // Upload image to Cloudinary
     const result = await cloudinary.v2.uploader.upload(req.file.path, {
       folder: 'phone-applications',
     });
-
-    console.log('Cloudinary upload result:', result); // Log Cloudinary response
 
     const applicationData = {
       userId: req.session.user ? req.session.user.userId : null,
@@ -392,33 +389,24 @@ app.post('/api/sell-phone', upload.single('device-image'), async (req, res) => {
       location: req.body.location,
       email: req.body.email,
       phone: req.body.phone,
-      imagepath: result.secure_url, // Store the Cloudinary URL
+      battery: req.body.battery,       // New field
+      camera: req.body.camera,         // New field
+      os: req.body.os,                 // New field
+      imagepath: result.secure_url,
     };
 
-    console.log('Application data:', applicationData); // Log application data
+    console.log('Constructed applicationData:', applicationData); // Log the final object
 
-    // Validate required fields
     const requiredFields = [
-      'brand',
-      'model',
-      'ram',
-      'rom',
-      'processor',
-      'network',
-      'deviceAge',
-      'switchingOn',
-      'phoneCalls',
-      'camerasWorking',
-      'batteryIssues',
-      'physicallyDamaged',
-      'soundIssues',
-      'location',
-      'email',
-      'phone',
+      'brand', 'model', 'ram', 'rom', 'processor', 'network', 'deviceAge',
+      'switchingOn', 'phoneCalls', 'camerasWorking', 'batteryIssues',
+      'physicallyDamaged', 'soundIssues', 'location', 'email', 'phone',
+      'battery', 'camera', 'os'
     ];
 
     for (const field of requiredFields) {
       if (!applicationData[field]) {
+        console.log(`Missing or invalid field: ${field}`);
         return res.status(400).json({
           success: false,
           message: `${field.replace(/([A-Z])/g, ' $1').trim()} is required`,
@@ -426,7 +414,6 @@ app.post('/api/sell-phone', upload.single('device-image'), async (req, res) => {
       }
     }
 
-    // Ensure an image is uploaded
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -434,7 +421,6 @@ app.post('/api/sell-phone', upload.single('device-image'), async (req, res) => {
       });
     }
 
-    // Create application in the database
     const dbResult = await createPhoneApplication(applicationData);
 
     if (dbResult.success) {
@@ -450,7 +436,7 @@ app.post('/api/sell-phone', upload.single('device-image'), async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Phone application submission error:', error); // Log the full error
+    console.error('Phone application submission error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',
@@ -687,28 +673,29 @@ app.get('/api/customer/profile', requireCustomerAuth, async (req, res) => {
     }
   });
   
-  // Route to get all customer applications (laptops and phones)
+// Route to get all customer applications (laptops and phones)
 app.get('/api/customer/listings', requireCustomerAuth, async (req, res) => {
-    try {
-      const userId = req.session.user.userId;
-  
-      // Fetch laptop applications
-      const laptopApplications = await getLaptopApplicationsByUserId(userId);
-      // Fetch phone applications
-      const phoneApplications = await getPhoneApplicationsByUserId(userId);
-  
-      // Add a type field to distinguish between laptops and phones
-      const listings = [
-        ...laptopApplications.map(app => ({ ...app, type: 'laptop' })),
-        ...phoneApplications.map(app => ({ ...app, type: 'phone' })),
-      ];
-  
-      res.json({ success: true, listings });
-    } catch (error) {
-      console.error('Error fetching customer listings:', error);
-      res.status(500).json({ success: false, message: 'Error fetching listings' });
+  try {
+    const userId = req.session.user.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'User ID not found in session' });
     }
-  });
+
+    const laptopApplications = await getLaptopApplicationsByUserId(userId);
+    const phoneApplications = await getPhoneApplicationsByUserId(userId);
+
+    const listings = [
+      ...laptopApplications.map(app => ({ ...app, type: 'laptop' })),
+      ...phoneApplications.map(app => ({ ...app, type: 'phone' })),
+    ];
+
+    res.json({ success: true, listings });
+  } catch (error) {
+    console.error('Error fetching customer listings:', error.message, error.stack);
+    res.status(500).json({ success: false, message: 'Error fetching listings: ' + error.message });
+  }
+});
+
   // Route to get applications for the logged-in customer
   app.get('/api/customer/phone-applications', requireCustomerAuth, async (req, res) => {
     try {
@@ -1276,19 +1263,18 @@ app.get('/supervisor/verify-listings', requireSupervisorAuth, (req, res) => {
   res.render('supervisor/verify-listings', { supervisor: req.session.user });
 });
 
-// API to get all pending applications (phones and laptops)
-app.get('/api/supervisor/pending-applications', requireSupervisorAuth, async (req, res) => {
+app.get('/api/supervisor/verify-applications', requireSupervisorAuth, async (req, res) => {
   try {
     const phoneApps = await getAllPhoneApplications();
     const laptopApps = await getAllLaptopApplications();
-    const pendingApplications = [
-      ...phoneApps.filter(app => app.status === 'pending').map(app => ({ ...app, type: 'phone' })),
-      ...laptopApps.filter(app => app.status === 'pending').map(app => ({ ...app, type: 'laptop' })),
+    const applications = [
+      ...phoneApps.filter(app => ['pending', 'processing', 'approved'].includes(app.status)).map(app => ({ ...app, type: 'phone' })),
+      ...laptopApps.filter(app => ['pending', 'processing', 'approved'].includes(app.status)).map(app => ({ ...app, type: 'laptop' })),
     ];
-    res.json({ success: true, applications: pendingApplications });
+    res.json({ success: true, applications });
   } catch (error) {
-    console.error('Error fetching pending applications:', error);
-    res.status(500).json({ success: false, message: 'Error fetching pending applications' });
+    console.error('Error fetching applications:', error);
+    res.status(500).json({ success: false, message: 'Error fetching applications' });
   }
 });
 
@@ -1320,7 +1306,7 @@ app.get('/api/supervisor/application/:type/:id', requireSupervisorAuth, async (r
 app.put('/api/supervisor/application/:type/:id/status', requireSupervisorAuth, async (req, res) => {
   try {
     const { type, id } = req.params;
-    const { status, rejectionReason } = req.body;
+    const { status, rejectionReason, price } = req.body;
 
     if (!status || !['pending', 'approved', 'rejected', 'processing'].includes(status)) {
       return res.status(400).json({ success: false, message: 'Invalid status' });
@@ -1328,9 +1314,9 @@ app.put('/api/supervisor/application/:type/:id/status', requireSupervisorAuth, a
 
     let result;
     if (type === 'phone') {
-      result = await updatePhoneApplicationStatus(id, status, status === 'rejected' ? rejectionReason : null);
+      result = await updatePhoneApplicationStatus(id, status, status === 'rejected' ? rejectionReason : null, status === 'approved' ? price : null);
     } else if (type === 'laptop') {
-      result = await updateLaptopApplicationStatus(id, status, status === 'rejected' ? rejectionReason : null);
+      result = await updateLaptopApplicationStatus(id, status, status === 'rejected' ? rejectionReason : null, status === 'approved' ? price : null);
     } else {
       return res.status(400).json({ success: false, message: 'Invalid application type' });
     }
@@ -1339,7 +1325,11 @@ app.put('/api/supervisor/application/:type/:id/status', requireSupervisorAuth, a
       const db = await getDb();
       await db.run(
         'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
-        [req.session.user.userId, `Updated ${type} application #${id} to ${status}${status === 'rejected' && rejectionReason ? `: ${rejectionReason}` : ''}`, new Date().toISOString()]
+        [
+          req.session.user.userId,
+          `Updated ${type} application #${id} to ${status}${status === 'rejected' && rejectionReason ? `: ${rejectionReason}` : ''}${status === 'approved' && price ? ` with price ${price}` : ''}`,
+          new Date().toISOString()
+        ]
       );
       res.json({ success: true, message: 'Status updated successfully' });
     } else {

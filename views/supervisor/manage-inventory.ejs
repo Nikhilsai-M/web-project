@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supervisor Portal | eCommerce Store</title>
+    <title>Supervisor Portal | Manage Inventory</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/styles/supervisor/home.css">
-    <link rel="stylesheet" href="/styles/supervisor/verify-listings.css">
+    <link rel="stylesheet" href="/styles/supervisor/manage-inventory.css">
 </head>
 <body>
     <header class="portal-header">
@@ -24,9 +24,9 @@
         <aside class="sidebar">
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="/supervisor" ><i class="fas fa-house"></i> Home</a></li>
-                    <li><a href="/supervisor/verify-listings" class="active"><i class="fas fa-clipboard-check"></i> Verify Product Listings</a></li>
-                    <li><a href="/supervisor/manage-inventory" ><i class="fas fa-boxes"></i> Manage Inventory</a></li>
+                    <li><a href="/supervisor"><i class="fas fa-house"></i> Home</a></li>
+                    <li><a href="/supervisor/verify-listings"><i class="fas fa-clipboard-check"></i> Verify Product Listings</a></li>
+                    <li><a href="/supervisor/manage-inventory" class="active"><i class="fas fa-boxes"></i> Manage Inventory</a></li>
                     <li><a id="logout-button" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </nav>
@@ -34,30 +34,29 @@
 
         <main class="main-content">
             <div class="page-header">
-                <h2>Verify Product Listings</h2>
+                <h2>Manage Inventory</h2>
                 <div class="date-display">
                     <i class="far fa-calendar-alt"></i> <%= new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}) %>
                 </div>
             </div>
 
             <div class="filters">
-                <button class="filter-btn active" data-filter="all">All Listings</button>
-                <button class="filter-btn" data-filter="pending">Pending</button>
-                <button class="filter-btn" data-filter="processing">On Processing</button>
-                <button class="filter-btn" data-filter="verified">Verified</button>
+                <button class="filter-btn active" data-filter="all">All Approved</button>
+                <button class="filter-btn" data-filter="phones">Phones</button>
+                <button class="filter-btn" data-filter="laptops">Laptops</button>
             </div>
 
-            <div class="listings-container" id="listingsContainer">
-                <!-- Listings will be dynamically populated here -->
+            <div class="inventory-container" id="inventoryContainer">
+                <!-- Approved listings will be dynamically populated here -->
             </div>
 
-            <div class="modal" id="applicationModal">
+            <div class="modal" id="inventoryModal">
                 <div class="modal-content">
                     <span class="close">&times;</span>
-                    <h2>Application Details</h2>
-                    <div id="applicationDetails"></div>
+                    <h2>Product Details</h2>
+                    <div id="productDetails"></div>
                     <div class="action-buttons" id="actionButtons">
-                        <!-- Buttons will be dynamically populated based on status -->
+                        <!-- Add to Inventory button and discount input will be here -->
                     </div>
                 </div>
             </div>
@@ -68,6 +67,6 @@
         <p>&copy; 2025 eCommerce Store. All rights reserved. | <a href="mailto:support@ecommerce.com"><i class="far fa-envelope"></i> Contact Support</a></p>
     </footer>
     <script src="/scripts/supervisor/home.js"></script>
-    <script src="/scripts/supervisor/verify-listings.js"></script>
+    <script src="/scripts/supervisor/manage-inventory.js"></script>
 </body>
 </html>

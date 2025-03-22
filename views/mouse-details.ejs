@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= mouse.brand %> <%= mouse.title %> | Your Store</title>
+    <title><%= mouse.title %> | Your Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/styles/product-details.css">
 </head>
@@ -19,9 +19,9 @@
                 <h1 class="product-title"><%= mouse.brand %> <%= mouse.title %></h1>
                 
                 <div class="product-price-container">
-                    <span class="discounted-price">₹<%= (parseFloat(mouse.originalPrice) - (parseFloat(mouse.originalPrice) * parseFloat(mouse.discount) / 100)).toLocaleString('en-IN') %></span>
-                    <span class="original-price">₹<%= mouse.originalPrice.toLocaleString('en-IN') %></span>
-                    <span class="discount"><%= mouse.discount %> Off</span>
+                    <span class="discounted-price">₹<%= (parseFloat(mouse.pricing.originalPrice) - (parseFloat(mouse.pricing.originalPrice) * parseFloat(mouse.pricing.discount) / 100)).toLocaleString('en-IN') %></span>
+                    <span class="original-price">₹<%= mouse.pricing.originalPrice.toLocaleString('en-IN') %></span>
+                    <span class="discount"><%= mouse.pricing.discount %> Off</span>
                 </div>
                 
                 <div class="product-actions">

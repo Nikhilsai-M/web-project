@@ -96,9 +96,30 @@
                 <option value="more-than-3-years">More than 3 years</option>
               </select>
             </div>
+            
+            <div class="form-group">
+              <label for="battery">Battery (mAh)</label>
+              <input type="number" id="battery" name="battery" required placeholder="4500" min="1000" max="10000">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="camera">Camera Resolution (e.g., 48MP + 8MP)</label>
+              <input type="text" id="camera" name="camera" required placeholder="48MP + 8MP">
+            </div>
+            
+            <div class="form-group">
+              <label for="os">Operating System</label>
+              <select id="os" name="os" required>
+                <option value="">Select OS</option>
+                <option value="Android">Android</option>
+                <option value="iOS">iOS</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
           </div>
         </div>
-        
         <div class="form-section">
           <h2>Device Condition</h2>
           

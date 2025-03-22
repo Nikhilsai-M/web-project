@@ -1,0 +1,189 @@
+/* Manage Inventory CSS */
+
+/* Reuse styles from verify-listings.css where applicable */
+.date-display {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+.inventory-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.inventory-card {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.inventory-card:hover {
+    transform: translateY(-5px);
+}
+
+.inventory-card h3 {
+    margin: 0 0 0.5rem;
+    color: #2c3e50;
+}
+
+.inventory-card p {
+    margin: 0.3rem 0;
+    color: #7f8c8d;
+}
+
+.inventory-card .btn-view {
+    background-color: #3498db;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.inventory-card .btn-view i {
+    margin-right: 0.5rem;
+}
+
+/* Filter Buttons */
+.filters {
+    margin: 1rem 0;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #ecf0f1;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.filter-btn:hover {
+    background-color: #bdc3c7;
+}
+
+.filter-btn.active {
+    background-color: #3498db;
+    color: white;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 70vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+#productDetails p {
+    margin: 0.5rem 0;
+}
+
+#productDetails p strong {
+    color: #2c3e50;
+}
+
+.action-buttons {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn i {
+    margin-right: 0.5rem;
+}
+
+.input-field {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+}
+.add-to-inventory {
+    background-color: #2ecc71;
+}
+
+.discount-input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100px;
+}
+
+/* No Items Message */
+.no-items {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}
+
+/* Error Message */
+.error-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    color: #e74c3c;
+    font-size: 1.1rem;
+}

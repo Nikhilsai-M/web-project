@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Fetch dashboard data (e.g., pending listings, items added today)
+    console.log("supervisor/home.js loaded!");
+
+    // Fetch dashboard data (pending listings and total items added)
     async function fetchDashboardData() {
         try {
             const response = await fetch('/api/supervisor/dashboard');
@@ -7,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (data.success) {
                 document.getElementById('pendingListings').textContent = data.pendingListings || 0;
-                document.getElementById('itemsAddedToday').textContent = data.itemsAddedToday || 0;
+                document.getElementById('itemsAdded').textContent = data.itemsAdded || 0; // Updated ID and key
 
                 const recentActivityList = document.getElementById('recentActivityList');
                 recentActivityList.innerHTML = '';
@@ -65,4 +67,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (document.getElementById('pendingListings')) {
         fetchDashboardData();
     }
+
+    // Expose function to update items added count dynamically
+    window.updateItemsAdded = function () {
+        fetchDashboardData(); // Re-fetch dashboard data to update the count
+    };
 });

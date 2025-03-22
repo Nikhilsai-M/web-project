@@ -23,6 +23,10 @@ import {
   addPhone,
   updatePhone,
   deletePhone,
+  getAllChargers,
+  getChargerById,
+  getAllEarphones,
+  getEarphonesById,
   createPhoneApplication,
   getAllPhoneApplications,
   getPhoneApplicationsByUserId,
@@ -66,7 +70,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const app = express();
-const port = 5000;
+const port = 3000;
 
 // Initialize database before setting up routes
 (async () => {

@@ -56,7 +56,7 @@ function addToCart(productId) {
                         rom: product.rom,
                         condition: product.condition,
                         image: product.image,
-                        price: product.pricing.price,
+                        price: product.pricing.basePrice,
                         discount:parseFloat( product.pricing.discount),
                         quantity: 1
                     });

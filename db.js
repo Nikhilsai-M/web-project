@@ -736,7 +736,7 @@ export async function getAllPhones() {
       ram: phone.ram,
       rom: phone.rom,
       pricing: {
-        basePrice: phone.price,
+        basePrice: phone.base_price,
         discount: phone.discount
       },
       condition: phone.condition

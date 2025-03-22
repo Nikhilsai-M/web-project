@@ -15,8 +15,6 @@ import {
   updateCustomerPassword,
   getAllLaptops,
   getLaptopById,
-  getAllMouses,
-  getMouseById,
   addLaptop,
   updateLaptop,
   deleteLaptop,
@@ -27,28 +25,38 @@ import {
   deletePhone,
   getAllChargers,
   getChargerById,
+  addCharger,          // Added
+  updateCharger,       // Added
+  deleteCharger,       // Added
   getAllEarphones,
   getEarphonesById,
+  addEarphones,        // Added
+  updateEarphones,     // Added
+  deleteEarphones,     // Added
   createPhoneApplication,
   getAllPhoneApplications,
   getPhoneApplicationsByUserId,
   getPhoneApplicationById,
   updatePhoneApplicationStatus,
-  deletePhoneApplication,
   createLaptopApplication,
   getAllLaptopApplications,
   getLaptopApplicationsByUserId,
   getLaptopApplicationById,
   updateLaptopApplicationStatus,
-  deleteLaptopApplication,
-  authenticateSupervisor, // Add new import
-  updateSupervisorPassword, // Add new import
+  authenticateSupervisor,
+  updateSupervisorPassword,
+  getAllMouses,
+  getMouseById,
+  addMouse,            // Added
+  updateMouse,         // Added
+  deleteMouse,         // Added
   getAllSmartwatches,
-  getSmartwatchById
+  getSmartwatchById,
+  addSmartwatch,       // Added
+  updateSmartwatch,    // Added
+  deleteSmartwatch     // Added
 } from './db.js';
 
-// Import only the accessoriesData since laptops and phones are now in the database
-import { accessoriesData } from './public/scripts/accessories-data.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -154,7 +162,22 @@ app.get('/supervisor/manage-inventory', (req, res) => {
   res.render("supervisor/manage-inventory",{ supervisor });
 });
 
-
+// Supervisor Profile Page
+app.get('/supervisor/profile', requireSupervisorAuth, async (req, res) => {
+  try {
+    const db = await getDb();
+    const supervisor = await db.get('SELECT * FROM supervisors WHERE user_id = ?', [req.session.user.userId]);
+    
+    if (!supervisor) {
+      return res.status(404).render('error', { message: 'Supervisor not found' });
+    }
+    
+    res.render('supervisor/supervisor-profile', { supervisor });
+  } catch (error) {
+    console.error('Error fetching supervisor profile:', error);
+    res.status(500).render('error', { message: 'Failed to load profile' });
+  }
+});
 // Supervisor dashboard data
 app.get('/api/supervisor/dashboard', requireSupervisorAuth, async (req, res) => {
   try {
@@ -185,6 +208,142 @@ app.get('/api/supervisor/dashboard', requireSupervisorAuth, async (req, res) => 
   }
 });
 
+// Get all inventory items
+app.post('/api/supervisor/inventory', requireSupervisorAuth, async (req, res) => {
+    const { type, id, brand, pricing, image, ...specificData } = req.body;
+    try {
+        let result;
+        if (type === 'earphones') {
+            result = await addEarphones({ id, title: specificData.title, brand, pricing, image, design: specificData.design, batteryLife: specificData.battery_life });
+        } else if (type === 'chargers') {
+            result = await addCharger({ id, title: specificData.title, brand, pricing, image, wattage: specificData.wattage, type: specificData.type, outputCurrent: specificData.outputCurrent });
+        } else if (type === 'mouses') {
+            result = await addMouse({ id, title: specificData.title, brand, pricing, image, type: specificData.type, connectivity: specificData.connectivity, resolution: specificData.resolution });
+        } else if (type === 'smartwatches') {
+            result = await addSmartwatch({ id, title: specificData.title, brand, pricing, image, displaySize: specificData.displaySize, displayType: specificData.displayType, batteryRuntime: specificData.batteryRuntime });
+        } else {
+            return res.status(400).json({ success: false, message: 'Invalid item type' });
+        }
+        if (result.success) {
+            res.json({ success: true, id: result.id });
+        } else {
+            res.status(400).json({ success: false, message: result.message });
+        }
+    } catch (error) {
+        console.error('Error adding item:', error);
+        res.status(500).json({ success: false, message: 'Failed to add item' });
+    }
+});
+
+// Update inventory item
+app.put('/api/supervisor/inventory/:type/:id', requireSupervisorAuth, async (req, res) => {
+  const { type, id } = req.params;
+  const { brand, pricing, image, ...specificData } = req.body;
+  try {
+      let result;
+      if (type === 'phone') {
+          result = await updatePhone(id, {
+              brand,
+              pricing: { basePrice: pricing.originalPrice, discount: pricing.discount },
+              image,
+              model: specificData.model,
+              color: specificData.color,
+              processor: specificData.processor,
+              display: specificData.display,
+              battery: specificData.battery,
+              camera: specificData.camera,
+              os: specificData.os,
+              network: specificData.network,
+              weight: specificData.weight,
+              ram: specificData.ram,
+              rom: specificData.rom,
+              condition: specificData.condition
+          });
+      } else if (type === 'laptop') {
+          result = await updateLaptop(id, {
+              brand,
+              pricing: { basePrice: pricing.originalPrice, discount: pricing.discount },
+              image,
+              series: specificData.series,
+              processor: { name: specificData.processor_name, generation: specificData.processor_generation },
+              memory: { ram: specificData.ram, storage: { type: specificData.storage_type, capacity: specificData.storage_capacity } },
+              displaysize: specificData.display_size,
+              weight: specificData.weight,
+              condition: specificData.condition,
+              os: specificData.os
+          });
+      } else if (type === 'earphones') {
+          result = await updateEarphones(id, {
+              brand,
+              pricing,
+              image,
+              title: specificData.title,
+              design: specificData.design,
+              battery_life: specificData.battery_life || 'N/A' // Fallback for NOT NULL
+          });
+      } else if (type === 'chargers') {
+          result = await updateCharger(id, {
+              brand,
+              pricing,
+              image,
+              title: specificData.title,
+              wattage: specificData.wattage,
+              type: specificData.type,
+              outputCurrent: specificData.outputCurrent
+          });
+      } else if (type === 'mouses') {
+          result = await updateMouse(id, {
+              brand,
+              pricing,
+              image,
+              title: specificData.title,
+              type: specificData.type,
+              connectivity: specificData.connectivity,
+              resolution: specificData.resolution
+          });
+        } else if (type === 'smartwatches') {
+          result = await updateSmartwatch(id, {
+              brand,
+              pricing,
+              image,
+              title: specificData.title,
+              display_size: specificData.display_size || 'N/A',
+              display_type: specificData.display_type,
+              battery_runtime: specificData.battery_runtime
+          });
+      }
+      if (result.success) {
+          res.json({ success: true });
+      } else {
+          res.status(400).json({ success: false, message: result.message });
+      }
+  } catch (error) {
+      console.error(`Error updating ${type}:`, error);
+      res.status(500).json({ success: false, message: `Failed to update ${type}` });
+  }
+});
+
+// Delete inventory item
+app.delete('/api/supervisor/inventory/:type/:id', requireSupervisorAuth, async (req, res) => {
+  const { type, id } = req.params;
+  try {
+      let result;
+      if (type === 'phone') result = await deletePhone(id);
+      else if (type === 'laptop') result = await deleteLaptop(id);
+      else if (type === 'earphones') result = await deleteEarphones(id);
+      else if (type === 'chargers') result = await deleteCharger(id);
+      else if (type === 'mouses') result = await deleteMouse(id);
+      else if (type === 'smartwatches') result = await deleteSmartwatch(id);
+      if (result.success) {
+          res.json({ success: true });
+      } else {
+          res.status(404).json({ success: false, message: result.message });
+      }
+  } catch (error) {
+      console.error('Error deleting item:', error);
+      res.status(500).json({ success: false, message: 'Failed to delete item' });
+  }
+});
 app.post('/api/supervisor/login', async (req, res) => {
   const { username, password } = req.body;
   
@@ -1293,18 +1452,23 @@ app.get('/supervisor/verify-listings', requireSupervisorAuth, (req, res) => {
   res.render('supervisor/verify-listings', { supervisor: req.session.user });
 });
 
+// In app.js
 app.get('/api/supervisor/verify-applications', requireSupervisorAuth, async (req, res) => {
   try {
-    const phoneApps = await getAllPhoneApplications();
-    const laptopApps = await getAllLaptopApplications();
-    const applications = [
-      ...phoneApps.filter(app => ['pending', 'processing', 'approved'].includes(app.status)).map(app => ({ ...app, type: 'phone' })),
-      ...laptopApps.filter(app => ['pending', 'processing', 'approved'].includes(app.status)).map(app => ({ ...app, type: 'laptop' })),
-    ];
-    res.json({ success: true, applications });
+      const db = await getDb();
+      const phoneApps = await db.all(`
+          SELECT 'phone' AS type, id, brand, model, status, created_at, price
+          FROM phone_applications
+      `);
+      const laptopApps = await db.all(`
+          SELECT 'laptop' AS type, id, brand, model, status, created_at, price
+          FROM laptop_applications
+      `);
+      const applications = [...phoneApps, ...laptopApps];
+      res.json({ success: true, applications });
   } catch (error) {
-    console.error('Error fetching applications:', error);
-    res.status(500).json({ success: false, message: 'Error fetching applications' });
+      console.error('Error fetching applications:', error);
+      res.status(500).json({ success: false, message: 'Failed to fetch applications' });
   }
 });
 

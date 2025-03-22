@@ -1500,7 +1500,7 @@ export async function addEarphones(earphonesData) {
 export async function updateEarphones(id, earphonesData) {
   try {
     const db = await getDb();
-    const { title, image, brand, pricing, design, batteryLife } = earphonesData;
+    const { title, image, brand, pricing, design, battery_life } = earphonesData;
 
     await db.run(
       `UPDATE earphones SET 
@@ -1512,7 +1512,7 @@ export async function updateEarphones(id, earphonesData) {
         design = ?, 
         battery_life = ? 
        WHERE id = ?`,
-      [title, image, brand, pricing.originalPrice, pricing.discount, design, batteryLife, id]
+      [title, image, brand, pricing.originalPrice, pricing.discount, design, battery_life, id]
     );
 
     return { success: true };
@@ -1618,9 +1618,9 @@ export async function updateCharger(id, chargerData) {
         brand = ?, 
         wattage = ?, 
         type = ?, 
-        original_price = ?, 
+        originalPrice = ?, 
         discount = ?, 
-        output_current = ? 
+        outputCurrent = ? 
        WHERE id = ?`,
       [title, image, brand, wattage, type, pricing.originalPrice, pricing.discount, outputCurrent, id]
     );
@@ -1830,30 +1830,14 @@ export async function addSmartwatch(smartwatchData) {
 }
 
 // Function to update a smartwatch
-export async function updateSmartwatch(id, smartwatchData) {
-  try {
-    const db = await getDb();
-    const { title, image, brand, pricing, displaySize, displayType, batteryRuntime } = smartwatchData;
-
-    await db.run(
-      `UPDATE smartwatches SET 
-        title = ?, 
-        image = ?, 
-        brand = ?, 
-        original_price = ?, 
-        discount = ?, 
-        display_size = ?, 
-        display_type = ?, 
-        battery_runtime = ? 
-       WHERE id = ?`,
-      [title, image, brand, pricing.originalPrice, pricing.discount, displaySize, displayType, batteryRuntime, id]
-    );
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error updating smartwatch:', error);
-    return { success: false, message: error.message };
-  }
+export async function updateSmartwatch(id, { brand, pricing, image, title, display_size, display_type, battery_runtime }) {
+  const db = await getDb();
+  const safeDisplaySize = display_size !== null && display_size !== undefined ? display_size : 'N/A';
+  const result = await db.run(
+      `UPDATE smartwatches SET brand = ?, original_price = ?, image = ?, title = ?, display_size = ?, display_type = ?, battery_runtime = ? WHERE id = ?`,
+      [brand, JSON.stringify(pricing), image, title, safeDisplaySize, display_type, battery_runtime, id]
+  );
+  return { success: result.changes > 0 };
 }
 
 // Function to delete a smartwatch

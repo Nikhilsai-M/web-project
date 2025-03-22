@@ -59,6 +59,9 @@ body {
     font-weight: 600;
     color: var(--text-color);
 }
+.logoi{
+    width: 180px;
+}
 
 .user-info {
     display: flex;

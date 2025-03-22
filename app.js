@@ -149,35 +149,39 @@ app.get('/supervisor', requireSupervisorAuth, async (req, res) => {
   const supervisor = req.session.user;
   res.render('supervisor/supervisor-portal-home', { supervisor });
 });
+app.get('/supervisor/manage-inventory', (req, res) => {
+  const supervisor = req.session.user;
+  res.render("supervisor/manage-inventory",{ supervisor });
+});
+
 
 // Supervisor dashboard data
 app.get('/api/supervisor/dashboard', requireSupervisorAuth, async (req, res) => {
   try {
-    const db = await getDb();
-    const pendingPhones = await db.all("SELECT * FROM phone_applications WHERE status = 'pending'");
-    const pendingLaptops = await db.all("SELECT * FROM laptop_applications WHERE status = 'pending'");
-    const pendingListings = (pendingPhones.length || 0) + (pendingLaptops.length || 0);
-
-    const today = new Date().toISOString().split('T')[0];
-    const itemsAddedTodayPhones = await db.all("SELECT * FROM phones WHERE created_at LIKE ?", [`${today}%`]);
-    const itemsAddedTodayLaptops = await db.all("SELECT * FROM laptops WHERE created_at LIKE ?", [`${today}%`]);
-    const itemsAddedToday = (itemsAddedTodayPhones.length || 0) + (itemsAddedTodayLaptops.length || 0);
-
-    const recentActivity = await db.all(
-      "SELECT action FROM supervisor_activity WHERE supervisor_id = ? ORDER BY timestamp DESC LIMIT 5",
-      [req.session.user.userId]
-    );
-    const recentActivityList = recentActivity.map(item => item.action);
-
-    res.json({
-      success: true,
-      pendingListings,
-      itemsAddedToday,
-      recentActivity: recentActivityList
-    });
+      const db = await getDb();
+      const pendingListings = await db.get(
+          `SELECT COUNT(*) as count FROM (
+              SELECT id FROM phone_applications WHERE status = 'pending'
+              UNION ALL
+              SELECT id FROM laptop_applications WHERE status = 'pending'
+          )`
+      );
+      const itemsAdded = await db.get(
+          `SELECT COUNT(*) as count FROM supervisor_activity WHERE action LIKE 'Added % to inventory%'`
+      );
+      const recentActivity = await db.all(
+          `SELECT action FROM supervisor_activity WHERE supervisor_id = ? ORDER BY timestamp DESC LIMIT 5`,
+          [req.session.user.userId]
+      );
+      res.json({
+          success: true,
+          pendingListings: pendingListings.count,
+          itemsAdded: itemsAdded.count,
+          recentActivity: recentActivity.map(row => row.action)
+      });
   } catch (error) {
-    console.error('Error fetching dashboard data:', error);
-    res.status(500).json({ success: false, message: 'Error fetching dashboard data' });
+      console.error('Error fetching dashboard data:', error);
+      res.status(500).json({ success: false, message: 'Error fetching dashboard data' });
   }
 });
 
@@ -864,26 +868,24 @@ app.get('/sell-phone-models', (req, res) => {
     res.render("sellphone-container");
 });
 
-// Updated route to get phones from database
 app.get('/buy-phone', async (req, res) => {
-    try {
-        const phones = await getAllPhones();
-        res.render("buy_phone", { phoneModels: phones });
-    } catch (error) {
-        console.error('Error fetching phones:', error);
-        res.status(500).render('error', { message: 'Failed to load phones' });
-    }
+  try {
+      const phones = await getAllPhones();
+      res.render("buy_phone", { phoneModels: phones });
+  } catch (error) {
+      console.error('Error fetching phones:', error);
+      res.status(500).render('error', { message: 'Failed to load phones' });
+  }
 });
 
-// Updated route to get laptops from database
 app.get('/buy-laptop', async (req, res) => {
-    try {
-        const laptops = await getAllLaptops();
-        res.render("buy_laptop", { laptopModels: laptops });
-    } catch (error) {
-        console.error('Error fetching laptops:', error);
-        res.status(500).render('error', { message: 'Failed to load laptops' });
-    }
+  try {
+      const laptops = await getAllLaptops();
+      res.render("buy_laptop", { laptopModels: laptops });
+  } catch (error) {
+      console.error('Error fetching laptops:', error);
+      res.status(500).render('error', { message: 'Failed to load laptops' });
+  }
 });
 
 app.get('/chargers', async(req, res) => {
@@ -1366,6 +1368,106 @@ app.put('/api/supervisor/application/:type/:id/status', requireSupervisorAuth, a
   } catch (error) {
     console.error('Error updating application status:', error);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.get('/api/supervisor/approved-listings', requireSupervisorAuth, async (req, res) => {
+  try {
+      const phoneApps = await getAllPhoneApplications();
+      const laptopApps = await getAllLaptopApplications();
+      const products = [
+          ...phoneApps.filter(app => ['approved', 'added_to_inventory'].includes(app.status)).map(app => ({ ...app, type: 'phone' })),
+          ...laptopApps.filter(app => ['approved', 'added_to_inventory'].includes(app.status)).map(app => ({ ...app, type: 'laptop' })),
+      ];
+      res.json({ success: true, products });
+  } catch (error) {
+      console.error('Error fetching approved listings:', error);
+      res.status(500).json({ success: false, message: 'Error fetching approved listings' });
+  }
+});
+
+app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, async (req, res) => {
+  try {
+      const { type, id } = req.params;
+      const { price, condition, discount } = req.body;
+
+      if (!price || isNaN(price) || price <= 0) {
+          return res.status(400).json({ success: false, message: 'Valid price is required' });
+      }
+      if (!['Used', 'Like New', 'Refurbished'].includes(condition)) {
+          return res.status(400).json({ success: false, message: 'Invalid condition' });
+      }
+      if (discount && (isNaN(discount) || discount < 0 || discount > 100)) {
+          return res.status(400).json({ success: false, message: 'Discount must be between 0 and 100' });
+      }
+
+      let application;
+      if (type === 'phone') {
+          application = await getPhoneApplicationById(id);
+      } else if (type === 'laptop') {
+          application = await getLaptopApplicationById(id);
+      } else {
+          return res.status(400).json({ success: false, message: 'Invalid type' });
+      }
+
+      if (!application || application.status !== 'approved') {
+          return res.status(404).json({ success: false, message: 'Approved application not found' });
+      }
+
+      const db = await getDb();
+      if (type === 'phone') {
+          const phoneData = {
+              id: Date.now(),
+              brand: application.brand,
+              model: application.model,
+              color: 'N/A',
+              image: application.image_path,
+              processor: application.processor,
+              display: application.size || 'N/A',
+              battery: parseInt(application.battery),
+              camera: application.camera,
+              os: application.os,
+              network: application.network,
+              weight: application.weight || 'N/A',
+              ram: application.ram,
+              rom: application.rom,
+              basePrice: price, // Use price from input
+              discount: discount || 0,
+              condition: condition // Use condition from input
+          };
+          await addPhone(phoneData);
+          await updatePhoneApplicationStatus(id, 'added_to_inventory');
+      } else if (type === 'laptop') {
+          const laptopData = {
+              id: Date.now(),
+              brand: application.brand,
+              series: application.model,
+              processorName: application.processor,
+              processorGeneration: application.generation || 'N/A',
+              basePrice: price, // Use price from input
+              discount: discount || 0,
+              ram: application.ram,
+              storage_type: 'SSD',
+              storage_capacity: application.storage,
+              display_size: parseFloat(application.display_size) || 0,
+              weight: parseFloat(application.weight) || 0,
+              condition: condition, // Use condition from input
+              os: application.os || 'N/A',
+              image: application.image_path
+          };
+          await addLaptop(laptopData);
+          await updateLaptopApplicationStatus(id, 'added_to_inventory');
+      }
+
+      await db.run(
+          'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
+          [req.session.user.userId, `Added ${type} #${id} to inventory with price ₹${price}, condition ${condition}, and ${discount || 0}% discount`, new Date().toISOString()]
+      );
+
+      res.json({ success: true, message: 'Added to inventory successfully' });
+  } catch (error) {
+      console.error('Error adding to inventory:', error);
+      res.status(500).json({ success: false, message: 'Error adding to inventory' });
   }
 });
 app.listen(port, () => {

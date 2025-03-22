@@ -34,6 +34,12 @@ function displayProducts(filteredProducts) {
     
     filteredProducts.forEach(product => {
         const discountedPrice = calculateDiscountedPrice(product.pricing.basePrice, product.pricing.discount);
+        
+        // Ensure image is an absolute URL
+        const imageUrl = product.image.startsWith('http') 
+            ? product.image 
+            : `https://res.cloudinary.com/dqohkpeyp/image/upload/${product.image}`; // Replace dqohkpeyp with your cloud name
+        
         const productElement = document.createElement('div');
         productElement.className = 'product';
         productElement.dataset.id = product.id;
@@ -42,7 +48,7 @@ function displayProducts(filteredProducts) {
             <a href="/product/${product.id}" class="product-link">
                 <div class="product-container">
                     <div class="product-image">
-                        <img src="${product.image}" alt="${product.brand} ${product.model}">
+                        <img src="${imageUrl}" alt="${product.brand} ${product.model}">
                     </div>
                     <div class="product-details">
                         <h4>${product.brand} ${product.model}</h4>
@@ -66,7 +72,7 @@ function displayProducts(filteredProducts) {
     // Add event listeners for "Add to Cart" buttons
     document.querySelectorAll(".add-to-cart-btn").forEach(button => {
         button.addEventListener("click", function(e) {
-            e.preventDefault(); // Prevent navigating to product page when clicking Add to Cart
+            e.preventDefault();
             const productDiv = e.target.closest(".product");
             const productId = productDiv.dataset.id;
             const product = filteredProducts.find(p => p.id == productId);

@@ -291,28 +291,8 @@ await db.exec(`
       console.log('Test admins added to database');
     }
     
-    // Check if any laptops exist, add initial data if not
-    const laptopCount = await db.get('SELECT COUNT(*) as count FROM laptops');
-    
-    if (laptopCount.count === 0) {
-      // Insert the sample laptop data
-      await db.run(
-        `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, 
-                             base_price, discount, ram, storage_type, storage_capacity, 
-                             display_size, weight, condition, os, image) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [100, 'Acer', 'Aspire 3', 'Intel Core i3', '12th Gen', 45999, 10, '8GB', 
-         'SSD', '512GB', 15.6, 1.7, 'Superb', 'Windows 11', 'images/buy-laptops/aspire3.webp']
-      );
-      await db.run(
-        `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, 
-                             base_price, discount, ram, storage_type, storage_capacity, 
-                             display_size, weight, condition, os, image) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [101, 'Acer', 'Aspire 5', 'Intel Core i5', '13th Gen', 57999, 12, '16GB', 
-         'SSD', '512GB', 14, 1.6, 'Superb', 'Windows 11', 'images/buy-laptops/aspire5.webp']
-      );
-    }
+
+
     const mouseCount = await db.get('SELECT COUNT(*) as count FROM mouses');
 
 if (mouseCount.count === 0) {
@@ -544,22 +524,6 @@ if (smartwatchCount.count === 0) {
     ["sw35", "SAMSUNG Galaxy Watch Ultra LTE", "images/accessories/smartwatches/Samsung Galaxy Ultra.webp", "Samsung", 69999, "14%", "47", "AMOLED display", "20"]
   );
 }
-    // Check if any phones exist, add initial data if not
-   
-    
-    if (phoneCount.count === 0) {
-      // Insert the sample phone data
-      await db.run(
-        `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [1, 'OnePlus', 'Nord 2', 'Blue Haze', 'images/buy-page-phones/img11.webp', 'Snapdragon 8 Gen 1', 
-         '6.43-inch Fluid AMOLED display', 4500, '48MP + 8MP + 50MP | 32MP Front Camera', 
-         'Android 11', '5G', '200g', '12GB', '256GB', 27999, 50, 'Good']
-    );
-    
- 
-      
-    }
     const earphoneCount=await db.get('SELECT COUNT(*) as count FROM earphones');
     if(earphoneCount.count ===0) {
       
@@ -904,36 +868,37 @@ export async function getLaptopById(id) {
 
 export async function addLaptop(laptopData) {
   try {
-    const db = await getDb();
-    
-    const result = await db.run(
-      `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, 
-                           base_price, discount, ram, storage_type, storage_capacity, 
-                           display_size, weight, condition, os, image) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        laptopData.id,
-        laptopData.brand,
-        laptopData.series,
-        laptopData.processor.name,
-        laptopData.processor.generation,
-        laptopData.pricing.basePrice,
-        laptopData.pricing.discount,
-        laptopData.memory.ram,
-        laptopData.memory.storage.type,
-        laptopData.memory.storage.capacity,
-        laptopData.displaysize,
-        laptopData.weight,
-        laptopData.condition,
-        laptopData.os,
-        laptopData.image
-      ]
-    );
-    
-    return { success: true, id: laptopData.id };
+    let Base_Price=(laptopData.basePrice*1.2)/(1-(laptopData.discount/100));
+
+      const db = await getDb();
+      const result = await db.run(
+          `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, 
+                               base_price, discount, ram, storage_type, storage_capacity, 
+                               display_size, weight, condition, os, image) 
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+              laptopData.id,
+              laptopData.brand,
+              laptopData.series,
+              laptopData.processorName,
+              laptopData.processorGeneration,
+              Base_Price.toFixed(0),
+              laptopData.discount,
+              laptopData.ram,
+              laptopData.storage_type,
+              laptopData.storage_capacity,
+              laptopData.display_size,
+              laptopData.weight,
+              laptopData.condition,
+              laptopData.os,
+              laptopData.image
+          ]
+      );
+      console.log(' laptop added');
+      return { success: true, id: laptopData.id };
   } catch (error) {
-    console.error('Error adding laptop:', error);
-    return { success: false, message: error.message };
+      console.error('Error adding laptop:', error);
+      return { success: false, message: error.message };
   }
 }
 
@@ -1070,36 +1035,34 @@ export async function getPhoneById(id) {
 
 export async function addPhone(phoneData) {
   try {
-    const db = await getDb();
-    
-    const result = await db.run(
-      `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        phoneData.id,
-        phoneData.brand,
-        phoneData.model,
-        phoneData.color,
-        phoneData.image,
-        phoneData.specs.processor,
-        phoneData.specs.display,
-        phoneData.specs.battery,
-        phoneData.specs.camera,
-        phoneData.specs.os,
-        phoneData.specs.network,
-        phoneData.specs.weight,
-        phoneData.ram,
-        phoneData.rom,
-        phoneData.pricing.basePrice,
-        phoneData.pricing.discount,
-        phoneData.condition
-      ]
-    );
-    
-    return { success: true, id: phoneData.id };
+      const db = await getDb();
+      const result = await db.run(
+          `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+              phoneData.id,
+              phoneData.brand,
+              phoneData.model,
+              phoneData.color,
+              phoneData.image,
+              phoneData.processor,
+              phoneData.display,
+              phoneData.battery,
+              phoneData.camera,
+              phoneData.os,
+              phoneData.network,
+              phoneData.weight,
+              phoneData.ram,
+              phoneData.rom,
+              phoneData.basePrice,
+              phoneData.discount,
+              phoneData.condition
+          ]
+      );
+      return { success: true, id: phoneData.id };
   } catch (error) {
-    console.error('Error adding phone:', error);
-    return { success: false, message: error.message };
+      console.error('Error adding phone:', error);
+      return { success: false, message: error.message };
   }
 }
 
@@ -1131,13 +1094,13 @@ export async function updatePhone(id, phoneData) {
         phoneData.model,
         phoneData.color,
         phoneData.image,
-        phoneData.specs.processor,
-        phoneData.specs.display,
-        phoneData.specs.battery,
-        phoneData.specs.camera,
-        phoneData.specs.os,
-        phoneData.specs.network,
-        phoneData.specs.weight,
+        phoneData.processor,
+        phoneData.display,
+        phoneData.battery,
+        phoneData.camera,
+        phoneData.os,
+        phoneData.network,
+        phoneData.weight,
         phoneData.ram,
         phoneData.rom,
         phoneData.pricing.basePrice,

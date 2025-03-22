@@ -25,7 +25,6 @@ function displayProducts(filteredProducts) {
             </div>
         `;
         
-        // Add event listener to the inline clear button
         const clearInlineBtn = container.querySelector(".clear-all-inline");
         if (clearInlineBtn) {
             clearInlineBtn.addEventListener("click", clearAllFilters);
@@ -36,6 +35,10 @@ function displayProducts(filteredProducts) {
     filteredProducts.forEach(product => {
         const discountedPrice = calculateDiscountedPrice(product.pricing.basePrice, product.pricing.discount);
         
+        const imageUrl = product.image.startsWith('http') 
+            ? product.image 
+            : `https://res.cloudinary.com/dqohkpeyp/image/upload/${product.image}`;
+        
         const productElement = document.createElement('div');
         productElement.className = 'product';
         productElement.dataset.id = product.id;
@@ -44,7 +47,7 @@ function displayProducts(filteredProducts) {
         <a href="/laptop/${product.id}" class="product-link">
             <div class="product-container">
                 <div class="product-image">
-                    <img src="${product.image}" alt="${product.brand} ${product.series}">
+                    <img src="${imageUrl}" alt="${product.brand} ${product.series}">
                 </div>
                 <div class="product-details">
                     <h4>${product.brand} ${product.series}</h4>
@@ -68,8 +71,8 @@ function displayProducts(filteredProducts) {
     // Add event listeners for "Add to Cart" buttons
     document.querySelectorAll(".add-to-cart-btn").forEach(button => {
         button.addEventListener("click", function(e) {
-            e.preventDefault(); // Prevent the anchor link from activating
-            e.stopPropagation(); // Stop event from bubbling up
+            e.preventDefault();
+            e.stopPropagation();
             
             const productId = this.getAttribute('data-product-id');
             const product = filteredProducts.find(p => p.id == productId);

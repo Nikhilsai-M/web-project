@@ -5,26 +5,89 @@ document.addEventListener("DOMContentLoaded", function () {
     const productDetails = document.getElementById("productDetails");
     const actionButtons = document.getElementById("actionButtons");
     const closeModalBtn = document.querySelector(".close");
+    const createForm = document.getElementById("createInventoryForm");
+    const createMessage = document.getElementById("createMessage");
+    const filterButtons = document.querySelectorAll(".filter-btn");
+    const itemTypeSelect = document.getElementById("itemType");
+    const dynamicFields = document.getElementById("dynamicFields");
+    const submitButton = document.querySelector(".btn-submit"); // Add reference to submit button
     let currentProduct = null;
     let allProducts = [];
 
-    // Fetch approved listings
-    async function fetchApprovedListings() {
-        console.log("Fetching approved listings...");
+    // Dynamic field definitions
+    const fieldTemplates = {
+        phone: `
+            <div class="form-group"><label>Model:</label><input type="text" name="model" required></div>
+            <div class="form-group"><label>Color:</label><input type="text" name="color" required></div>
+            <div class="form-group"><label>Processor:</label><input type="text" name="processor" required></div>
+            <div class="form-group"><label>Display:</label><input type="text" name="display" required></div>
+            <div class="form-group"><label>Battery:</label><input type="number" name="battery" required></div>
+            <div class="form-group"><label>Camera:</label><input type="text" name="camera" required></div>
+            <div class="form-group"><label>OS:</label><input type="text" name="os" required></div>
+            <div class="form-group"><label>Network:</label><input type="text" name="network" required></div>
+            <div class="form-group"><label>Weight:</label><input type="text" name="weight" required></div>
+            <div class="form-group"><label>RAM:</label><input type="text" name="ram" required></div>
+            <div class="form-group"><label>ROM:</label><input type="text" name="rom" required></div>
+            <div class="form-group"><label>Condition:</label><select name="condition" required><option value="Used">Used</option><option value="Like New">Like New</option><option value="Refurbished">Refurbished</option></select></div>
+        `,
+        laptop: `
+            <div class="form-group"><label>Series:</label><input type="text" name="series" required></div>
+            <div class="form-group"><label>Processor Name:</label><input type="text" name="processor_name" required></div>
+            <div class="form-group"><label>Processor Generation:</label><input type="text" name="processor_generation" required></div>
+            <div class="form-group"><label>RAM:</label><input type="text" name="ram" required></div>
+            <div class="form-group"><label>Storage Type:</label><input type="text" name="storage_type" required></div>
+            <div class="form-group"><label>Storage Capacity:</label><input type="text" name="storage_capacity" required></div>
+            <div class="form-group"><label>Display Size:</label><input type="number" name="display_size" step="0.1" required></div>
+            <div class="form-group"><label>Weight:</label><input type="number" name="weight" step="0.1" required></div>
+            <div class="form-group"><label>Condition:</label><select name="condition" required><option value="Used">Used</option><option value="Like New">Like New</option><option value="Refurbished">Refurbished</option></select></div>
+            <div class="form-group"><label>OS:</label><input type="text" name="os" required></div>
+        `,
+        earphones: `
+            <div class="form-group"><label>Title:</label><input type="text" name="title" required></div>
+            <div class="form-group"><label>Design:</label><input type="text" name="design" required></div>
+            <div class="form-group"><label>Battery Life:</label><input type="text" name="battery_life" required></div>
+        `,
+        chargers: `
+            <div class="form-group"><label>Title:</label><input type="text" name="title" required></div>
+            <div class="form-group"><label>Wattage:</label><input type="text" name="wattage" required></div>
+            <div class="form-group"><label>Type:</label><input type="text" name="type" required></div>
+            <div class="form-group"><label>Output Current:</label><input type="text" name="output_current" required></div>
+        `,
+        mouses: `
+            <div class="form-group"><label>Title:</label><input type="text" name="title" required></div>
+            <div class="form-group"><label>Type:</label><input type="text" name="type" required></div>
+            <div class="form-group"><label>Connectivity:</label><input type="text" name="connectivity" required></div>
+            <div class="form-group"><label>Resolution:</label><input type="text" name="resolution" required></div>
+        `,
+        smartwatches: `
+            <div class="form-group"><label>Title:</label><input type="text" name="title" required></div>
+            <div class="form-group"><label>Display Size:</label><input type="text" name="display_size" required></div>
+            <div class="form-group"><label>Display Type:</label><input type="text" name="display_type" required></div>
+            <div class="form-group"><label>Battery Runtime:</label><input type="text" name="battery_runtime" required></div>
+        `
+    };
+
+    // Update dynamic fields based on item type
+    itemTypeSelect.addEventListener("change", () => {
+        dynamicFields.innerHTML = fieldTemplates[itemTypeSelect.value] || "";
+    });
+    dynamicFields.innerHTML = fieldTemplates[itemTypeSelect.value];
+
+    // Fetch all inventory items
+    async function fetchInventory() {
         try {
-            const response = await fetch('/api/supervisor/approved-listings');
+            const response = await fetch('/api/supervisor/inventory');
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             const data = await response.json();
-            console.log("Response data:", data);
             if (data.success) {
-                allProducts = data.products;
+                allProducts = data.items;
                 displayProducts(allProducts);
             } else {
-                inventoryContainer.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-circle"></i> ${data.message || 'No approved listings found.'}</div>`;
+                inventoryContainer.innerHTML = `<div class="no-items"><i class="fas fa-info-circle"></i> ${data.message || 'No inventory items found.'}</div>`;
             }
         } catch (error) {
-            console.error('Error fetching approved listings:', error);
-            inventoryContainer.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Error loading listings: ${error.message}</div>`;
+            console.error('Error fetching inventory:', error);
+            inventoryContainer.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Error loading inventory: ${error.message}</div>`;
         }
     }
 
@@ -32,166 +95,345 @@ document.addEventListener("DOMContentLoaded", function () {
     function displayProducts(products) {
         inventoryContainer.innerHTML = '';
         if (products.length === 0) {
-            inventoryContainer.innerHTML = '<div class="no-items"><i class="fas fa-info-circle"></i> No approved listings found.</div>';
+            inventoryContainer.innerHTML = '<div class="no-items"><i class="fas fa-info-circle"></i> No items found.</div>';
             return;
         }
 
         products.forEach(product => {
             const card = document.createElement('div');
             card.classList.add('inventory-card');
-            card.innerHTML = `
-                <h3>${product.type === 'phone' ? 'Phone' : 'Laptop'} #${product.id}</h3>
+            let details = `
+                <h3>${product.type.charAt(0).toUpperCase() + product.type.slice(1)} #${product.id}</h3>
                 <p><strong>Brand:</strong> ${product.brand}</p>
-                <p><strong>Model:</strong> ${product.model}</p>
-                <p><strong>Status:</strong> ${product.status}</p>
-                <p><strong>Submitted:</strong> ${new Date(product.created_at).toLocaleDateString()}</p>
-                <button class="btn-view"><i class="fas fa-eye"></i> View Details</button>
+                <p><strong>Price:</strong> ₹${product.original_price || product.base_price || 'N/A'}</p>
+                <p><strong>Discount:</strong> ${product.discount || '0'}%</p>
             `;
+            if (product.type === 'phone') details += `<p><strong>Model:</strong> ${product.model || 'N/A'}</p>`;
+            if (product.type === 'laptop') details += `<p><strong>Series:</strong> ${product.series || 'N/A'}</p>`;
+            if (['earphones', 'chargers', 'mouses', 'smartwatches'].includes(product.type)) details += `<p><strong>Title:</strong> ${product.title || 'N/A'}</p>`;
+            card.innerHTML = details + `<button class="btn-view"><i class="fas fa-eye"></i> View/Manage</button>`;
             card.querySelector('.btn-view').addEventListener('click', () => showProductDetails(product));
             inventoryContainer.appendChild(card);
         });
     }
 
     // Show product details in modal
-    async function showProductDetails(product) {
-        try {
-            const response = await fetch(`/api/supervisor/application/${product.type}/${product.id}`);
-            const data = await response.json();
-            if (data.success) {
-                currentProduct = { type: data.type, id: data.application.id };
-                productDetails.innerHTML = `
-                    <p><strong>Type:</strong> ${data.type.charAt(0).toUpperCase() + data.type.slice(1)}</p>
-                    <p><strong>ID:</strong> ${data.application.id}</p>
-                    <p><strong>Brand:</strong> ${data.application.brand}</p>
-                    <p><strong>Model:</strong> ${data.application.model}</p>
-                    <p><strong>RAM:</strong> ${data.application.ram}</p>
-                    ${data.type === 'phone' ? `
-                        <p><strong>ROM:</strong> ${data.application.rom}</p>
-                        <p><strong>Processor:</strong> ${data.application.processor}</p>
-                        <p><strong>Battery:</strong> ${data.application.battery} mAh</p>
-                        <p><strong>Camera:</strong> ${data.application.camera}</p>
-                        <p><strong>OS:</strong> ${data.application.os || 'N/A'}</p>
-                        <p><strong>Network:</strong> ${data.application.network}</p>
-                    ` : `
-                        <p><strong>Storage:</strong> ${data.application.storage}</p>
-                        <p><strong>Processor:</strong> ${data.application.processor}</p>
-                        <p><strong>Generation:</strong> ${data.application.generation || 'N/A'}</p>
-                        <p><strong>Display Size:</strong> ${data.application.display_size || 'N/A'}</p>
-                        <p><strong>OS:</strong> ${data.application.os || 'N/A'}</p>
-                    `}
-                    <p><strong>Image:</strong> <a href="${data.application.image_path}" target="_blank">View Image</a></p>
-                    <p><strong>Status:</strong> ${data.application.status}</p>
-                `;
-
-                actionButtons.innerHTML = '';
-                if (data.application.status === 'approved') {
-                    actionButtons.innerHTML = `
-                        <label for="priceInput">Price (₹):</label>
-                        <input type="number" id="priceInput" class="input-field" placeholder="Enter price" min="0" step="1" required>
-                        <label for="conditionSelect">Condition:</label>
-                        <select id="conditionSelect" class="input-field">
-                            <option value="Used">Used</option>
-                            <option value="Like New">Like New</option>
-                            <option value="Refurbished">Refurbished</option>
-                        </select>
-                        <label for="discountInput">Discount (%):</label>
-                        <input type="number" id="discountInput" class="input-field" placeholder="Discount (%)" min="0" max="100" value="0">
-                        <button id="addToInventoryBtn" class="btn add-to-inventory"><i class="fas fa-plus"></i> Add to Inventory</button>
-                    `;
-                    document.getElementById('addToInventoryBtn').addEventListener('click', () => addToInventory(data.application));
-                } else if (data.application.status === 'added_to_inventory') {
-                    actionButtons.innerHTML = `<p><strong>Status:</strong> Already added to inventory</p>`;
-                }
-
-                modal.style.display = 'flex';
-            } else {
-                alert('Error loading product details: ' + data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching product details:', error);
-            alert('Error loading product details.');
+    function showProductDetails(product) {
+        currentProduct = { type: product.type, id: product.id };
+        let formHTML = `
+            <form id="editForm">
+                <p><strong>Type:</strong> ${product.type.charAt(0).toUpperCase() + product.type.slice(1)}</p>
+                <p><strong>ID:</strong> ${product.id}</p>
+                <div class="form-group"><label>Brand:</label><input type="text" name="brand" value="${product.brand || ''}" required></div>
+                <div class="form-group"><label>Original Price (₹):</label><input type="number" name="price" value="${product.original_price || product.base_price || ''}" min="0" step="1" required></div>
+                <div class="form-group"><label>Discount (%):</label><input type="number" name="discount" value="${product.discount || '0'}" min="0" max="100" step="1" required></div>
+                <div class="form-group"><label>Image URL:</label><input type="text" name="image" value="${product.image || ''}" required></div>
+        `;
+        if (product.type === 'phone') {
+            formHTML += `
+                <div class="form-group"><label>Model:</label><input type="text" name="model" value="${product.model || ''}" required></div>
+                <div class="form-group"><label>Color:</label><input type="text" name="color" value="${product.color || ''}" required></div>
+                <div class="form-group"><label>Processor:</label><input type="text" name="processor" value="${product.processor || ''}" required></div>
+                <div class="form-group"><label>Display:</label><input type="text" name="display" value="${product.display || ''}" required></div>
+                <div class="form-group"><label>Battery:</label><input type="number" name="battery" value="${product.battery || ''}" required></div>
+                <div class="form-group"><label>Camera:</label><input type="text" name="camera" value="${product.camera || ''}" required></div>
+                <div class="form-group"><label>OS:</label><input type="text" name="os" value="${product.os || ''}" required></div>
+                <div class="form-group"><label>Network:</label><input type="text" name="network" value="${product.network || ''}" required></div>
+                <div class="form-group"><label>Weight:</label><input type="text" name="weight" value="${product.weight || ''}" required></div>
+                <div class="form-group"><label>RAM:</label><input type="text" name="ram" value="${product.ram || ''}" required></div>
+                <div class="form-group"><label>ROM:</label><input type="text" name="rom" value="${product.rom || ''}" required></div>
+                <div class="form-group"><label>Condition:</label><select name="condition" required>
+                    <option value="Used" ${product.condition === 'Used' ? 'selected' : ''}>Used</option>
+                    <option value="Like New" ${product.condition === 'Like New' ? 'selected' : ''}>Like New</option>
+                    <option value="Refurbished" ${product.condition === 'Refurbished' ? 'selected' : ''}>Refurbished</option>
+                </select></div>
+            `;
+        } else if (product.type === 'laptop') {
+            formHTML += `
+                <div class="form-group"><label>Series:</label><input type="text" name="series" value="${product.series || ''}" required></div>
+                <div class="form-group"><label>Processor Name:</label><input type="text" name="processor_name" value="${product.processor_name || ''}" required></div>
+                <div class="form-group"><label>Processor Generation:</label><input type="text" name="processor_generation" value="${product.processor_generation || ''}" required></div>
+                <div class="form-group"><label>RAM:</label><input type="text" name="ram" value="${product.ram || ''}" required></div>
+                <div class="form-group"><label>Storage Type:</label><input type="text" name="storage_type" value="${product.storage_type || ''}" required></div>
+                <div class="form-group"><label>Storage Capacity:</label><input type="text" name="storage_capacity" value="${product.storage_capacity || ''}" required></div>
+                <div class="form-group"><label>Display Size:</label><input type="number" name="display_size" value="${product.display_size || ''}" step="0.1" required></div>
+                <div class="form-group"><label>Weight:</label><input type="number" name="weight" value="${product.weight || ''}" step="0.1" required></div>
+                <div class="form-group"><label>Condition:</label><select name="condition" required>
+                    <option value="Used" ${product.condition === 'Used' ? 'selected' : ''}>Used</option>
+                    <option value="Like New" ${product.condition === 'Like New' ? 'selected' : ''}>Like New</option>
+                    <option value="Refurbished" ${product.condition === 'Refurbished' ? 'selected' : ''}>Refurbished</option>
+                </select></div>
+                <div class="form-group"><label>OS:</label><input type="text" name="os" value="${product.os || ''}" required></div>
+            `;
+        } else if (product.type === 'earphones') {
+            formHTML += `
+                <div class="form-group"><label>Title:</label><input type="text" name="title" value="${product.title || ''}" required></div>
+                <div class="form-group"><label>Design:</label><input type="text" name="design" value="${product.design || ''}" required></div>
+                <div class="form-group"><label>Battery Life:</label><input type="text" name="battery_life" value="${product.battery_life || ''}" required></div>
+            `;
+        } else if (product.type === 'chargers') {
+            formHTML += `
+                <div class="form-group"><label>Title:</label><input type="text" name="title" value="${product.title || ''}" required></div>
+                <div class="form-group"><label>Wattage:</label><input type="text" name="wattage" value="${product.wattage || ''}" required></div>
+                <div class="form-group"><label>Type:</label><input type="text" name="type" value="${product.type || ''}" required></div>
+                <div class="form-group"><label>Output Current:</label><input type="text" name="output_current" value="${product.output_current || ''}" required></div>
+            `;
+        } else if (product.type === 'mouses') {
+            formHTML += `
+                <div class="form-group"><label>Title:</label><input type="text" name="title" value="${product.title || ''}" required></div>
+                <div class="form-group"><label>Type:</label><input type="text" name="type" value="${product.type || ''}" required></div>
+                <div class="form-group"><label>Connectivity:</label><input type="text" name="connectivity" value="${product.connectivity || ''}" required></div>
+                <div class="form-group"><label>Resolution:</label><input type="text" name="resolution" value="${product.resolution || ''}" required></div>
+            `;
+        } else if (product.type === 'smartwatches') {
+            formHTML += `
+                <div class="form-group"><label>Title:</label><input type="text" name="title" value="${product.title || ''}" required></div>
+                <div class="form-group"><label>Display Size:</label><input type="text" name="display_size" value="${product.display_size || ''}" required></div>
+                <div class="form-group"><label>Display Type:</label><input type="text" name="display_type" value="${product.display_type || ''}" required></div>
+                <div class="form-group"><label>Battery Runtime:</label><input type="text" name="battery_runtime" value="${product.battery_runtime || ''}" required></div>
+            `;
         }
+        formHTML += `</form>`;
+        productDetails.innerHTML = formHTML;
+        actionButtons.innerHTML = `
+            <button id="updateBtn" class="btn update"><i class="fas fa-save"></i> Update</button>
+            <button id="deleteBtn" class="btn delete"><i class="fas fa-trash"></i> Delete</button>
+        `;
+        document.getElementById('updateBtn').addEventListener('click', () => updateProduct());
+        document.getElementById('deleteBtn').addEventListener('click', () => deleteProduct());
+        modal.style.display = 'flex';
     }
 
-    // Add product to inventory and update modal
-    async function addToInventory(application) {
-        const price = parseFloat(document.getElementById('priceInput').value);
-        const condition = document.getElementById('conditionSelect').value;
-        const discount = parseFloat(document.getElementById('discountInput').value) || 0;
+    // Create new inventory item
+    submitButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(createForm);
+        const itemType = formData.get('itemType');
+        const data = {
+            type: itemType,
+            id: formData.get('id'),
+            brand: formData.get('brand'),
+            pricing: {
+                originalPrice: parseFloat(formData.get('price')),
+                discount: parseFloat(formData.get('discount') || '0')
+            },
+            image: formData.get('image')
+        };
 
-        if (!price || isNaN(price) || price <= 0) {
-            alert('Please enter a valid price.');
-            return;
-        }
-        if (!condition) {
-            alert('Please select a condition.');
-            return;
-        }
-        if (isNaN(discount) || discount < 0 || discount > 100) {
-            alert('Please enter a valid discount between 0 and 100.');
-            return;
+        if (itemType === 'phone') {
+            Object.assign(data, {
+                model: formData.get('model'),
+                color: formData.get('color'),
+                processor: formData.get('processor'),
+                display: formData.get('display'),
+                battery: parseInt(formData.get('battery')),
+                camera: formData.get('camera'),
+                os: formData.get('os'),
+                network: formData.get('network'),
+                weight: formData.get('weight'),
+                ram: formData.get('ram'),
+                rom: formData.get('rom'),
+                condition: formData.get('condition')
+            });
+        } else if (itemType === 'laptop') {
+            Object.assign(data, {
+                series: formData.get('series'),
+                processor_name: formData.get('processor_name'),
+                processor_generation: formData.get('processor_generation'),
+                ram: formData.get('ram'),
+                storage_type: formData.get('storage_type'),
+                storage_capacity: formData.get('storage_capacity'),
+                display_size: parseFloat(formData.get('display_size')),
+                weight: parseFloat(formData.get('weight')),
+                condition: formData.get('condition'),
+                os: formData.get('os')
+            });
+        } else if (itemType === 'earphones') {
+            Object.assign(data, {
+                title: formData.get('title'),
+                design: formData.get('design'),
+                battery_life: formData.get('battery_life')
+            });
+        } else if (itemType === 'chargers') {
+            Object.assign(data, {
+                title: formData.get('title'),
+                wattage: formData.get('wattage'),
+                type: formData.get('type'),
+                output_current: formData.get('output_current')
+            });
+        } else if (itemType === 'mouses') {
+            Object.assign(data, {
+                title: formData.get('title'),
+                type: formData.get('type'),
+                connectivity: formData.get('connectivity'),
+                resolution: formData.get('resolution')
+            });
+        } else if (itemType === 'smartwatches') {
+            Object.assign(data, {
+                title: formData.get('title'),
+                display_size: formData.get('display_size'),
+                display_type: formData.get('display_type'),
+                battery_runtime: formData.get('battery_runtime')
+            });
         }
 
         try {
-            const response = await fetch(`/api/supervisor/add-to-inventory/${currentProduct.type}/${currentProduct.id}`, {
+            const response = await fetch('/api/supervisor/inventory', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ price, condition, discount })
+                body: JSON.stringify(data)
             });
-            const data = await response.json();
-            if (data.success) {
-                // Update modal content
-                productDetails.innerHTML = `
-                    <p><strong>Type:</strong> ${currentProduct.type.charAt(0).toUpperCase() + currentProduct.type.slice(1)}</p>
-                    <p><strong>ID:</strong> ${application.id}</p>
-                    <p><strong>Brand:</strong> ${application.brand}</p>
-                    <p><strong>Model:</strong> ${application.model}</p>
-                    <p><strong>RAM:</strong> ${application.ram}</p>
-                    ${currentProduct.type === 'phone' ? `
-                        <p><strong>ROM:</strong> ${application.rom}</p>
-                        <p><strong>Processor:</strong> ${application.processor}</p>
-                        <p><strong>Battery:</strong> ${application.battery} mAh</p>
-                        <p><strong>Camera:</strong> ${application.camera}</p>
-                        <p><strong>OS:</strong> ${application.os || 'N/A'}</p>
-                        <p><strong>Network:</strong> ${application.network}</p>
-                    ` : `
-                        <p><strong>Storage:</strong> ${application.storage}</p>
-                        <p><strong>Processor:</strong> ${application.processor}</p>
-                        <p><strong>Generation:</strong> ${application.generation || 'N/A'}</p>
-                        <p><strong>Display Size:</strong> ${application.display_size || 'N/A'}</p>
-                        <p><strong>OS:</strong> ${application.os || 'N/A'}</p>
-                    `}
-                    <p><strong>Image:</strong> <a href="${application.image_path}" target="_blank">View Image</a></p>
-                    <p><strong>Status:</strong> Added to inventory</p>
-                    <p><strong>Price:</strong> ₹${price}</p>
-                    <p><strong>Condition:</strong> ${condition}</p>
-                    <p><strong>Discount:</strong> ${discount}%</p>
-                `;
-                actionButtons.innerHTML = `<p><strong>Status:</strong> Already added to inventory</p>`;
-                alert('Added to inventory successfully!');
-                fetchApprovedListings(); // Refresh the list in the background
-                // Update stats on the home page if it's open
-                if (window.updateItemsAdded) {
-                    window.updateItemsAdded();
-                }
+            const result = await response.json();
+            if (result.success) {
+                createMessage.textContent = 'Item added successfully!';
+                createMessage.className = 'message success';
+                createForm.reset();
+                dynamicFields.innerHTML = fieldTemplates[itemTypeSelect.value];
+                fetchInventory();
             } else {
-                alert('Error: ' + data.message);
+                createMessage.textContent = result.message || 'Failed to add item.';
+                createMessage.className = 'message error';
             }
         } catch (error) {
-            console.error('Error adding to inventory:', error);
-            alert('Error adding to inventory.');
+            console.error('Error adding item:', error);
+            createMessage.textContent = 'Error adding item.';
+            createMessage.className = 'message error';
+        }
+    });
+
+    // Update product
+    async function updateProduct() {
+        const form = document.getElementById('editForm');
+        const formData = new FormData(form);
+        const data = {
+            type: currentProduct.type,
+            brand: formData.get('brand'),
+            pricing: {
+                originalPrice: parseFloat(formData.get('price')),
+                discount: parseFloat(formData.get('discount') || '0')
+            },
+            image: formData.get('image')
+        };
+
+        if (currentProduct.type === 'phone') {
+            Object.assign(data, {
+                model: formData.get('model'),
+                color: formData.get('color'),
+                processor: formData.get('processor'),
+                display: formData.get('display'),
+                battery: parseInt(formData.get('battery')),
+                camera: formData.get('camera'),
+                os: formData.get('os'),
+                network: formData.get('network'),
+                weight: formData.get('weight'),
+                ram: formData.get('ram'),
+                rom: formData.get('rom'),
+                condition: formData.get('condition')
+            });
+        } else if (currentProduct.type === 'laptop') {
+            Object.assign(data, {
+                series: formData.get('series'),
+                processor_name: formData.get('processor_name'),
+                processor_generation: formData.get('processor_generation'),
+                ram: formData.get('ram'),
+                storage_type: formData.get('storage_type'),
+                storage_capacity: formData.get('storage_capacity'),
+                display_size: parseFloat(formData.get('display_size')),
+                weight: parseFloat(formData.get('weight')),
+                condition: formData.get('condition'),
+                os: formData.get('os')
+            });
+        } else if (currentProduct.type === 'earphones') {
+            Object.assign(data, {
+                title: formData.get('title'),
+                design: formData.get('design'),
+                battery_life: formData.get('battery_life')
+            });
+        } else if (currentProduct.type === 'chargers') {
+            Object.assign(data, {
+                title: formData.get('title'),
+                wattage: formData.get('wattage'),
+                type: formData.get('type'),
+                output_current: formData.get('output_current')
+            });
+        } else if (currentProduct.type === 'mouses') {
+            Object.assign(data, {
+                title: formData.get('title'),
+                type: formData.get('type'),
+                connectivity: formData.get('connectivity'),
+                resolution: formData.get('resolution')
+            });
+        } else if (currentProduct.type === 'smartwatches') {
+            Object.assign(data, {
+                title: formData.get('title'),
+                display_size: formData.get('display_size'),
+                display_type: formData.get('display_type'),
+                battery_runtime: formData.get('battery_runtime')
+            });
+        }
+
+        try {
+            const response = await fetch(`/api/supervisor/inventory/${currentProduct.type}/${currentProduct.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert('Item updated successfully!');
+                modal.style.display = 'none';
+                fetchInventory();
+            } else {
+                alert('Error: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error updating item:', error);
+            alert('Error updating item.');
         }
     }
 
-    // Function to close the modal
-    function closeModal() {
-        modal.style.display = 'none';
-        currentProduct = null;
+    // Delete product
+    async function deleteProduct() {
+        if (!confirm('Are you sure you want to delete this item?')) return;
+
+        try {
+            const response = await fetch(`/api/supervisor/inventory/${currentProduct.type}/${currentProduct.id}`, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert('Item deleted successfully!');
+                modal.style.display = 'none';
+                fetchInventory();
+            } else {
+                alert('Error: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error deleting item:', error);
+            alert('Error deleting item.');
+        }
     }
 
-    // Event listener for close button
-    closeModalBtn.addEventListener('click', closeModal);
+    // Filter products
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            const filter = button.getAttribute('data-filter');
+            let filteredProducts = allProducts;
+            if (filter !== 'all') {
+                filteredProducts = allProducts.filter(product => product.type === filter);
+            }
+            displayProducts(filteredProducts);
+        });
+    });
+
+    // Close modal
+    closeModalBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+        currentProduct = null;
+    });
 
     // Initial fetch
-    fetchApprovedListings();
+    fetchInventory();
 });

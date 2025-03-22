@@ -97,23 +97,17 @@ function addToCart(smartwatchId) {
 
 // Function to buy now
 function buyNow(smartwatchId) {
-    // Check if user is logged in
     const session = JSON.parse(localStorage.getItem("currentSession"));
-
     if (!session || !session.loggedIn) {
-        // Redirect to login page if not logged in
         window.location.href = "/login";
         return;
     }
-
-    // Add smartwatch to cart first
-    addToCart(smartwatchId);
-
-    // Then redirect to checkout page
     setTimeout(() => {
-        window.location.href = "/orders";
+        window.location.href = `/buy/smartwatch/${smartwatchId}`; // For earphones
+        // or `/buy/charger/${accessoryId}` for chargers
     }, 500);
 }
+
 
 // Function to update cart count in header
 function updateCartCount(cart) {

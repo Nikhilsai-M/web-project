@@ -1473,3 +1473,49 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+
+// Route to render dummy payment page for any accessory
+app.get('/buy/:type/:id', async (req, res) => {
+  try {
+      const accessoryType = req.params.type.toLowerCase(); // e.g., "earphone", "charger"
+      const accessoryId = req.params.id;
+
+      // Map accessory types to their respective fetch functions
+      const fetchFunctions = {
+          'earphone': getEarphonesById,
+          'charger': getChargerById, 
+          'mouse' :getMouseById,
+          'smartwatch':getSmartwatchById,
+          'product':getPhoneById,
+          'laptop':getLaptopById
+      };
+
+      // Check if the accessory type is supported
+      if (!fetchFunctions[accessoryType]) {
+          return res.status(400).render('404', { message: 'Invalid accessory type' });
+      }
+
+      // Fetch the accessory using the appropriate function
+      const fetchFunction = fetchFunctions[accessoryType];
+      const accessory = await fetchFunction(accessoryId);
+
+      if (!accessory) {
+          return res.status(404).render('404', { message: `${accessoryType} not found` });
+      }
+
+      // Calculate final price (assuming all accessories have pricing structure)
+      const finalPrice = parseFloat(accessory.pricing.originalPrice) - 
+          (parseFloat(accessory.pricing.originalPrice) * parseFloat(accessory.pricing.discount) / 100);
+
+      // Render the dummy-payment.ejs with price and accessory details
+      res.render('dummy-payment', { 
+          price: finalPrice,
+          type: accessoryType,
+          id: accessoryId
+          // Optionally: accessory: accessory (if you want to pass the full object)
+      });
+  } catch (error) {
+      console.error(`Error rendering payment page for ${req.params.type}:`, error);
+      res.status(500).render('error', { message: 'Failed to load payment page' });
+  }
+});

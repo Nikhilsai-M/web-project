@@ -82,17 +82,14 @@ function addToCart(laptopId) {
 
 // Function to buy now
 function buyNow(laptopId) {
-    // Check if user is logged in
     const session = JSON.parse(localStorage.getItem("currentSession"));
-    
     if (!session || !session.loggedIn) {
-        // Redirect to login page if not logged in
         window.location.href = "/login";
         return;
     }
-
     setTimeout(() => {
-        window.location.href = "/checkout";
+        window.location.href = `/buy/laptop/${laptopId}`; // For earphones
+        // or `/buy/charger/${accessoryId}` for chargers
     }, 500);
 }
 

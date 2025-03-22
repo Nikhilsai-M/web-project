@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Portal | eCommerce Store</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/supervisor/home.css">
+ 
+</head>
+<body>
+    <!-- Header -->
+    <header class="portal-header">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <h1>Supervisor Portal</h1>
+        </div>
+        <div class="user-info">
+            <span> Welcome, <%= supervisor.first_name %> <%= supervisor.last_name %></span>
+            <a href="/supervisor/profile" class="profile-icon"><i class="fas fa-user-cog"></i></a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="portal-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/supervisor/verify-listings" class="active"><i class="fas fa-clipboard-check"></i> Verify Product Listings</a></li>
+                    <li><a href="/supervisor/manage-inventory"><i class="fas fa-boxes"></i> Manage Inventory</a></li>
+                   <li><a id="logout-button" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>Dashboard</h2>
+                <div class="date-display">
+                    <i class="far fa-calendar-alt"></i> <%= new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}) %>
+                </div>
+            </div>
+            
+            <div class="welcome-message">
+                <p>Hello, <%= supervisor.first_name %>! Here's your overview for today. Have a productive day!</p>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h3>Pending Listings</h3>
+                    <p id="pendingListings">0</p>
+                    <a href="/supervisor/verify-listings" class="btn-action"><i class="fas fa-check-circle"></i> Verify Now</a>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h3>Items Added Today</h3>
+                    <p id="itemsAddedToday">0</p>
+                    <a href="/supervisor/manage-inventory" class="btn-action"><i class="fas fa-search"></i> View Inventory</a>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="recent-activity">
+                <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                <ul id="recentActivityList">
+                    <li><i class="fas fa-circle-notch"></i> No recent activity available.</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="portal-footer">
+        <p>&copy; 2025 eCommerce Store. All rights reserved. | <a href="mailto:support@ecommerce.com"><i class="far fa-envelope"></i> Contact Support</a></p>
+    </footer>
+<script src="/scripts/supervisor/home.js"></script>
+</body>
+</html>

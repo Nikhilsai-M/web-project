@@ -20,18 +20,32 @@ export async function initializeDatabase() {
       driver: sqlite3.Database
     });
     
-    // Create supervisors table if it doesn't exist
+    // Create supervisors table with new schema
     await db.exec(`
-      CREATE TABLE IF NOT EXISTS supervisors (
+          CREATE TABLE IF NOT EXISTS supervisors (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT UNIQUE NOT NULL,
+      first_name TEXT NOT NULL,
+      last_name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      phone TEXT NOT NULL,
+      username TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    `);
+    
+    // Create supervisor_activity table (for tracking actions, as previously defined)
+    await db.exec(`
+      CREATE TABLE IF NOT EXISTS supervisor_activity (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        employee_id TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        name TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        supervisor_id TEXT NOT NULL,
+        action TEXT NOT NULL,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
     
-    // Create admins table if it doesn't exist
+    // Create admins table
     await db.exec(`
       CREATE TABLE IF NOT EXISTS admins (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -43,7 +57,7 @@ export async function initializeDatabase() {
       )
     `);
     
-    // Create customers table if it doesn't exist
+    // Create customers table
     await db.exec(`
       CREATE TABLE IF NOT EXISTS customers (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,7 +73,7 @@ export async function initializeDatabase() {
     // Add columns if they don't exist (for existing databases)
     await db.exec(`
       ALTER TABLE customers ADD COLUMN orders_count INTEGER DEFAULT 0;
-    `).catch(() => {}); // Ignore if column already exists
+    `).catch(() => {});
     await db.exec(`
       ALTER TABLE customers ADD COLUMN items_sold_count INTEGER DEFAULT 0;
     `).catch(() => {});
@@ -67,7 +81,7 @@ export async function initializeDatabase() {
       ALTER TABLE customers ADD COLUMN password_last_changed DATETIME DEFAULT CURRENT_TIMESTAMP;
     `).catch(() => {});
     
-    // Create laptops table if it doesn't exist
+    // Create laptops table
     await db.exec(`
       CREATE TABLE IF NOT EXISTS laptops (
         id INTEGER PRIMARY KEY,
@@ -89,7 +103,7 @@ export async function initializeDatabase() {
       )
     `);
     
-    // Create phones table if it doesn't exist
+    // Create phones table
     await db.exec(`
       CREATE TABLE IF NOT EXISTS phones (
         id INTEGER PRIMARY KEY,
@@ -113,33 +127,35 @@ export async function initializeDatabase() {
       )
     `);
 
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS phone_applications (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT,
-        brand TEXT NOT NULL,
-        model TEXT NOT NULL,
-        ram TEXT NOT NULL,
-        rom TEXT NOT NULL,
-        processor TEXT NOT NULL,
-        network TEXT NOT NULL,
-        size TEXT,
-        weight TEXT,
-        device_age TEXT NOT NULL,
-        switching_on TEXT NOT NULL,
-        phone_calls TEXT NOT NULL,
-        cameras_working TEXT NOT NULL,
-        battery_issues TEXT NOT NULL,
-        physically_damaged TEXT NOT NULL,
-        sound_issues TEXT NOT NULL,
-        location TEXT NOT NULL,
-        email TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        image_path TEXT,  
-        status TEXT DEFAULT 'pending',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+// In initializeDatabase function, update the table creation:
+await db.exec(`
+  CREATE TABLE IF NOT EXISTS phone_applications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT,
+    brand TEXT NOT NULL,
+    model TEXT NOT NULL,
+    ram TEXT NOT NULL,
+    rom TEXT NOT NULL,
+    processor TEXT NOT NULL,
+    network TEXT NOT NULL,
+    size TEXT,
+    weight TEXT,
+    device_age TEXT NOT NULL,
+    switching_on TEXT NOT NULL,
+    phone_calls TEXT NOT NULL,
+    cameras_working TEXT NOT NULL,
+    battery_issues TEXT NOT NULL,
+    physically_damaged TEXT NOT NULL,
+    sound_issues TEXT NOT NULL,
+    location TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    image_path TEXT,
+    status TEXT DEFAULT 'pending',
+    rejection_reason TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`);
 
     await db.exec(`
       CREATE TABLE IF NOT EXISTS laptop_applications (
@@ -162,6 +178,7 @@ export async function initializeDatabase() {
         phone TEXT NOT NULL,
         image_path TEXT,
         status TEXT DEFAULT 'pending',
+        rejection_reason TEXT,  -- New column
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -201,17 +218,17 @@ export async function initializeDatabase() {
     
     if (supervisorCount.count === 0) {
       // Hash passwords
-      const password1 = await bcrypt.hash('sv@123', 10);
-      const password2 = await bcrypt.hash('sv@456', 10);
+      const password1 = await bcrypt.hash('Supervisor@123', 10);
+      const password2 = await bcrypt.hash('Supervisor@456', 10);
       
       await db.run(
-        'INSERT INTO supervisors (employee_id, password, name) VALUES (?, ?, ?)',
-        ['sv1', password1, 'test1']
+        'INSERT INTO supervisors (user_id, first_name, last_name, email, phone, username, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        ['supervisor_1', 'John', 'Smith', 'john.smith@ecommerce.com', '1234567890', 'jsmith', password1]
       );
       
       await db.run(
-        'INSERT INTO supervisors (employee_id, password, name) VALUES (?, ?, ?)',
-        ['sv2', password2, 'test2']
+        'INSERT INTO supervisors (user_id, first_name, last_name, email, phone, username, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        ['supervisor_2', 'Emily', 'Johnson', 'emily.johnson@ecommerce.com', '0987654321', 'ejohnson', password2]
       );
       
       console.log('Test supervisors added to database');
@@ -540,6 +557,55 @@ export async function getDb() {
   return db;
 }
 
+export async function authenticateSupervisor(username, password) {
+  try {
+    const db = await getDb();
+    
+    console.log(`Attempting to authenticate supervisor with username: ${username}`);
+    
+    const supervisor = await db.get('SELECT * FROM supervisors WHERE username = ?', [username]);
+    
+    if (!supervisor) {
+      console.log(`No supervisor found with username: ${username}`);
+      return { success: false, message: 'Invalid username or password' };
+    }
+    
+    console.log(`Supervisor found: ${JSON.stringify(supervisor)}`);
+    
+    const passwordMatch = await bcrypt.compare(password, supervisor.password);
+    
+    if (!passwordMatch) {
+      console.log(`Password does not match for username: ${username}`);
+      return { success: false, message: 'Invalid username or password' };
+    }
+    
+    console.log(`Authentication successful for username: ${username}`);
+    const { password: _, ...supervisorData } = supervisor;
+    return { success: true, supervisor: supervisorData };
+  } catch (error) {
+    console.error('Supervisor authentication error:', error);
+    return { success: false, message: 'Authentication error' };
+  }
+}
+
+// Supervisor password update function
+export async function updateSupervisorPassword(userId, newPassword) {
+  try {
+    const db = await getDb();
+    
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    await db.run(
+      'UPDATE supervisors SET password = ? WHERE user_id = ?',
+      [hashedPassword, userId]
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating supervisor password:', error);
+    return { success: false, message: error.message };
+  }
+}
 // Laptop data functions
 export async function getAllLaptops() {
   try {
@@ -1015,12 +1081,12 @@ export async function getPhoneApplicationById(id) {
   }
 }
 
-export async function updatePhoneApplicationStatus(id, status) {
+export async function updatePhoneApplicationStatus(id, status, rejectionReason = null) {
   try {
     const db = await getDb();
     await db.run(
-      'UPDATE phone_applications SET status = ? WHERE id = ?',
-      [status, id]
+      'UPDATE phone_applications SET status = ?, rejection_reason = ? WHERE id = ?',
+      [status, rejectionReason, id]
     );
     return { success: true };
   } catch (error) {
@@ -1028,6 +1094,7 @@ export async function updatePhoneApplicationStatus(id, status) {
     return { success: false, message: error.message };
   }
 }
+
 
 export async function deletePhoneApplication(id) {
   try {
@@ -1113,12 +1180,12 @@ export async function getLaptopApplicationById(id) {
   }
 }
 
-export async function updateLaptopApplicationStatus(id, status) {
+export async function updateLaptopApplicationStatus(id, status, rejectionReason = null) {
   try {
     const db = await getDb();
     await db.run(
-      'UPDATE laptop_applications SET status = ? WHERE id = ?',
-      [status, id]
+      'UPDATE laptop_applications SET status = ?, rejection_reason = ? WHERE id = ?',
+      [status, rejectionReason, id]
     );
     return { success: true };
   } catch (error) {

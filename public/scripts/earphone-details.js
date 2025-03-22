@@ -66,8 +66,8 @@ function addToCart(earphoneId) {
                     design: earphone.design,
                     batteryLife: earphone.batteryLife,
                     image: earphone.image,
-                    price: earphone.originalPrice,
-                    discount: parseFloat(earphone.discount),
+                    price: earphone.pricing.originalPrice,
+                    discount: parseFloat(earphone.pricing.discount),
                     quantity: 1
 });
                 }

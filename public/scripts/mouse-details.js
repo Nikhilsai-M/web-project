@@ -66,8 +66,8 @@ function addToCart(mouseId) {
                         resolution: mouse.resolution,
                         type: mouse.type,
                         image: mouse.image,
-                        price: mouse.originalPrice,
-                        discount: parseFloat(mouse.discount),
+                        price: mouse.pricing.originalPrice,
+                        discount: parseFloat(mouse.pricing.discount),
                         quantity: 1,
                     });
                 }

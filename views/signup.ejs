@@ -6,6 +6,43 @@
     <title>Sign Up | Mobile Shop</title>
     <link rel="stylesheet" href="/styles/auth.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .error-message {
+    color: #dc3545;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: block;
+}
+
+.input-with-icon.invalid {
+    border-color: #dc3545;
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px;
+    border-radius: 5px;
+    display: none;
+    align-items: center;
+}
+
+.notification.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.notification.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.notification-close {
+    margin-left: 10px;
+    cursor: pointer;
+}
+    </style>
 </head>
 <body>
     <div class="auth-container">

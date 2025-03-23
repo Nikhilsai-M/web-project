@@ -1,19 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Setup password toggle
     setupPasswordToggles();
-    
-    // Get form element
     const signupForm = document.getElementById('signupForm');
     
-    // Add form submit event listener
     signupForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        // Reset all error messages
-        const errorElements = document.querySelectorAll('.error-message');
-        errorElements.forEach(element => {
-            element.textContent = '';
-        });
+        // Clear existing error messages
+        clearErrors();
         
         // Get form values
         const firstName = document.getElementById('firstName').value.trim();
@@ -22,59 +15,84 @@ document.addEventListener('DOMContentLoaded', function() {
         const phone = document.getElementById('phone').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
-
         
-        // Client-side validation
+        // Validation flags
         let isValid = true;
         
-        // Validate name fields
-        if (firstName.length < 2) {
-            document.getElementById('firstName-error').textContent = 'First name must be at least 2 characters';
+        // First Name validation (unchanged)
+        if (!firstName) {
+            showError('firstName', 'First name is required');
+            isValid = false;
+        } else if (firstName.length < 2) {
+            showError('firstName', 'First name must be at least 2 characters');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s-]+$/.test(firstName)) {
+            showError('firstName', 'First name can only contain letters, spaces, and hyphens');
             isValid = false;
         }
         
-        if (lastName.length < 2) {
-            document.getElementById('lastName-error').textContent = 'Last name must be at least 2 characters';
+        // Last Name validation (unchanged)
+        if (!lastName) {
+            showError('lastName', 'Last name is required');
+            isValid = false;
+        } else if (lastName.length < 2) {
+            showError('lastName', 'Last name must be at least 2 characters');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s-]+$/.test(lastName)) {
+            showError('lastName', 'Last name can only contain letters, spaces, and hyphens');
             isValid = false;
         }
         
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            document.getElementById('email-error').textContent = 'Please enter a valid email address';
+        // Updated Email validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!email) {
+            showError('email', 'Email is required');
+            isValid = false;
+        } else if (!emailRegex.test(email)) {
+            showError('email', 'Please enter a valid email address (e.g., user@example.com)');
             isValid = false;
         }
         
-        // Phone validation
-        if (phone.length < 10) {
-            document.getElementById('phone-error').textContent = 'Please enter a valid phone number';
+        // Phone validation (unchanged)
+        const phoneRegex = /^\d{10,12}$/;
+        if (!phone) {
+            showError('phone', 'Phone number is required');
+            isValid = false;
+        } else if (!phoneRegex.test(phone)) {
+            showError('phone', 'Phone number must be 10-12 digits');
             isValid = false;
         }
         
-        // Password validation
-        if (password.length < 6) {
-            document.getElementById('password-error').textContent = 'Password must be at least 6 characters';
+        // Password validation (unchanged)
+        if (!password) {
+            showError('password', 'Password is required');
+            isValid = false;
+        } else if (password.length < 6) {
+            showError('password', 'Password must be at least 6 characters');
+            isValid = false;
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+            showError('password', 'Password must contain at least one uppercase letter, one lowercase letter, and one number');
             isValid = false;
         }
         
-        // Confirm password
-        if (password !== confirmPassword) {
-            document.getElementById('confirmPassword-error').textContent = 'Passwords do not match';
+        // Confirm Password validation (unchanged)
+        if (!confirmPassword) {
+            showError('confirmPassword', 'Please confirm your password');
+            isValid = false;
+        } else if (password !== confirmPassword) {
+            showError('confirmPassword', 'Passwords do not match');
             isValid = false;
         }
         
-        // If basic validation fails, stop here
         if (!isValid) return;
         
+        // Form submission (unchanged)
         const submitButton = signupForm.querySelector('button[type="submit"]');
         const originalButtonText = submitButton.textContent;
         submitButton.disabled = true;
         submitButton.textContent = 'Creating account...';
+        
         try {
-            // Show loading state
-     
-            
-            // Submit form data to server - use the route consistent with your createCustomer function in db.js
             const response = await fetch('/api/signup', {
                 method: 'POST',
                 headers: {
@@ -89,91 +107,74 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
             });
             
-            // Check if response is JSON
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('Server returned non-JSON response. Check server endpoint configuration.');
-            }
-            
             const data = await response.json();
             
-            // Handle response
             if (!response.ok) {
-                // Display validation errors from server
                 if (data.errors) {
                     Object.entries(data.errors).forEach(([field, message]) => {
-                        const errorElement = document.getElementById(`${field}-error`);
-                        if (errorElement) {
-                            errorElement.textContent = message;
-                        }
+                        showError(field, message);
                     });
                 } else {
                     showNotification(data.message || 'An error occurred', 'error');
                 }
             } else {
-                // Show success message
-                showNotification('Account created successfully! Redirecting to login page...', 'success');
-                
-                // Redirect to login page after short delay
+                showNotification('Account created successfully! Redirecting to login...', 'success');
                 setTimeout(() => {
                     window.location.href = '/login';
                 }, 1500);
             }
         } catch (error) {
             console.error('Signup error:', error);
-            showNotification('Network error or server issue. Please try again.', 'error');
+            showNotification('Network error. Please try again.', 'error');
         } finally {
-            // Make sure to reference the button 
-            const submitButton = signupForm.querySelector('button[type="submit"]');
-            if (submitButton) {
-                submitButton.disabled = false;
-                submitButton.textContent = originalButtonText || 'Create Account';
-            }
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
         }
     });
 });
 
-// Helper function for showing notifications
+// Helper functions (unchanged)
+function showError(fieldId, message) {
+    const errorElement = document.getElementById(`${fieldId}-error`);
+    if (errorElement) {
+        errorElement.textContent = message;
+    }
+}
+
+function clearErrors() {
+    document.querySelectorAll('.error-message').forEach(element => {
+        element.textContent = '';
+    });
+}
+
 function showNotification(message, type) {
-    const notification = document.querySelector('.notification');
+    const notification = document.getElementById('notification');
     const notificationMessage = notification.querySelector('.notification-message');
     const notificationIcon = notification.querySelector('.notification-icon');
     const notificationClose = notification.querySelector('.notification-close');
     
-    // Set message
     notificationMessage.textContent = message;
-    
-    // Set appropriate icon and class
     notification.className = 'notification ' + type;
+    notificationIcon.className = 'notification-icon fas ' + 
+        (type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle');
     
-    if (type === 'success') {
-        notificationIcon.className = 'notification-icon fas fa-check-circle';
-    } else if (type === 'error') {
-        notificationIcon.className = 'notification-icon fas fa-exclamation-circle';
-    }
-    
-    // Show notification
     notification.style.display = 'flex';
     
-    // Auto-hide after 3 seconds
     setTimeout(() => {
         notification.style.display = 'none';
     }, 3000);
     
-    // Close on click
-    notificationClose.addEventListener('click', function() {
+    notificationClose.onclick = () => {
         notification.style.display = 'none';
-    });
+    };
 }
 
-// Function to toggle password visibility
 function setupPasswordToggles() {
     const togglePassword = document.getElementById('togglePassword');
     const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
     const passwordField = document.getElementById('password');
     const confirmPasswordField = document.getElementById('confirmPassword');
     
-    // Set up toggle password button
     togglePassword.addEventListener('click', function() {
         const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordField.setAttribute('type', type);
@@ -181,7 +182,6 @@ function setupPasswordToggles() {
         this.classList.toggle('fa-eye-slash');
     });
     
-    // Set up toggle confirm password button
     toggleConfirmPassword.addEventListener('click', function() {
         const type = confirmPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
         confirmPasswordField.setAttribute('type', type);

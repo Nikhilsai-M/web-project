@@ -543,9 +543,10 @@ app.post('/api/signup', async (req, res) => {
     if (!lastName || lastName.length < 2) {
       errors.lastName = 'Last name must be at least 2 characters';
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Updated email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!email || !emailRegex.test(email)) {
-      errors.email = 'Please enter a valid email address';
+      errors.email = 'Please enter a valid email address (e.g., user@example.com)';
     }
     if (!phone || phone.length < 10) {
       errors.phone = 'Please enter a valid phone number';

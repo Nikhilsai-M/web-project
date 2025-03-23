@@ -11,7 +11,7 @@
     z-index: 100; 
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
     min-width: auto; /* Changed from 800px to auto */
-    overflow: visible; /* Prevents unwanted visual breaks */
+    overflow:visible; /* Prevents unwanted visual breaks */
 }
 
 .header-left-section a {

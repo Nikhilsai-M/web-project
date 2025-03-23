@@ -38,7 +38,7 @@ function displayProducts(filteredProducts) {
         // Ensure image is an absolute URL
         const imageUrl = product.image.startsWith('http') 
             ? product.image 
-            : `https://res.cloudinary.com/dqohkpeyp/image/upload/${product.image}`; // Replace dqohkpeyp with your cloud name
+            : `https://res.cloudinary.com/dqohkpeyp/image/upload/${product.image}`; 
         
         const productElement = document.createElement('div');
         productElement.className = 'product';

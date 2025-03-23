@@ -1593,7 +1593,7 @@ export async function addCharger(chargerData) {
     const { id, title, image, brand, wattage, type, pricing, outputCurrent } = chargerData;
 
     await db.run(
-      `INSERT INTO chargers (id, title, image, brand, wattage, type, original_price, discount, output_current) 
+      `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [id, title, image, brand, wattage, type, pricing.originalPrice, pricing.discount, outputCurrent]
     );

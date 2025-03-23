@@ -152,6 +152,10 @@ app.get('/supervisor/login', (req, res) => {
   res.render("supervisor/supervisor-login", { error: null });
 });
 
+app.get('/supervisor/statistics', requireSupervisorAuth, async (req, res) => {
+  const supervisor = req.session.user;
+  res.render('supervisor/supervisor-statistics', { supervisor });
+});
 // Supervisor homepage (updated to match supervisor-portal-home.ejs)
 app.get('/supervisor', requireSupervisorAuth, async (req, res) => {
   const supervisor = req.session.user;
@@ -208,19 +212,48 @@ app.get('/api/supervisor/dashboard', requireSupervisorAuth, async (req, res) => 
   }
 });
 
+
 // Get all inventory items
+app.get('/api/supervisor/inventory', requireSupervisorAuth, async (req, res) => {
+  try {
+      const dbFunctions = {
+          phones: getAllPhones,
+          laptops: getAllLaptops,
+          earphones: getAllEarphones,
+          chargers: getAllChargers,
+          mouses: getAllMouses,
+          smartwatches: getAllSmartwatches
+      };
+
+      const allItems = [];
+      for (const [type, fetchFunction] of Object.entries(dbFunctions)) {
+          const items = await fetchFunction();
+          // Add type to each item and push to flat array
+          allItems.push(...items.map(item => ({ ...item, type })));
+      }
+
+      res.json({ success: true, items: allItems });
+  } catch (error) {
+      console.error('Error fetching inventory:', error);
+      res.status(500).json({ success: false, message: 'Failed to fetch inventory' });
+  }
+});
+
+
 app.post('/api/supervisor/inventory', requireSupervisorAuth, async (req, res) => {
     const { type, id, brand, pricing, image, ...specificData } = req.body;
+    console.log('item type in api:',type);
     try {
         let result;
-        if (type === 'earphones') {
+        const typeLower = type.toLowerCase();
+        if (typeLower === 'earphones') {
             result = await addEarphones({ id, title: specificData.title, brand, pricing, image, design: specificData.design, batteryLife: specificData.battery_life });
-        } else if (type === 'chargers') {
-            result = await addCharger({ id, title: specificData.title, brand, pricing, image, wattage: specificData.wattage, type: specificData.type, outputCurrent: specificData.outputCurrent });
-        } else if (type === 'mouses') {
-            result = await addMouse({ id, title: specificData.title, brand, pricing, image, type: specificData.type, connectivity: specificData.connectivity, resolution: specificData.resolution });
-        } else if (type === 'smartwatches') {
-            result = await addSmartwatch({ id, title: specificData.title, brand, pricing, image, displaySize: specificData.displaySize, displayType: specificData.displayType, batteryRuntime: specificData.batteryRuntime });
+        } else if (typeLower === 'chargers') {
+            result = await addCharger({ id, title: specificData.title, brand, pricing, image, wattage: specificData.wattage, type: specificData.Pin_type, outputCurrent: specificData.output_current });
+        } else if (typeLower === 'mouses') {
+            result = await addMouse({ id, title: specificData.title, brand, pricing, image, type: specificData.wire_type, connectivity: specificData.connectivity, resolution: specificData.resolution });
+        } else if (typeLower === 'smartwatches') {
+            result = await addSmartwatch({ id, title: specificData.title, brand, pricing, image, displaySize: specificData.display_size, displayType: specificData.display_type, batteryRuntime: specificData.battery_runtime });
         } else {
             return res.status(400).json({ success: false, message: 'Invalid item type' });
         }
@@ -1315,9 +1348,6 @@ app.get('/product/:id', async (req, res) => {
     try {
         const phoneId = parseInt(req.params.id);
         const phone = await getPhoneById(phoneId);
-        
-        
-        
         
         res.render('product-details', { phone });
     } catch (error) {

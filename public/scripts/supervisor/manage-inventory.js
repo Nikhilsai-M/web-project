@@ -105,8 +105,8 @@ document.addEventListener("DOMContentLoaded", function () {
             let details = `
                 <h3>${product.type.charAt(0).toUpperCase() + product.type.slice(1)} #${product.id}</h3>
                 <p><strong>Brand:</strong> ${product.brand}</p>
-                <p><strong>Price:</strong> ₹${product.original_price || product.base_price || 'N/A'}</p>
-                <p><strong>Discount:</strong> ${product.discount || '0'}%</p>
+                <p><strong>Price:</strong> ₹${product.originalPrice || product.base_price ||product.pricing.basePrice ||'N/A'}</p>
+                <p><strong>Discount:</strong> ${product.discount || '0'}</p>
             `;
             if (product.type === 'phone') details += `<p><strong>Model:</strong> ${product.model || 'N/A'}</p>`;
             if (product.type === 'laptop') details += `<p><strong>Series:</strong> ${product.series || 'N/A'}</p>`;
@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <p><strong>Type:</strong> ${product.type.charAt(0).toUpperCase() + product.type.slice(1)}</p>
                 <p><strong>ID:</strong> ${product.id}</p>
                 <div class="form-group"><label>Brand:</label><input type="text" name="brand" value="${product.brand || ''}" required></div>
-                <div class="form-group"><label>Original Price (₹):</label><input type="number" name="price" value="${product.original_price || product.base_price || ''}" min="0" step="1" required></div>
+                <div class="form-group"><label>Original Price (₹):</label><input type="number" name="price" value="${product.originalPrice || product.basePrice || product.pricing.basePrice||''}" min="0" step="1" required></div>
                 <div class="form-group"><label>Discount (%):</label><input type="number" name="discount" value="${product.discount || '0'}" min="0" max="100" step="1" required></div>
                 <div class="form-group"><label>Image URL:</label><input type="text" name="image" value="${product.image || ''}" required></div>
         `;
@@ -208,7 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
     submitButton.addEventListener('click', async (e) => {
         e.preventDefault();
         const formData = new FormData(createForm);
-        const itemType = formData.get('itemType');
+        const itemType = formData.get('itemType').toLowerCase();
         const data = {
             type: itemType,
             id: formData.get('id'),
@@ -258,13 +258,13 @@ document.addEventListener("DOMContentLoaded", function () {
             Object.assign(data, {
                 title: formData.get('title'),
                 wattage: formData.get('wattage'),
-                type: formData.get('type'),
+                Pin_type: formData.get('type'),
                 output_current: formData.get('output_current')
             });
         } else if (itemType === 'mouses') {
             Object.assign(data, {
                 title: formData.get('title'),
-                type: formData.get('type'),
+                wire_type: formData.get('type'),
                 connectivity: formData.get('connectivity'),
                 resolution: formData.get('resolution')
             });
@@ -278,12 +278,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
+            console.log('Sending data:', data);
+            console.log('item type:',itemType);
             const response = await fetch('/api/supervisor/inventory', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
             const result = await response.json();
+            console.log('Response:', result);
             if (result.success) {
                 createMessage.textContent = 'Item added successfully!';
                 createMessage.className = 'message success';

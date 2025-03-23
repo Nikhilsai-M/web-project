@@ -52,9 +52,12 @@ import {
   deleteMouse,         
   getAllSmartwatches,
   getSmartwatchById,
-  addSmartwatch,       
-  updateSmartwatch,    
-  deleteSmartwatch,
+  addSmartwatch,       // Added
+  updateSmartwatch,    // Added
+  deleteSmartwatch ,
+  createOrder,         // Added
+  getOrdersByUserId,  // Added
+  getOrderById  ,  // Added
   getAllSupervisors,
   deleteSupervisor
 } from './db.js';
@@ -1211,10 +1214,7 @@ app.get('/cart', (req, res) => {
 app.get('/profile', requireCustomerAuth, (req, res) => {
     res.render("user-profile");
 });
-/*
-app.get('/orders', requireCustomerAuth, (req, res) => {
-    res.render("orders");
-});*/
+
 
 app.get('/login', (req, res) => {
     res.render("login-interfaces");
@@ -1689,89 +1689,71 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
   }
 });
 
-// Route to render dummy payment page for any accessory
-app.get('/buy/:type/:id', async (req, res) => {
+app.get('/buy/:type/:id', requireCustomerAuth, async (req, res) => {
   try {
-      const accessoryType = req.params.type.toLowerCase(); // e.g., "earphone", "charger"
-      const accessoryId = req.params.id;
+    const accessoryType = req.params.type.toLowerCase();
+    const accessoryId = req.params.id;
+    const userId = req.session.user.userId;
 
-      // Map accessory types to their respective fetch functions
-      const fetchFunctions = {
-          'earphone': getEarphonesById,
-          'charger': getChargerById, 
-          'mouse' :getMouseById,
-          'smartwatch':getSmartwatchById,
-          'product':getPhoneById,
-          'laptop':getLaptopById
-      };
+    const fetchFunctions = {
+      'earphone': getEarphonesById,
+      'charger': getChargerById,
+      'mouse': getMouseById,
+      'smartwatch': getSmartwatchById,
+      'product': getPhoneById,
+      'laptop': getLaptopById
+    };
 
-      // Check if the accessory type is supported
-      if (!fetchFunctions[accessoryType]) {
-          return res.status(400).render('404', { message: 'Invalid accessory type' });
-      }
+    if (!fetchFunctions[accessoryType]) {
+      return res.status(400).render('404', { message: 'Invalid accessory type' });
+    }
 
-      // Fetch the accessory using the appropriate function
-      const fetchFunction = fetchFunctions[accessoryType];
-      const accessory = await fetchFunction(accessoryId);
+    const fetchFunction = fetchFunctions[accessoryType];
+    const accessory = await fetchFunction(accessoryId);
 
-      if (!accessory) {
-          return res.status(404).render('404', { message: `${accessoryType} not found` });
-      }
+    if (!accessory) {
+      return res.status(404).render('404', { message: `${accessoryType} not found` });
+    }
 
-      // Calculate final price (assuming all accessories have pricing structure)
-      const finalPrice = parseFloat(accessory.pricing.originalPrice) - 
-          (parseFloat(accessory.pricing.originalPrice) * parseFloat(accessory.pricing.discount) / 100);
+    const finalPrice = parseFloat(accessory.pricing.originalPrice) -
+      (parseFloat(accessory.pricing.originalPrice) * parseFloat(accessory.pricing.discount) / 100);
 
-      // Render the dummy-payment.ejs with price and accessory details
-      res.render('dummy-payment', { 
-        price: finalPrice,
-        type: accessoryType,
-        id: accessoryId,
-        accessory: accessory
-          
-      });
+    res.render('dummy-payment', {
+      price: finalPrice,
+      type: accessoryType,
+      id: accessoryId,
+      accessory: accessory,
+      userId: userId // Pass userId to the template
+    });
   } catch (error) {
-      console.error(`Error rendering payment page for ${req.params.type}:`, error);
-      res.status(500).render('error', { message: 'Failed to load payment page' });
+    console.error(`Error rendering payment page for ${req.params.type}:`, error);
+    res.status(500).render('error', { message: 'Failed to load payment page' });
   }
 });
-// Route to render order confirmation page
-app.get('/orders', (req, res) => {
-  console.log('Entering /orders route');
-  console.log('req.query:', req.query);
-
+app.get('/orders', requireCustomerAuth, async (req, res) => {
   let order = {};
   try {
-      if (req.query.order) {
-          console.log('Raw query order:', req.query.order);
-          order = JSON.parse(req.query.order); // Decode URI first
-          console.log('Parsed order:', order);
-      } else {
-          console.log('No order query parameter provided');
+    if (req.query.order) {
+      order = JSON.parse(req.query.order);
+    } else if (req.query.orderId) {
+      order = await getOrderById(req.query.orderId);
+      if (!order || order.user_id !== req.session.user.userId) {
+        return res.status(404).render('404', { message: 'Order not found or unauthorized' });
       }
-  } catch (parseError) {
-      console.error('Error parsing req.query.order:', parseError);
-      order = {}; // Fallback
-  }
-
-  console.log('Final order object passed to render:', order);
-
-  try {
-      res.render('orders', { order }); // Shorthand for { order: order }
-  } catch (renderError) {
-      console.error('Error rendering orders.ejs:', renderError);
-      res.status(500).send('Internal Server Error: Failed to load order confirmation');
+    }
+    res.render('orders', { order });
+  } catch (error) {
+    console.error('Error in /orders route:', error);
+    res.status(500).render('error', { message: 'Failed to load order confirmation' });
   }
 });
-app.get('/myorders', (req, res) => {
-  console.log('Entering /myorders route');
+app.get('/myorders', requireCustomerAuth, (req, res) => {
   try {
-      const orders = []; // Placeholder; replace with database fetch later
-      console.log('Rendering myorders with orders:', orders);
-      res.render('myorders', { orders });
+    // Orders will be fetched client-side via /api/myorders
+    res.render('myorders', { orders: [] });
   } catch (error) {
-      console.error('Error rendering myorders page:', error);
-      res.status(500).render('error', { message: 'Failed to load my orders' });
+    console.error('Error rendering myorders page:', error);
+    res.status(500).render('error', { message: 'Failed to load my orders' });
   }
 });
 
@@ -1923,6 +1905,58 @@ app.get('/admin/profile', requireAdminAuth, async (req, res) => {
   }
 });
 
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+
+// API to create an order
+app.post('/api/orders', requireCustomerAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.userId;
+    const orderData = req.body;
+
+    const result = await createOrder(userId, orderData);
+    if (!result.success) {
+      return res.status(500).json({ success: false, message: result.message });
+    }
+
+    res.json({ success: true, orderId: result.orderId });
+  } catch (error) {
+    console.error('Error in /api/orders:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// API to get user's orders
+app.get('/api/myorders', requireCustomerAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.userId;
+    const orders = await getOrdersByUserId(userId);
+    res.json(orders);
+  } catch (error) {
+    console.error('Error in /api/myorders:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// API to get a specific order by ID
+app.get('/api/orders/:orderId', requireCustomerAuth, async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const order = await getOrderById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Ensure the order belongs to the requesting user
+    if (order.user_id !== req.session.user.userId) {
+      return res.status(403).json({ success: false, message: 'Unauthorized access to order' });
+    }
+
+    res.json({ success: true, order });
+  } catch (error) {
+    console.error('Error in /api/orders/:orderId:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });

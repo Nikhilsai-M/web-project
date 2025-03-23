@@ -851,24 +851,52 @@ app.get('/api/supervisor/laptop-applications', requireSupervisorAuth, async (req
 });
 // Route to get user profile data
 app.get('/api/customer/profile', requireCustomerAuth, async (req, res) => {
-    try {
+  try {
       const userId = req.session.user.userId;
       const db = await getDb();
-      
-      const user = await db.get('SELECT * FROM customers WHERE user_id = ?', [userId]);
-      
+
+      // Fetch user profile data
+      const user = await db.get(
+          'SELECT first_name, last_name, email, phone, password_last_changed FROM customers WHERE user_id = ?',
+          [userId]
+      );
       if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found' });
+          return res.status(404).json({ success: false, message: 'User not found' });
       }
-      
-      // Remove sensitive data
-      const { password, ...userData } = user;
-      res.json({ success: true, user: userData });
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      res.status(500).json({ success: false, message: 'Error fetching profile' });
-    }
-  });
+
+      // Fetch order count
+      const orderCount = await db.get(
+          'SELECT COUNT(*) as count FROM orders WHERE user_id = ?',
+          [userId]
+      );
+
+      // Fetch items sold count
+      const itemsSoldCount = await db.get(`
+         SELECT COUNT(*) as count
+FROM (
+    SELECT id FROM phone_applications WHERE user_id = ? AND status IN ('added_to_inventory', 'approved')
+    UNION ALL
+    SELECT id FROM laptop_applications WHERE user_id = ? AND status IN ('added_to_inventory', 'approved')
+) as sold_items
+      `, [userId, userId]);
+
+      res.json({
+          success: true,
+          user: {
+              first_name: user.first_name,
+              last_name: user.last_name,
+              email: user.email,
+              phone: user.phone,
+              password_last_changed: user.password_last_changed || null,
+              orders_count: orderCount.count,
+              items_sold_count: itemsSoldCount.count
+          }
+      });
+  } catch (error) {
+      console.error('Error fetching customer profile:', error);
+      res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
   
   // Route to update user profile
   app.put('/api/customer/profile', requireCustomerAuth, async (req, res) => {
@@ -1210,8 +1238,50 @@ app.get('/cart', (req, res) => {
     res.render("cart");
 });
 
-app.get('/profile', requireCustomerAuth, (req, res) => {
-    res.render("user-profile");
+app.get('/profile', requireCustomerAuth, async (req, res) => {
+  try {
+      const userId = req.session.user.userId;
+      const db = await getDb();
+
+      // Fetch user profile data
+      const user = await db.get(
+          'SELECT first_name, last_name, email, phone FROM customers WHERE user_id = ?',
+          [userId]
+      );
+      if (!user) {
+          return res.status(404).render('404', { message: 'User not found' });
+      }
+
+      // Fetch order count
+      const orderCount = await db.get(
+          'SELECT COUNT(*) as count FROM orders WHERE user_id = ?',
+          [userId]
+      );
+
+      // Fetch items sold count
+      const itemsSoldCount = await db.get(`
+          SELECT COUNT(*) as count
+          FROM (
+              SELECT id FROM phone_applications WHERE user_id = ? AND status IN ('added_to_inventory', 'approved')
+              UNION ALL
+              SELECT id FROM laptop_applications WHERE user_id = ? AND status IN ('added_to_inventory', 'approved')
+          ) as sold_items
+      `, [userId, userId]);
+
+      res.render('user-profile', {
+          user: {
+              firstName: user.first_name,
+              lastName: user.last_name,
+              email: user.email,
+              phone: user.phone
+          },
+          ordersCount: orderCount.count,      // Pass ordersCount
+          itemsSoldCount: itemsSoldCount.count // Pass itemsSoldCount
+      });
+  } catch (error) {
+      console.error('Error rendering profile:', error);
+      res.status(500).render('error', { message: 'Failed to load profile' });
+  }
 });
 
 

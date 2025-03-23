@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile | Your eCommerce Store</title>
     <link rel="stylesheet" href="/styles/user-profile.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <%- include('partials/header') %>
@@ -20,17 +21,17 @@
                         <div class="profile-avatar">
                             <img src="/images/profile-icon.jpg" alt="Profile Avatar">
                         </div>
-                        <h2 class="profile-name" id="profileName"></h2>
-                        <p class="profile-email" id="profileEmail"></p>
+                        <h2 class="profile-name" id="profileName"><%= user.firstName %> <%= user.lastName %></h2>
+                        <p class="profile-email" id="profileEmail"><%= user.email %></p>
                     </div>
                     
                     <div class="profile-stats">
                         <div class="stat-item">
-                            <span class="stat-value" id="ordersCount">0</span>
+                            <span class="stat-value" id="ordersCount"><%= ordersCount %></span>
                             <span class="stat-label">Orders</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-value" id="itemsSoldCount">0</span>
+                            <span class="stat-value" id="itemsSoldCount"><%= itemsSoldCount %></span>
                             <span class="stat-label">Items Sold</span>
                         </div>
                     </div>
@@ -49,15 +50,15 @@
                     <div class="info-grid" id="personalInfoDisplay">
                         <div class="info-item">
                             <label>Full Name</label>
-                            <p id="fullName"></p>
+                            <p id="fullName"><%= user.firstName %> <%= user.lastName %></p>
                         </div>
                         <div class="info-item">
                             <label>Email</label>
-                            <p id="email"></p>
+                            <p id="email"><%= user.email %></p>
                         </div>
                         <div class="info-item">
                             <label>Phone</label>
-                            <p id="phone"></p>
+                            <p id="phone"><%= user.phone %></p>
                         </div>
                     </div>
 
@@ -65,19 +66,19 @@
                     <form id="personalInfoForm" class="info-grid" style="display: none;">
                         <div class="info-item">
                             <label>First Name</label>
-                            <input type="text" id="editFirstName" required>
+                            <input type="text" id="editFirstName" value="<%= user.firstName %>" required>
                         </div>
                         <div class="info-item">
                             <label>Last Name</label>
-                            <input type="text" id="editLastName" required>
+                            <input type="text" id="editLastName" value="<%= user.lastName %>" required>
                         </div>
                         <div class="info-item">
                             <label>Email</label>
-                            <input type="email" id="editEmail" required>
+                            <input type="email" id="editEmail" value="<%= user.email %>" required>
                         </div>
                         <div class="info-item">
                             <label>Phone</label>
-                            <input type="text" id="editPhone" required>
+                            <input type="text" id="editPhone" value="<%= user.phone %>" required>
                         </div>
                         <div class="info-item">
                             <button type="submit" class="btn-primary">Save</button>
@@ -96,7 +97,7 @@
                         <div class="security-item">
                             <div class="security-info">
                                 <h4>Password</h4>
-                                <p>Last changed: <span id="passwordLastChanged"></span></p>
+                                <p>Last changed: <span id="passwordLastChanged">N/A</span></p>
                             </div>
                             <button class="btn-primary" id="changePasswordBtn">Change Password</button>
                         </div>
@@ -117,6 +118,16 @@
                             <button type="button" class="btn-secondary" id="cancelChangePassword">Cancel</button>
                         </div>
                     </form>
+                </div>
+
+                <!-- Statistics Section -->
+                <div class="profile-section">
+                    <div class="section-header">
+                        <h3>Statistics</h3>
+                    </div>
+                    <div class="stats-container">
+                        <canvas id="ordersPieChart" width="300" height="300"></canvas>
+                    </div>
                 </div>
             </div>
         </div>

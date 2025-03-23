@@ -30,9 +30,9 @@ import {
   deleteCharger,       // Added
   getAllEarphones,
   getEarphonesById,
-  addEarphones,        // Added
-  updateEarphones,     // Added
-  deleteEarphones,     // Added
+  addEarphones,        
+  updateEarphones,     
+  deleteEarphones,     
   createPhoneApplication,
   getAllPhoneApplications,
   getPhoneApplicationsByUserId,
@@ -47,14 +47,16 @@ import {
   updateSupervisorPassword,
   getAllMouses,
   getMouseById,
-  addMouse,            // Added
-  updateMouse,         // Added
-  deleteMouse,         // Added
+  addMouse,            
+  updateMouse,         
+  deleteMouse,         
   getAllSmartwatches,
   getSmartwatchById,
-  addSmartwatch,       // Added
-  updateSmartwatch,    // Added
-  deleteSmartwatch     // Added
+  addSmartwatch,       
+  updateSmartwatch,    
+  deleteSmartwatch,
+  getAllSupervisors,
+  deleteSupervisor
 } from './db.js';
 
 
@@ -1783,10 +1785,6 @@ app.get('/checkout', (req, res) => {
   res.render('checkout', { userId });
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
-
   function requireAdminAuth(req, res, next) {
     if (req.session.user && req.session.user.role === 'admin') {
       next();
@@ -1844,57 +1842,60 @@ app.post('/api/admin/login', async (req, res) => {
   }
 });
 
-app.get('/api/admin/statistics', requireAdminAuth, async (req, res) => {
+// Render Manage Supervisors Page
+// Render Manage Supervisors Page
+app.get('/admin/manage-supervisors', requireAdminAuth, (req, res) => {
+  res.render('admin/manage-supervisors', { admin: req.session.user });
+});
+
+// API to Get All Supervisors
+app.get('/api/admin/supervisors', requireAdminAuth, async (req, res) => {
   try {
     const db = await getDb();
-    const phoneSales = await db.get('SELECT SUM(price) as total FROM phones WHERE price IS NOT NULL');
-    const laptopSales = await db.get('SELECT SUM(price) as total FROM laptops WHERE price IS NOT NULL');
-    const totalSales = (phoneSales.total || 0) + (laptopSales.total || 0);
-    const totalListings = await db.get('SELECT COUNT(*) as count FROM (SELECT id FROM phone_applications UNION ALL SELECT id FROM laptop_applications)');
-    const pendingListings = await db.get("SELECT COUNT(*) as count FROM (SELECT id FROM phone_applications WHERE status = 'pending' UNION ALL SELECT id FROM laptop_applications WHERE status = 'pending')");
-    const supervisorActivity = await db.get('SELECT COUNT(*) as count FROM supervisor_activity');
-    const recentActivity = await db.all('SELECT action, timestamp FROM supervisor_activity ORDER BY timestamp DESC LIMIT 5');
-
-    res.json({
-      success: true,
-      totalSales,
-      totalListings: totalListings.count,
-      pendingListings: pendingListings.count,
-      supervisorActivity: supervisorActivity.count,
-      recentActivity
-    });
+    const supervisors = await db.all(`
+      SELECT user_id, first_name, last_name, email, phone, username, created_at 
+      FROM supervisors
+    `);
+    console.log('Fetched supervisors:', supervisors); // Debug log
+    res.json({ success: true, supervisors });
   } catch (error) {
-    console.error('Error fetching admin statistics:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error('Error fetching supervisors:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch supervisors' });
   }
 });
 
-app.post('/api/admin/add-supervisor', requireAdminAuth, async (req, res) => {
-  const { firstName, lastName, email, phone, username, password } = req.body;
-
-  if (!firstName || !lastName || !email || !phone || !username || !password) {
-    return res.status(400).json({ success: false, message: 'All fields are required' });
-  }
-
+// API to Delete a Supervisor
+app.delete('/api/admin/supervisors/:userId', requireAdminAuth, async (req, res) => {
+  const { userId } = req.params;
   try {
     const db = await getDb();
-    const existing = await db.get('SELECT * FROM supervisors WHERE email = ? OR username = ?', [email, username]);
-    if (existing) {
-      return res.status(400).json({ success: false, message: 'Email or username already exists' });
+    const result = await db.run('DELETE FROM supervisors WHERE user_id = ?', [userId]);
+    if (result.changes > 0) {
+      res.json({ success: true, message: 'Supervisor deleted successfully' });
+    } else {
+      res.status(404).json({ success: false, message: 'Supervisor not found' });
     }
+  } catch (error) {
+    console.error('Error deleting supervisor:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete supervisor' });
+  }
+});
 
-    const userId = `supervisor_${Date.now()}`;
+// API to Add a Supervisor (Ensure compatibility with your schema)
+app.post('/api/admin/add-supervisor', requireAdminAuth, async (req, res) => {
+  const { firstName, lastName, email, phone, username, password } = req.body;
+  const userId = `supervisor_${Date.now()}`; // Simple unique user_id; adjust if needed
+  try {
+    const db = await getDb();
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    await db.run(
-      'INSERT INTO supervisors (user_id, first_name, last_name, email, phone, username, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [userId, firstName, lastName, email, phone, username, hashedPassword]
-    );
-
-    res.json({ success: true });
+    await db.run(`
+      INSERT INTO supervisors (user_id, first_name, last_name, email, phone, username, password)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [userId, firstName, lastName, email, phone, username, hashedPassword]);
+    res.json({ success: true, message: 'Supervisor added successfully' });
   } catch (error) {
     console.error('Error adding supervisor:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'Failed to add supervisor' });
   }
 });
 

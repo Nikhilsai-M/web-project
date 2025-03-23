@@ -1921,3 +1921,29 @@ export async function deleteSmartwatch(id) {
     return { success: false, message: error.message };
   }
 }
+
+//admin
+export async function getAllSupervisors() {
+  try {
+    const db = await getDb();
+    const supervisors = await db.all(`
+      SELECT user_id, first_name, last_name, email, phone, username, created_at 
+      FROM supervisors
+    `);
+    return supervisors;
+  } catch (error) {
+    console.error('Error fetching supervisors:', error);
+    throw error;
+  }
+}
+
+export async function deleteSupervisor(userId) {
+  try {
+    const db = await getDb();
+    const result = await db.run('DELETE FROM supervisors WHERE user_id = ?', [userId]);
+    return { success: result.changes > 0 };
+  } catch (error) {
+    console.error('Error deleting supervisor:', error);
+    throw error;
+  }
+}

@@ -1,0 +1,156 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.checkout-container {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.order-summary, .payment-section {
+    flex: 1;
+}
+
+.order-summary h2, .payment-section h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+#order-items {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.order-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.item-details h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.item-details p {
+    margin: 5px 0 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.item-price {
+    margin-left: auto;
+    font-weight: bold;
+    color: #333;
+}
+
+.summary-details {
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+
+.summary-details p {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+}
+
+.payment-methods {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.payment-method {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.payment-method i {
+    margin-right: 5px;
+}
+
+.payment-method:hover {
+    background-color: #f0f0f0;
+}
+
+.payment-method.selected {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.pay-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.pay-btn:hover {
+    background-color: #218838;
+}
+
+.message {
+    margin-top: 20px;
+    padding: 10px;
+    text-align: center;
+    display: none;
+}
+
+.message.info {
+    background-color: #cce5ff;
+    color: #004085;
+    display: block;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    display: block;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    display: block;
+}

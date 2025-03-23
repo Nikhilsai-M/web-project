@@ -3,161 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders | Your eCommerce Store</title>
+    <title>Order Confirmation | Your Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/styles/orders.css">
 </head>
 <body>
-    
-        <%- include('partials/header') %>
-    
-    <main class="orders-container">
-        <h1>My Orders</h1>
-        
-        <div class="orders-tabs">
-            <button class="tab-button active" data-tab="all-orders">All Orders</button>
-            <button class="tab-button" data-tab="active-orders">Active</button>
-            <button class="tab-button" data-tab="completed-orders">Completed</button>
-            <button class="tab-button" data-tab="cancelled-orders">Cancelled</button>
-            <button class="tab-button" data-tab="my-listings">My Listings</button>
-        </div>
-        
-        <div class="tab-content active" id="all-orders">
-            <!-- Orders List -->
-            <div class="orders-list">
-                <!-- Order Card -->
-                <div class="order-card">
-                    <div class="order-header">
-                        <div class="order-info">
-                            <span class="order-id">Order #ORD12345</span>
-                            <span class="order-date">March 10, 2025</span>
-                        </div>
-                        <div class="order-status delivered">Delivered</div>
-                    </div>
-                    
-                    <div class="order-items">
-                        <div class="order-item">
-                            <img src="/images/buy-page-phones/i-14.webp" alt="iPhone 14">
-                            <div class="item-details">
-                                <h3>iPhone 14 Pro - 128GB</h3>
-                                <p class="item-price">₹10000</p>
-                                <p class="item-specs">Black | Like New</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-footer">
-                        <div class="order-total">
-                            <span>Total:</span>
-                            <span class="total-amount">₹10000</span>
-                        </div>
-                        <div class="order-actions">
-                            <button class="btn-primary">Track Order</button>
-                            <button class="btn-secondary">View Details</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Order Card -->
-                <div class="order-card">
-                    <div class="order-header">
-                        <div class="order-info">
-                            <span class="order-id">Order #ORD12346</span>
-                            <span class="order-date">March 5, 2025</span>
-                        </div>
-                        <div class="order-status shipped">Shipped</div>
-                    </div>
-                    
-                    <div class="order-items">
-                        <div class="order-item">
-                            <img src="/images/buy-laptops/macbook-air-m3.webp" alt="MacBook Air">
-                            <div class="item-details">
-                                <h3>MacBook Air M3 - 512GB</h3>
-                                <p class="item-price">₹100000</p>
-                                <p class="item-specs">Silver | New</p>
-                            </div>
-                        </div>
-                        <div class="order-item">
-                            <img src="/images/accessories/earphones/boat_235.webp" alt="boat">
-                            <div class="item-details">
-                                <h3>Boat 235</h3>
-                                <p class="item-price">₹1000</p>
-                                <p class="item-specs">Space Gray</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-footer">
-                        <div class="order-total">
-                            <span>Total:</span>
-                            <span class="total-amount">₹101000</span>
-                        </div>
-                        <div class="order-actions">
-                            <button class="btn-primary">Track Order</button>
-                            <button class="btn-secondary">View Details</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- My Selling Order Card -->
-                <div class="order-card selling-order">
-                    <div class="order-header">
-                        <div class="order-info">
-                            <span class="order-id">Listing #LST7890</span>
-                            <span class="order-date">February 28, 2025</span>
-                        </div>
-                        <div class="order-status pending">Verification Pending</div>
-                    </div>
-                    
-                    <div class="order-items">
-                        <div class="order-item">
-                            <img src="/images/buy-page-phones/galaxy zflip5.webp" alt="Samsung Galaxy">
-                            <div class="item-details">
-                                <h3>Samsung Galaxy Zflip - 256GB</h3>
-                                <p class="item-price">₹65000 (Selling Price)</p>
-                                <p class="item-specs">Blue | Good Condition</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-footer">
-                        <div class="listing-status">
-                            <span>Status:</span>
-                            <span class="status-detail">Awaiting supervisor verification</span>
-                        </div>
-                        <div class="order-actions">
-                            <button class="btn-secondary">Edit Listing</button>
-                            <button class="btn-danger">Cancel</button>
-                        </div>
-                    </div>
-                </div>
+    <div class="container">
+        <h1>Order Confirmation</h1>
+        <div class="order-container">
+            <div class="order-header">
+                <i class="fas fa-check-circle"></i>
+                <h2>Thank You for Your Purchase!</h2>
             </div>
-            
-            <div class="pagination">
-                <button class="page-btn prev-btn" disabled>Previous</button>
-                <div class="page-numbers">
-                    <button class="page-btn active">1</button>
-                    <button class="page-btn">2</button>
-                    <button class="page-btn">3</button>
-                </div>
-                <button class="page-btn next-btn">Next</button>
+            <div class="order-details">
+                <h3>Order Details</h3>
+                <p><strong>Order ID:</strong> <span id="order-id">Generating...</span></p>
+                <% 
+                    // Normalize order to always have an items array
+                    let items = [];
+                    if (order && order.items && order.items.length > 0) {
+                        items = order.items;
+                    } else if (order && order.id && order.type) {
+                        // Handle single-item "Buy Now" case
+                        items = [{
+                            type: order.type,
+                            id: order.id,
+                            accessory: order.accessory || { brand: 'Unknown', title: 'Item' },
+                            quantity: order.quantity || 1,
+                            amount: order.totalAmount || order.price || 0
+                        }];
+                    }
+                %>
+                <% if (items.length > 0) { %>
+                    <% items.forEach(item => { %>
+                        <div class="order-item">
+                            <p><strong>Item:</strong> <%= item.accessory.brand %> <%= item.accessory.title || item.accessory.model || item.accessory.series || 'Item' %></p>
+                            <p><strong>Quantity:</strong> <%= item.quantity %></p>
+                            <p><strong>Amount:</strong> ₹<%= item.amount.toLocaleString('en-IN') %></p>
+                        </div>
+                    <% }); %>
+                    <p><strong>Total Amount:</strong> ₹<%= (order.totalAmount || items.reduce((sum, item) => sum + item.amount, 0)).toLocaleString('en-IN') %></p>
+                    <p><strong>Payment Method:</strong> <%= order.paymentMethod || 'Not specified' %></p>
+                <% } else { %>
+                    <p>No additional order details available.</p>
+                <% } %>
+            </div>
+            <div class="order-actions">
+                <a href="/" class="btn btn-primary">Continue Shopping</a>
+                <a href="/myorders" class="btn btn-secondary">View All Orders</a>
+                <button id="download-receipt" class="btn btn-secondary">Download Receipt</button>
             </div>
         </div>
-        
-        <div class="tab-content" id="my-listings">
-            <!-- My Listings content would be similar but focused on items being sold -->
-            <div class="empty-state">
-                <img src="/images/empty-listings.png" alt="No listings">
-                <h2>No Active Listings</h2>
-                <p>You haven't listed any items for sale yet.</p>
-                <button class="btn-primary">Sell an Item</button>
-            </div>
-        </div>
-    </main>
-    
-    <footer>
-        <%- include('partials/footer') %>
-    </footer>
-
-    <script src="orders.js"></script>
+    </div>
+    <input type="hidden" id="order-data" value='<%- JSON.stringify(order || {}) %>'>
+    <script src="/scripts/orders.js"></script>
 </body>
 </html>

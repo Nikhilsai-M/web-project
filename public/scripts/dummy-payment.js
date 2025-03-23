@@ -75,10 +75,41 @@ function verifyUpi() {
 function processPayment() {
     showMessage("Processing payment...", "info");
     
+    const selectedMethod = document.querySelector(".payment-method.selected")?.dataset.method;
+    if (!selectedMethod) {
+        showMessage("Please select a payment method.", "error");
+        return;
+    }
+
+    const amount = parseFloat(document.querySelector(".price").textContent.replace("₹", "").replace(",", ""));
+    const orderType = document.getElementById("order-type").value || "unknown";
+    const orderId = document.getElementById("order-id").value || "unknown";
+    const orderAccessory = JSON.parse(document.getElementById("order-accessory").value || "{}");
+
+    const orderData = {
+        items: [{
+            type: orderType,
+            id: orderId,
+            accessory: orderAccessory,
+            quantity: 1, // Default to 1 for "Buy Now"
+            amount: amount // Per-item amount
+        }],
+        totalAmount: amount, // Total for the order
+        paymentMethod: selectedMethod,
+        timestamp: new Date().toISOString()
+    };
+
+    let orders = JSON.parse(localStorage.getItem("userOrders")) || [];
+    orders.push(orderData);
+    localStorage.setItem("userOrders", JSON.stringify(orders));
+    localStorage.setItem("lastOrder", JSON.stringify(orderData));
+
     setTimeout(() => {
         showMessage("Payment successful!", "success");
         setTimeout(() => {
-            window.location.href = "/orders";
+            const orderQuery = encodeURIComponent(JSON.stringify(orderData));
+            console.log('Redirecting to:', `/orders?order=${orderQuery}`);
+            window.location.href = `/orders?order=${orderQuery}`;
         }, 2000);
     }, 1500);
 }

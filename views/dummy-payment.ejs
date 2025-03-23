@@ -18,7 +18,7 @@
                 <% if (typeof type !== 'undefined' && typeof id !== 'undefined') { %>
                     <p>Purchasing: <%= type.charAt(0).toUpperCase() + type.slice(1) %> (ID: <%= id %>)</p>
                 <% } %>
-                <% if (typeof accessory !== 'undefined') { %>
+                <% if (typeof accessory !== 'undefined' && accessory.brand && accessory.title) { %>
                     <p><strong>Item:</strong> <%= accessory.brand %> <%= accessory.title %></p>
                 <% } %>
             </div>
@@ -44,14 +44,17 @@
                     </div>
                 </div>
 
-                <div class="payment-details" id="payment-details">
-                    <!-- Payment details will be dynamically added here -->
-                </div>
-
+                <div class="payment-details" id="payment-details"></div>
                 <button id="pay-now" class="btn btn-success" disabled>Pay Now</button>
             </div>
         </div>
     </div>
+
+    <!-- Hidden inputs for type, id, and accessory -->
+    <input type="hidden" id="order-type" value="<%= typeof type !== 'undefined' ? type : 'unknown' %>">
+    <input type="hidden" id="order-id" value="<%= typeof id !== 'undefined' ? id : 'unknown' %>">
+    <input type="hidden" id="order-accessory" value='<%- JSON.stringify(typeof accessory !== 'undefined' ? accessory : {}) %>'>
+
     <script src="/scripts/dummy-payment.js"></script>
 </body>
 </html>

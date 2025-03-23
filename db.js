@@ -291,7 +291,77 @@ await db.exec(`
       console.log('Test admins added to database');
     }
     
+// Check if any phone applications exist, add test ones if not
+const phoneAppCount = await db.get('SELECT COUNT(*) as count FROM phone_applications');
+if (phoneAppCount.count === 0) {
+  await db.run(
+    `INSERT INTO phone_applications (user_id, brand, model, ram, rom, processor, network, size, weight, device_age, 
+      switching_on, phone_calls, cameras_working, battery_issues, physically_damaged, sound_issues, location, 
+      email, phone, battery, camera, os, image_path, status, created_at) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      'user_123', 'Samsung', 'Galaxy S20', '8GB', '128GB', 'Exynos 990', '4G', '6.2"', '163g', '2 years',
+      'Yes', 'Yes', 'Yes', 'No', 'No', 'No', 'New York', 'test@example.com', '1234567890', '4000mAh', 
+      '12MP', 'Android 11', 'https://example.com/image1.jpg', 'pending', '2025-03-20 10:00:00'
+    ]
+  );
+  await db.run(
+    `INSERT INTO phone_applications (user_id, brand, model, ram, rom, processor, network, size, weight, device_age, 
+      switching_on, phone_calls, cameras_working, battery_issues, physically_damaged, sound_issues, location, 
+      email, phone, battery, camera, os, image_path, status, created_at) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      'user_124', 'Apple', 'iPhone 12', '4GB', '64GB', 'A14 Bionic', '5G', '6.1"', '164g', '1 year',
+      'Yes', 'Yes', 'Yes', 'Yes', 'No', 'No', 'California', 'test2@example.com', '0987654321', '2810mAh', 
+      '12MP', 'iOS 14', 'https://example.com/image2.jpg', 'approved', '2025-03-21 12:00:00'
+    ]
+  );
+  console.log('Test phone applications added to database');
+}
 
+// Check if any laptop applications exist, add test ones if not
+const laptopAppCount = await db.get('SELECT COUNT(*) as count FROM laptop_applications');
+if (laptopAppCount.count === 0) {
+  await db.run(
+    `INSERT INTO laptop_applications (user_id, brand, model, ram, storage, processor, generation, display_size, 
+      weight, os, device_age, battery_issues, location, name, email, phone, image_path, status, created_at) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      'user_123', 'Dell', 'XPS 13', '16GB', '512GB', 'Intel i7', '11th', '13.4"', '1.2kg', 'Windows 11',
+      '1.5 years', 'No', 'Texas', 'John Doe', 'john@example.com', '1112223333', 'https://example.com/image3.jpg',
+      'pending', '2025-03-22 09:00:00'
+    ]
+  );
+  await db.run(
+    `INSERT INTO laptop_applications (user_id, brand, model, ram, storage, processor, generation, display_size, 
+      weight, os, device_age, battery_issues, location, name, email, phone, image_path, status, created_at) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      'user_124', 'Apple', 'MacBook Air', '8GB', '256GB', 'M1', '', '13.3"', '1.29kg', 'macOS',
+      '2 years', 'Yes', 'Florida', 'Jane Smith', 'jane@example.com', '4445556666', 'https://example.com/image4.jpg',
+      'rejected', '2025-03-22 14:00:00'
+    ]
+  );
+  console.log('Test laptop applications added to database');
+}
+
+// Check if any supervisor activity exists, add test ones if not
+const activityCount = await db.get('SELECT COUNT(*) as count FROM supervisor_activity');
+if (activityCount.count === 0) {
+  await db.run(
+    'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
+    ['supervisor_1', 'Updated phone application #1 to approved with price 500', '2025-03-21 12:30:00']
+  );
+  await db.run(
+    'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
+    ['supervisor_1', 'Added phone #12345 to inventory with price ₹500, condition Used, and 10% discount', '2025-03-21 13:00:00']
+  );
+  await db.run(
+    'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
+    ['supervisor_1', 'Updated laptop application #2 to rejected: Damaged screen', '2025-03-22 14:30:00']
+  );
+  console.log('Test supervisor activity added to database');
+}
 
     const mouseCount = await db.get('SELECT COUNT(*) as count FROM mouses');
 

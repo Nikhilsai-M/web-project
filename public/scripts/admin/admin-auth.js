@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loginMessage.classList.add('success');
                 
                 setTimeout(() => {
-                    window.location.href = '/admin/home';
+                    window.location.href = data.redirect; // Use redirect from response
                 }, 1500);
             } else {
                 loginMessage.textContent = data.message || 'Invalid login credentials';
@@ -83,6 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
             loginMessage.textContent = 'An error occurred during authentication';
             loginMessage.classList.add('error');
             console.error('Login error:', error);
+            // Reset button state in case of error
+            const submitButton = loginForm.querySelector('button[type="submit"]');
+            submitButton.textContent = 'Secure Login';
+            submitButton.disabled = false;
         }
     });
 });

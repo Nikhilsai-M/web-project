@@ -121,13 +121,6 @@ function requireSupervisorAuth(req, res, next) {
   }
 }
 
-function requireAdminAuth(req, res, next) {
-  if (req.session.user && req.session.user.role === 'admin') {
-    next();
-  } else {
-    res.redirect('/admin/login');
-  }
-}
 
 function requireCustomerAuth(req, res, next) {
   if (req.session.user && req.session.user.role === 'customer') {
@@ -212,7 +205,88 @@ app.get('/api/supervisor/dashboard', requireSupervisorAuth, async (req, res) => 
   }
 });
 
+// Add this under "Supervisor Routes" in app.js
+app.get('/api/supervisor/statistics', requireSupervisorAuth, async (req, res) => {
+  try {
+      const db = await getDb();
+      const supervisorId = req.session.user.userId;
 
+      // Total items added to inventory
+      const itemsAdded = await db.get(
+          `SELECT COUNT(*) as count 
+           FROM supervisor_activity 
+           WHERE supervisor_id = ? 
+           AND action LIKE 'Added % to inventory%'`,
+          [supervisorId]
+      );
+
+      // Listings verified (approved or rejected)
+      const listingsVerified = await db.get(
+          `SELECT COUNT(*) as count 
+           FROM supervisor_activity 
+           WHERE supervisor_id = ? 
+           AND (action LIKE 'Updated % application%to approved%' 
+                OR action LIKE 'Updated % application%to rejected%')`,
+          [supervisorId]
+      );
+
+      // Pending listings
+      const pendingListings = await db.get(
+          `SELECT COUNT(*) as count 
+           FROM (
+               SELECT id FROM phone_applications WHERE status = 'pending'
+               UNION ALL
+               SELECT id FROM laptop_applications WHERE status = 'pending'
+           )`
+      );
+
+      // Average verification time (simplified calculation)
+      const avgTimeResult = await db.get(
+          `SELECT AVG(
+              strftime('%s', timestamp) - strftime('%s', created_at)
+          ) / 60 as avg_minutes 
+          FROM (
+              SELECT sa.timestamp, pa.created_at 
+              FROM supervisor_activity sa
+              JOIN phone_applications pa ON sa.action LIKE '%' || pa.id || '%'
+              WHERE sa.supervisor_id = ? AND sa.action LIKE 'Updated phone application%'
+              UNION ALL
+              SELECT sa.timestamp, la.created_at 
+              FROM supervisor_activity sa
+              JOIN laptop_applications la ON sa.action LIKE '%' || la.id || '%'
+              WHERE sa.supervisor_id = ? AND sa.action LIKE 'Updated laptop application%'
+          )`,
+          [supervisorId, supervisorId]
+      );
+
+      // Recent activity
+      const recentActivity = await db.all(
+          `SELECT action, timestamp 
+           FROM supervisor_activity 
+           WHERE supervisor_id = ? 
+           ORDER BY timestamp DESC 
+           LIMIT 5`,
+          [supervisorId]
+      );
+
+      res.json({
+          success: true,
+          statistics: {
+              totalItemsAdded: itemsAdded.count,
+              listingsVerified: listingsVerified.count,
+              pendingListings: pendingListings.count,
+              avgVerificationTime: avgTimeResult.avg_minutes ? Math.round(avgTimeResult.avg_minutes) : 0,
+              recentActivity: recentActivity.map(a => ({
+                  action: a.action,
+                  timestamp: new Date(a.timestamp).toLocaleString()
+              }))
+          }
+      });
+  } catch (error) {
+      console.error('Error fetching supervisor statistics:', error);
+      res.status(500).json({ success: false, message: 'Error fetching statistics' });
+  }
+});
 // Get all inventory items
 app.get('/api/supervisor/inventory', requireSupervisorAuth, async (req, res) => {
   try {
@@ -1182,59 +1256,7 @@ app.get('/api/supervisor/logout', (req, res) => {
     res.redirect('/supervisor/login');
 });
 
-// Admin routes
-app.get('/admin/login', (req, res) => {
-    res.render("admin/admin-login", { error: null });
-});
 
-app.get('/admin/home', requireAdminAuth, (req, res) => {
-    res.render("admin/home", { user: req.session.user });
-});
-
-// Admin laptop management routes
-
-app.post('/api/admin/login', async (req, res) => {
-    const { admin_id, password, security_token } = req.body;
-    
-    try {
-        const db = await getDb();
-        
-        const admin = await db.get(
-            'SELECT * FROM admins WHERE admin_id = ?',
-            [admin_id]
-        );
-        
-        if (!admin) {
-            console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
-            return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
-        }
-        
-        const passwordMatch = await bcrypt.compare(password, admin.password);
-        const tokenMatch = (security_token === admin.security_token);
-        
-        if (passwordMatch && tokenMatch) {
-            req.session.user = {
-                adminId: admin.admin_id,
-                name: admin.name,
-                role: 'admin',
-                loginTime: new Date().toISOString()
-            };
-            
-            return res.json({ success: true, name: admin.name });
-        } else {
-            console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
-            return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
-        }
-    } catch (error) {
-        console.error('Admin login error:', error);
-        return res.status(500).json({ success: false, message: 'Server error during login' });
-    }
-});
-
-app.get('/api/admin/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/admin/login');
-});
 
 // API routes for laptop management
 app.get('/api/laptops', async (req, res) => {
@@ -1664,9 +1686,6 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
       res.status(500).json({ success: false, message: 'Error adding to inventory' });
   }
 });
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
 
 // Route to render dummy payment page for any accessory
 app.get('/buy/:type/:id', async (req, res) => {
@@ -1712,4 +1731,143 @@ app.get('/buy/:type/:id', async (req, res) => {
       console.error(`Error rendering payment page for ${req.params.type}:`, error);
       res.status(500).render('error', { message: 'Failed to load payment page' });
   }
+});
+
+  function requireAdminAuth(req, res, next) {
+    if (req.session.user && req.session.user.role === 'admin') {
+      next();
+    } else {
+      res.redirect('/admin/login');
+    }
+  }
+
+  // Admin Routes
+app.get('/admin/login', (req, res) => {
+  if (req.session.user && req.session.user.role === 'admin') {
+    return res.redirect('/admin/home');
+  }
+  res.render('admin/admin-login', { error: null });
+});
+
+app.get('/admin/home', requireAdminAuth, (req, res) => {
+  res.render('admin/home', { admin: req.session.user });
+});
+
+app.post('/api/admin/login', async (req, res) => {
+  const { admin_id, password, security_token } = req.body;
+
+  if (!admin_id || !password || !security_token) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  try {
+    const db = await getDb();
+    const admin = await db.get('SELECT * FROM admins WHERE admin_id = ?', [admin_id]);
+
+    if (!admin) {
+      console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
+      return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, admin.password);
+    const tokenMatch = security_token === admin.security_token;
+
+    if (passwordMatch && tokenMatch) {
+      req.session.user = {
+        adminId: admin.admin_id,
+        name: admin.name,
+        role: 'admin',
+        loginTime: new Date().toISOString()
+      };
+      return res.json({ success: true, name: admin.name, redirect: '/admin/home' });
+    } else {
+      console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
+      return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
+    }
+  } catch (error) {
+    console.error('Admin login error:', error);
+    return res.status(500).json({ success: false, message: 'Server error during login' });
+  }
+});
+
+app.get('/api/admin/statistics', requireAdminAuth, async (req, res) => {
+  try {
+    const db = await getDb();
+    const phoneSales = await db.get('SELECT SUM(price) as total FROM phones WHERE price IS NOT NULL');
+    const laptopSales = await db.get('SELECT SUM(price) as total FROM laptops WHERE price IS NOT NULL');
+    const totalSales = (phoneSales.total || 0) + (laptopSales.total || 0);
+    const totalListings = await db.get('SELECT COUNT(*) as count FROM (SELECT id FROM phone_applications UNION ALL SELECT id FROM laptop_applications)');
+    const pendingListings = await db.get("SELECT COUNT(*) as count FROM (SELECT id FROM phone_applications WHERE status = 'pending' UNION ALL SELECT id FROM laptop_applications WHERE status = 'pending')");
+    const supervisorActivity = await db.get('SELECT COUNT(*) as count FROM supervisor_activity');
+    const recentActivity = await db.all('SELECT action, timestamp FROM supervisor_activity ORDER BY timestamp DESC LIMIT 5');
+
+    res.json({
+      success: true,
+      totalSales,
+      totalListings: totalListings.count,
+      pendingListings: pendingListings.count,
+      supervisorActivity: supervisorActivity.count,
+      recentActivity
+    });
+  } catch (error) {
+    console.error('Error fetching admin statistics:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.post('/api/admin/add-supervisor', requireAdminAuth, async (req, res) => {
+  const { firstName, lastName, email, phone, username, password } = req.body;
+
+  if (!firstName || !lastName || !email || !phone || !username || !password) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  try {
+    const db = await getDb();
+    const existing = await db.get('SELECT * FROM supervisors WHERE email = ? OR username = ?', [email, username]);
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Email or username already exists' });
+    }
+
+    const userId = `supervisor_${Date.now()}`;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await db.run(
+      'INSERT INTO supervisors (user_id, first_name, last_name, email, phone, username, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [userId, firstName, lastName, email, phone, username, hashedPassword]
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error adding supervisor:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.get('/api/admin/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Error during logout:', err);
+      return res.json({ success: false, message: 'Logout failed' });
+    }
+    res.json({ success: true, redirect: '/admin/login' });
+  });
+});
+
+app.get('/admin/profile', requireAdminAuth, async (req, res) => {
+  try {
+    const db = await getDb();
+    const admin = await db.get('SELECT admin_id, name, email FROM admins WHERE admin_id = ?', [req.session.user.adminId]);
+    if (!admin) {
+      return res.status(404).render('error', { message: 'Admin not found' });
+    }
+    res.render('admin/admin-profile', { admin });
+  } catch (error) {
+    console.error('Error fetching admin profile:', error);
+    res.status(500).render('error', { message: 'Failed to load profile' });
+  }
+});
+
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });

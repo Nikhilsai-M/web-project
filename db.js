@@ -109,7 +109,7 @@ export async function initializeDatabase() {
         id INTEGER PRIMARY KEY,
         brand TEXT NOT NULL,
         model TEXT NOT NULL,
-        color TEXT NOT NULL,
+        color TEXT ,
         image TEXT NOT NULL,
         processor TEXT NOT NULL,
         display TEXT NOT NULL,
@@ -183,7 +183,7 @@ await db.exec(`
     image_path TEXT,
     status TEXT DEFAULT 'pending',
     rejection_reason TEXT,
-    price REAL,  -- New column for price
+    price REAL, 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `);
@@ -1358,20 +1358,6 @@ export async function getPhoneApplicationById(id) {
   }
 }
 
-export async function updatePhoneApplicationStatus(id, status, rejectionReason = null, price = null) {
-  try {
-    const db = await getDb();
-    await db.run(
-      'UPDATE phone_applications SET status = ?, rejection_reason = ?, price = ? WHERE id = ?',
-      [status, rejectionReason, price, id]
-    );
-    return { success: true };
-  } catch (error) {
-    console.error('Error updating phone application status:', error);
-    return { success: false, message: error.message };
-  }
-}
-
 
 export async function deletePhoneApplication(id) {
   try {
@@ -1457,18 +1443,33 @@ export async function getLaptopApplicationById(id) {
     throw error;
   }
 }
+export async function updatePhoneApplicationStatus(id, status, rejectionReason = null, price = null) {
+  const db = await getDb();
+  try {
+      const result = await db.run(
+          'UPDATE phone_applications SET status = ?, rejection_reason = ?, price = ? WHERE id = ?',
+          [status, rejectionReason, price, id]
+      );
+      console.log(`Updated phone application #${id} with price: ${price}`); // Debugging
+      return result.changes > 0 ? { success: true } : { success: false, message: 'Application not found' };
+  } catch (error) {
+      console.error('Error updating phone application status:', error);
+      return { success: false, message: 'Database error' };
+  }
+}
 
 export async function updateLaptopApplicationStatus(id, status, rejectionReason = null, price = null) {
+  const db = await getDb();
   try {
-    const db = await getDb();
-    await db.run(
-      'UPDATE laptop_applications SET status = ?, rejection_reason = ?, price = ? WHERE id = ?',
-      [status, rejectionReason, price, id]
-    );
-    return { success: true };
+      const result = await db.run(
+          'UPDATE laptop_applications SET status = ?, rejection_reason = ?, price = ? WHERE id = ?',
+          [status, rejectionReason, price, id]
+      );
+      console.log(`Updated laptop application #${id} with price: ${price}`); // Debugging
+      return result.changes > 0 ? { success: true } : { success: false, message: 'Application not found' };
   } catch (error) {
-    console.error('Error updating laptop application status:', error);
-    return { success: false, message: error.message };
+      console.error('Error updating laptop application status:', error);
+      return { success: false, message: 'Database error' };
   }
 }
 

@@ -353,7 +353,7 @@ app.put('/api/supervisor/inventory/:type/:id', requireSupervisorAuth, async (req
   const { brand, pricing, image, ...specificData } = req.body;
   try {
       let result;
-      if (type === 'phone') {
+      if (type === 'phones') {
           result = await updatePhone(id, {
               brand,
               pricing: { basePrice: pricing.originalPrice, discount: pricing.discount },
@@ -371,7 +371,7 @@ app.put('/api/supervisor/inventory/:type/:id', requireSupervisorAuth, async (req
               rom: specificData.rom,
               condition: specificData.condition
           });
-      } else if (type === 'laptop') {
+      } else if (type === 'laptops') {
           result = await updateLaptop(id, {
               brand,
               pricing: { basePrice: pricing.originalPrice, discount: pricing.discount },
@@ -966,7 +966,6 @@ app.get('/api/customer/listings', requireCustomerAuth, async (req, res) => {
 
     const laptopApplications = await getLaptopApplicationsByUserId(userId);
     const phoneApplications = await getPhoneApplicationsByUserId(userId);
-
     const listings = [
       ...laptopApplications.map(app => ({ ...app, type: 'laptop' })),
       ...phoneApplications.map(app => ({ ...app, type: 'phone' })),
@@ -1529,63 +1528,68 @@ app.get('/api/supervisor/verify-applications', requireSupervisorAuth, async (req
 // API to get specific application details
 app.get('/api/supervisor/application/:type/:id', requireSupervisorAuth, async (req, res) => {
   try {
-    const { type, id } = req.params;
-    let application;
-    if (type === 'phone') {
-      application = await getPhoneApplicationById(id);
-    } else if (type === 'laptop') {
-      application = await getLaptopApplicationById(id);
-    } else {
-      return res.status(400).json({ success: false, message: 'Invalid application type' });
-    }
+      const { type, id } = req.params;
+      let application;
+      if (type === 'phone') {
+          application = await getPhoneApplicationById(id);
+      } else if (type === 'laptop') {
+          application = await getLaptopApplicationById(id);
+      } else {
+          return res.status(400).json({ success: false, message: 'Invalid application type' });
+      }
 
-    if (!application) {
-      return res.status(404).json({ success: false, message: 'Application not found' });
-    }
+      if (!application) {
+          return res.status(404).json({ success: false, message: 'Application not found' });
+      }
 
-    res.json({ success: true, application, type });
+      console.log('Application data sent:', application); // Debugging
+      res.json({ success: true, application, type });
   } catch (error) {
-    console.error('Error fetching application details:', error);
-    res.status(500).json({ success: false, message: 'Error fetching application details' });
+      console.error('Error fetching application details:', error);
+      res.status(500).json({ success: false, message: 'Error fetching application details' });
   }
 });
 
 // API to update application status with supervisor actions
 app.put('/api/supervisor/application/:type/:id/status', requireSupervisorAuth, async (req, res) => {
   try {
-    const { type, id } = req.params;
-    const { status, rejectionReason, price } = req.body;
+      const { type, id } = req.params;
+      const { status, rejectionReason, price } = req.body;
 
-    if (!status || !['pending', 'approved', 'rejected', 'processing'].includes(status)) {
-      return res.status(400).json({ success: false, message: 'Invalid status' });
-    }
+      if (!status || !['pending', 'approved', 'rejected', 'processing'].includes(status)) {
+          return res.status(400).json({ success: false, message: 'Invalid status' });
+      }
 
-    let result;
-    if (type === 'phone') {
-      result = await updatePhoneApplicationStatus(id, status, status === 'rejected' ? rejectionReason : null, status === 'approved' ? price : null);
-    } else if (type === 'laptop') {
-      result = await updateLaptopApplicationStatus(id, status, status === 'rejected' ? rejectionReason : null, status === 'approved' ? price : null);
-    } else {
-      return res.status(400).json({ success: false, message: 'Invalid application type' });
-    }
+      if (status === 'approved' && (!price || price <= 0)) {
+          return res.status(400).json({ success: false, message: 'Valid price is required for approval' });
+      }
 
-    if (result.success) {
-      const db = await getDb();
-      await db.run(
-        'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
-        [
-          req.session.user.userId,
-          `Updated ${type} application #${id} to ${status}${status === 'rejected' && rejectionReason ? `: ${rejectionReason}` : ''}${status === 'approved' && price ? ` with price ${price}` : ''}`,
-          new Date().toISOString()
-        ]
-      );
-      res.json({ success: true, message: 'Status updated successfully' });
-    } else {
-      res.status(500).json({ success: false, message: result.message || 'Error updating status' });
-    }
+      let result;
+      if (type === 'phone') {
+          result = await updatePhoneApplicationStatus(id, status, rejectionReason, price);
+      } else if (type === 'laptop') {
+          result = await updateLaptopApplicationStatus(id, status, rejectionReason, price);
+      } else {
+          return res.status(400).json({ success: false, message: 'Invalid application type' });
+      }
+
+      if (result.success) {
+          const db = await getDb();
+          await db.run(
+              'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
+              [
+                  req.session.user.userId,
+                  `Updated ${type} application #${id} to ${status}${status === 'rejected' && rejectionReason ? `: ${rejectionReason}` : ''}${status === 'approved' ? ` with price ₹${price}` : ''}`,
+                  new Date().toISOString()
+              ]
+          );
+          res.json({ success: true, message: 'Status updated successfully' });
+      } else {
+          res.status(500).json({ success: false, message: result.message || 'Error updating status' });
+      }
   } catch (error) {
-    console.error('Error updating application status:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+      console.error('Error updating application status:', error);
+      res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
@@ -1607,13 +1611,10 @@ app.get('/api/supervisor/approved-listings', requireSupervisorAuth, async (req, 
 app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, async (req, res) => {
   try {
       const { type, id } = req.params;
-      const { price, condition, discount } = req.body;
+      const { discount, condition } = req.body;
 
-      if (!price || isNaN(price) || price <= 0) {
-          return res.status(400).json({ success: false, message: 'Valid price is required' });
-      }
-      if (!['Used', 'Like New', 'Refurbished'].includes(condition)) {
-          return res.status(400).json({ success: false, message: 'Invalid condition' });
+      if (!condition || !['Used', 'Like New', 'Refurbished'].includes(condition)) {
+          return res.status(400).json({ success: false, message: 'Valid condition is required' });
       }
       if (discount && (isNaN(discount) || discount < 0 || discount > 100)) {
           return res.status(400).json({ success: false, message: 'Discount must be between 0 and 100' });
@@ -1628,12 +1629,14 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
           return res.status(400).json({ success: false, message: 'Invalid type' });
       }
 
-      if (!application || application.status !== 'approved') {
-          return res.status(404).json({ success: false, message: 'Approved application not found' });
+      if (!application || application.status !== 'approved' || !application.price) {
+          return res.status(404).json({ success: false, message: 'Approved application with price not found' });
       }
 
+  
       const db = await getDb();
       if (type === 'phone') {
+        const price=(application.price*1.2)/(1-(discount/100));
           const phoneData = {
               id: Date.now(),
               brand: application.brand,
@@ -1649,27 +1652,28 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
               weight: application.weight || 'N/A',
               ram: application.ram,
               rom: application.rom,
-              basePrice: price, // Use price from input
+              basePrice:price, // Use the stored price
               discount: discount || 0,
-              condition: condition // Use condition from input
+              condition: condition
           };
           await addPhone(phoneData);
           await updatePhoneApplicationStatus(id, 'added_to_inventory');
       } else if (type === 'laptop') {
+        const price=(application.price*1.5).toFixed(0);
           const laptopData = {
               id: Date.now(),
               brand: application.brand,
               series: application.model,
               processorName: application.processor,
               processorGeneration: application.generation || 'N/A',
-              basePrice: price, // Use price from input
+              basePrice: price, // Use the stored price
               discount: discount || 0,
               ram: application.ram,
               storage_type: 'SSD',
               storage_capacity: application.storage,
               display_size: parseFloat(application.display_size) || 0,
               weight: parseFloat(application.weight) || 0,
-              condition: condition, // Use condition from input
+              condition: condition,
               os: application.os || 'N/A',
               image: application.image_path
           };
@@ -1679,7 +1683,7 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
 
       await db.run(
           'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
-          [req.session.user.userId, `Added ${type} #${id} to inventory with price ₹${price}, condition ${condition}, and ${discount || 0}% discount`, new Date().toISOString()]
+          [req.session.user.userId, `Added ${type} #${id} to inventory with price ₹${application.price}, condition ${condition}, and ${discount || 0}% discount`, new Date().toISOString()]
       );
 
       res.json({ success: true, message: 'Added to inventory successfully' });

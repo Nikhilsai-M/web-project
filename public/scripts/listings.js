@@ -46,8 +46,8 @@ document.addEventListener('DOMContentLoaded', function () {
         <p><strong>Status:</strong> <span class="cur-status ${statusClass}">${listing.status}</span></p>
         <p><strong>Submitted:</strong> ${new Date(listing.created_at).toLocaleDateString()}</p>
       `;
-      
-      if (listing.status === 'approved' && listing.price) {
+
+      if ((listing.status === 'approved' || listing.status === 'added_to_inventory') && listing.price) {
         cardContent += `
           <p><strong>Price:</strong> ₹${parseFloat(listing.price).toFixed(2)}</p>
         `;
@@ -64,62 +64,71 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-// In openModal
-function openModal(listing) {
-  const isLaptop = listing.type === 'laptop';
-  const statusClass = listing.status === 'rejected' ? 'status-rejected' : '';
+  // Open modal with listing details
+  function openModal(listing) {
+    const isLaptop = listing.type === 'laptop';
+    const statusClass = listing.status === 'rejected' ? 'status-rejected' : '';
 
-  let modalContent = `
-    <p><strong>Type:</strong> ${isLaptop ? 'Laptop' : 'Phone'}</p>
-    <p><strong>Brand:</strong> ${listing.brand}</p>
-    <p><strong>Model:</strong> ${listing.model}</p>
-    ${isLaptop 
-      ? `
-        <!-- Laptop fields unchanged -->
-      `
-      : `
-        <p><strong>RAM:</strong> ${listing.ram}</p>
-        <p><strong>ROM:</strong> ${listing.rom}</p>
-        <p><strong>Processor:</strong> ${listing.processor}</p>
-        <p><strong>Network:</strong> ${listing.network}</p>
-        <p><strong>Size:</strong> ${listing.size || 'N/A'}</p>
-        <p><strong>Weight:</strong> ${listing.weight || 'N/A'}</p>
-        <p><strong>Device Age:</strong> ${listing.device_age || 'N/A'}</p>
-        <p><strong>Switching On:</strong> ${listing.switching_on || 'N/A'}</p>
-        <p><strong>Phone Calls:</strong> ${listing.phone_calls || 'N/A'}</p>
-        <p><strong>Cameras Working:</strong> ${listing.cameras_working || 'N/A'}</p>
-        <p><strong>Battery Issues:</strong> ${listing.battery_issues || 'N/A'}</p>
-        <p><strong>Physically Damaged:</strong> ${listing.physically_damaged || 'N/A'}</p>
-        <p><strong>Sound Issues:</strong> ${listing.sound_issues || 'N/A'}</p>
-        <p><strong>Battery:</strong> ${listing.battery} mAh</p>
-        <p><strong>Camera:</strong> ${listing.camera}</p>
-        <p><strong>OS:</strong> ${listing.os}</p>
-      `}
-    <p><strong>Location:</strong> ${listing.location}</p>
-    <p><strong>Email:</strong> ${listing.email}</p>
-    <p><strong>Phone:</strong> ${listing.phone}</p>
-    <p><strong>Status:</strong> <span class="cur-status ${statusClass}">${listing.status}</span></p>
-  `;
-
-  if (listing.status === 'approved' && listing.price) {
-    modalContent += `
-      <p><strong>Price:</strong> ₹${parseFloat(listing.price).toFixed(2)}</p>
+    let modalContent = `
+      <p><strong>Type:</strong> ${isLaptop ? 'Laptop' : 'Phone'}</p>
+      <p><strong>Brand:</strong> ${listing.brand}</p>
+      <p><strong>Model:</strong> ${listing.model}</p>
+      ${isLaptop 
+        ? `
+          <p><strong>RAM:</strong> ${listing.ram}</p>
+          <p><strong>Storage:</strong> ${listing.storage}</p>
+          <p><strong>Processor:</strong> ${listing.processor}</p>
+          <p><strong>Generation:</strong> ${listing.generation || 'N/A'}</p>
+          <p><strong>Display Size:</strong> ${listing.display_size || 'N/A'}</p>
+          <p><strong>Weight:</strong> ${listing.weight || 'N/A'}</p>
+          <p><strong>OS:</strong> ${listing.os || 'N/A'}</p>
+          <p><strong>Device Age:</strong> ${listing.device_age || 'N/A'}</p>
+          <p><strong>Battery Issues:</strong> ${listing.battery_issues || 'N/A'}</p>
+        `
+        : `
+          <p><strong>RAM:</strong> ${listing.ram}</p>
+          <p><strong>ROM:</strong> ${listing.rom}</p>
+          <p><strong>Processor:</strong> ${listing.processor}</p>
+          <p><strong>Network:</strong> ${listing.network}</p>
+          <p><strong>Size:</strong> ${listing.size || 'N/A'}</p>
+          <p><strong>Weight:</strong> ${listing.weight || 'N/A'}</p>
+          <p><strong>Device Age:</strong> ${listing.device_age || 'N/A'}</p>
+          <p><strong>Switching On:</strong> ${listing.switching_on || 'N/A'}</p>
+          <p><strong>Phone Calls:</strong> ${listing.phone_calls || 'N/A'}</p>
+          <p><strong>Cameras Working:</strong> ${listing.cameras_working || 'N/A'}</p>
+          <p><strong>Battery Issues:</strong> ${listing.battery_issues || 'N/A'}</p>
+          <p><strong>Physically Damaged:</strong> ${listing.physically_damaged || 'N/A'}</p>
+          <p><strong>Sound Issues:</strong> ${listing.sound_issues || 'N/A'}</p>
+          <p><strong>Battery:</strong> ${listing.battery} mAh</p>
+          <p><strong>Camera:</strong> ${listing.camera}</p>
+          <p><strong>OS:</strong> ${listing.os}</p>
+        `}
+      <p><strong>Location:</strong> ${listing.location}</p>
+      <p><strong>Email:</strong> ${listing.email}</p>
+      <p><strong>Phone:</strong> ${listing.phone}</p>
+      <p><strong>Status:</strong> <span class="cur-status ${statusClass}">${listing.status}</span></p>
     `;
-  }
-  if (listing.status === 'rejected' && listing.rejection_reason) {
+console.log(listing.status,listing.price);
+    if ((listing.status === 'approved' || listing.status === 'added_to_inventory') && listing.price) {
+      modalContent += `
+        <p><strong>Price:</strong> ₹${parseFloat(listing.price).toFixed(2)}</p>
+      `;
+    }
+    if (listing.status === 'rejected' && listing.rejection_reason) {
+      modalContent += `
+        <p><strong>Rejection Reason:</strong> ${listing.rejection_reason}</p>
+      `;
+    }
+
     modalContent += `
-      <p><strong>Rejection Reason:</strong> ${listing.rejection_reason}</p>
+      <p><strong>Submitted On:</strong> ${new Date(listing.created_at).toLocaleString()}</p>
+      <img src="${listing.image_path}" alt="Device Image" style="max-width: 100%; margin-top: 10px;">
     `;
+
+    modalBody.innerHTML = modalContent;
+    modal.style.display = 'flex';
   }
 
-  modalContent += `
-    <p><strong>Submitted On:</strong> ${new Date(listing.created_at).toLocaleString()}</p>
-    <img src="${listing.image_path}" alt="Device Image" style="max-width: 100%; margin-top: 10px;">
-  `;
-
-  modalBody.innerHTML = modalContent;
-  modal.style.display = 'flex';
-}
   // Close modal
   closeModal.addEventListener('click', () => {
     modal.style.display = 'none';
@@ -137,7 +146,7 @@ function openModal(listing) {
         filteredListings = allListings.filter(listing => {
           if (filter === 'pending') return listing.status === 'pending';
           if (filter === 'processing') return listing.status === 'processing';
-          if (filter === 'completed') return listing.status === 'approved';
+          if (filter === 'completed') return listing.status === 'approved' || listing.status === 'added_to_inventory';
           if (filter === 'rejected') return listing.status === 'rejected';
           return true;
         });

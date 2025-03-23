@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <h3>${product.type.charAt(0).toUpperCase() + product.type.slice(1)} #${product.id}</h3>
                 <p><strong>Brand:</strong> ${product.brand}</p>
                 <p><strong>Price:</strong> ₹${product.originalPrice || product.base_price ||product.pricing.basePrice ||'N/A'}</p>
-                <p><strong>Discount:</strong> ${product.discount || '0'}</p>
+                <p><strong>Discount:</strong> ${product.discount || product.pricing.discount ||'0'}</p>
             `;
             if (product.type === 'phone') details += `<p><strong>Model:</strong> ${product.model || 'N/A'}</p>`;
             if (product.type === 'laptop') details += `<p><strong>Series:</strong> ${product.series || 'N/A'}</p>`;
@@ -120,26 +120,26 @@ document.addEventListener("DOMContentLoaded", function () {
     // Show product details in modal
     function showProductDetails(product) {
         currentProduct = { type: product.type, id: product.id };
+        console.log(product);
         let formHTML = `
             <form id="editForm">
                 <p><strong>Type:</strong> ${product.type.charAt(0).toUpperCase() + product.type.slice(1)}</p>
                 <p><strong>ID:</strong> ${product.id}</p>
                 <div class="form-group"><label>Brand:</label><input type="text" name="brand" value="${product.brand || ''}" required></div>
                 <div class="form-group"><label>Original Price (₹):</label><input type="number" name="price" value="${product.originalPrice || product.basePrice || product.pricing.basePrice||''}" min="0" step="1" required></div>
-                <div class="form-group"><label>Discount (%):</label><input type="number" name="discount" value="${product.discount || '0'}" min="0" max="100" step="1" required></div>
+                <div class="form-group"><label>Discount (%):</label><input type="number" name="discount" value="${product.discount || product.pricing.discount||'0'}" min="0" max="100" step="1" required></div>
                 <div class="form-group"><label>Image URL:</label><input type="text" name="image" value="${product.image || ''}" required></div>
         `;
-        if (product.type === 'phone') {
+        if (product.type === 'phones') {
             formHTML += `
                 <div class="form-group"><label>Model:</label><input type="text" name="model" value="${product.model || ''}" required></div>
-                <div class="form-group"><label>Color:</label><input type="text" name="color" value="${product.color || ''}" required></div>
-                <div class="form-group"><label>Processor:</label><input type="text" name="processor" value="${product.processor || ''}" required></div>
-                <div class="form-group"><label>Display:</label><input type="text" name="display" value="${product.display || ''}" required></div>
-                <div class="form-group"><label>Battery:</label><input type="number" name="battery" value="${product.battery || ''}" required></div>
-                <div class="form-group"><label>Camera:</label><input type="text" name="camera" value="${product.camera || ''}" required></div>
-                <div class="form-group"><label>OS:</label><input type="text" name="os" value="${product.os || ''}" required></div>
-                <div class="form-group"><label>Network:</label><input type="text" name="network" value="${product.network || ''}" required></div>
-                <div class="form-group"><label>Weight:</label><input type="text" name="weight" value="${product.weight || ''}" required></div>
+                <div class="form-group"><label>Processor:</label><input type="text" name="processor" value="${product.specs.processor || ''}" required></div>
+                <div class="form-group"><label>Display:</label><input type="text" name="display" value="${product.specs.display || ''}" required></div>
+                <div class="form-group"><label>Battery:</label><input type="number" name="battery" value="${product.specs.battery || ''}" required></div>
+                <div class="form-group"><label>Camera:</label><input type="text" name="camera" value="${product.specs.camera || ''}" required></div>
+                <div class="form-group"><label>OS:</label><input type="text" name="os" value="${product.specs.os || ''}" required></div>
+                <div class="form-group"><label>Network:</label><input type="text" name="network" value="${product.specs.network || ''}" required></div>
+                <div class="form-group"><label>Weight:</label><input type="text" name="weight" value="${product.specs.weight || ''}" required></div>
                 <div class="form-group"><label>RAM:</label><input type="text" name="ram" value="${product.ram || ''}" required></div>
                 <div class="form-group"><label>ROM:</label><input type="text" name="rom" value="${product.rom || ''}" required></div>
                 <div class="form-group"><label>Condition:</label><select name="condition" required>
@@ -148,15 +148,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     <option value="Refurbished" ${product.condition === 'Refurbished' ? 'selected' : ''}>Refurbished</option>
                 </select></div>
             `;
-        } else if (product.type === 'laptop') {
+        } else if (product.type === 'laptops') {
             formHTML += `
                 <div class="form-group"><label>Series:</label><input type="text" name="series" value="${product.series || ''}" required></div>
-                <div class="form-group"><label>Processor Name:</label><input type="text" name="processor_name" value="${product.processor_name || ''}" required></div>
-                <div class="form-group"><label>Processor Generation:</label><input type="text" name="processor_generation" value="${product.processor_generation || ''}" required></div>
-                <div class="form-group"><label>RAM:</label><input type="text" name="ram" value="${product.ram || ''}" required></div>
-                <div class="form-group"><label>Storage Type:</label><input type="text" name="storage_type" value="${product.storage_type || ''}" required></div>
-                <div class="form-group"><label>Storage Capacity:</label><input type="text" name="storage_capacity" value="${product.storage_capacity || ''}" required></div>
-                <div class="form-group"><label>Display Size:</label><input type="number" name="display_size" value="${product.display_size || ''}" step="0.1" required></div>
+                <div class="form-group"><label>Processor Name:</label><input type="text" name="processor_name" value="${product.processor.name || ''}" required></div>
+                <div class="form-group"><label>Processor Generation:</label><input type="text" name="processor_generation" value="${product.processor.generation || ''}" required></div>
+                <div class="form-group"><label>RAM:</label><input type="text" name="ram" value="${product.memory.ram || ''}" required></div>
+                <div class="form-group"><label>Storage Type:</label><input type="text" name="storage_type" value="${product.memory.storage.type || ''}" required></div>
+                <div class="form-group"><label>Storage Capacity:</label><input type="text" name="storage_capacity" value="${product.memory.storage.capacity || ''}" required></div>
+                <div class="form-group"><label>Display Size:</label><input type="number" name="display_size" value="${product.displaysize || ''}" step="0.1" required></div>
                 <div class="form-group"><label>Weight:</label><input type="number" name="weight" value="${product.weight || ''}" step="0.1" required></div>
                 <div class="form-group"><label>Condition:</label><select name="condition" required>
                     <option value="Used" ${product.condition === 'Used' ? 'selected' : ''}>Used</option>
@@ -169,14 +169,14 @@ document.addEventListener("DOMContentLoaded", function () {
             formHTML += `
                 <div class="form-group"><label>Title:</label><input type="text" name="title" value="${product.title || ''}" required></div>
                 <div class="form-group"><label>Design:</label><input type="text" name="design" value="${product.design || ''}" required></div>
-                <div class="form-group"><label>Battery Life:</label><input type="text" name="battery_life" value="${product.battery_life || ''}" required></div>
+                <div class="form-group"><label>Battery Life:</label><input type="text" name="battery_life" value="${product.batteryLife || ''}" required></div>
             `;
         } else if (product.type === 'chargers') {
             formHTML += `
                 <div class="form-group"><label>Title:</label><input type="text" name="title" value="${product.title || ''}" required></div>
                 <div class="form-group"><label>Wattage:</label><input type="text" name="wattage" value="${product.wattage || ''}" required></div>
                 <div class="form-group"><label>Type:</label><input type="text" name="type" value="${product.type || ''}" required></div>
-                <div class="form-group"><label>Output Current:</label><input type="text" name="output_current" value="${product.output_current || ''}" required></div>
+                <div class="form-group"><label>Output Current:</label><input type="text" name="output_current" value="${product.outputCurrent || ''}" required></div>
             `;
         } else if (product.type === 'mouses') {
             formHTML += `
@@ -188,9 +188,9 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (product.type === 'smartwatches') {
             formHTML += `
                 <div class="form-group"><label>Title:</label><input type="text" name="title" value="${product.title || ''}" required></div>
-                <div class="form-group"><label>Display Size:</label><input type="text" name="display_size" value="${product.display_size || ''}" required></div>
-                <div class="form-group"><label>Display Type:</label><input type="text" name="display_type" value="${product.display_type || ''}" required></div>
-                <div class="form-group"><label>Battery Runtime:</label><input type="text" name="battery_runtime" value="${product.battery_runtime || ''}" required></div>
+                <div class="form-group"><label>Display Size:</label><input type="text" name="display_size" value="${product.displaySize || ''}" required></div>
+                <div class="form-group"><label>Display Type:</label><input type="text" name="display_type" value="${product.displayType || ''}" required></div>
+                <div class="form-group"><label>Battery Runtime:</label><input type="text" name="battery_runtime" value="${product.batteryRuntime || ''}" required></div>
             `;
         }
         formHTML += `</form>`;
@@ -308,6 +308,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function updateProduct() {
         const form = document.getElementById('editForm');
         const formData = new FormData(form);
+        console.log(formData);
         const data = {
             type: currentProduct.type,
             brand: formData.get('brand'),
@@ -318,7 +319,7 @@ document.addEventListener("DOMContentLoaded", function () {
             image: formData.get('image')
         };
 
-        if (currentProduct.type === 'phone') {
+        if (currentProduct.type === 'phones') {
             Object.assign(data, {
                 model: formData.get('model'),
                 color: formData.get('color'),
@@ -333,7 +334,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 rom: formData.get('rom'),
                 condition: formData.get('condition')
             });
-        } else if (currentProduct.type === 'laptop') {
+        } else if (currentProduct.type === 'laptops') {
             Object.assign(data, {
                 series: formData.get('series'),
                 processor_name: formData.get('processor_name'),

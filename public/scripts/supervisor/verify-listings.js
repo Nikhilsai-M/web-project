@@ -119,15 +119,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else if (data.application.status === 'processing') {
                     actionButtons.innerHTML = `
                         <button id="rejectBtn" class="btn reject"><i class="fas fa-times"></i> Reject</button>
-                        <button id="approveBtn" class="btn approve"><i class="fas fa-check"></i> Approve</button>
+                        <div class="add-price-form">
+                            <label for="priceInput">Price (₹):</label>
+                            <input type="number" id="priceInput" min="1" step="1" required>
+                            <button id="approveBtn" class="btn approve"><i class="fas fa-check"></i> Approve with Price</button>
+                        </div>
                     `;
                     document.getElementById('rejectBtn').addEventListener('click', () => updateStatus('rejected'));
-                    document.getElementById('approveBtn').addEventListener('click', () => updateStatus('approved'));
+                    document.getElementById('approveBtn').addEventListener('click', () => {
+                        const price = Number(document.getElementById('priceInput').value);
+                        if (!price || price <= 0) {
+                            alert('Please enter a valid price greater than 0.');
+                            return;
+                        }
+                        console.log('Approving with price:', price);
+                        updateStatus('approved', price);
+                    });
                 } else if (data.application.status === 'approved') {
                     actionButtons.innerHTML = `
                         <div class="add-to-inventory-form">
-                            <label for="priceInput">Price (₹):</label>
-                            <input type="number" id="priceInput" min="1" step="1" required>
+                            <p><strong>Price already set:</strong> ₹${data.application.price ? data.application.price : 'Not set'}</p>
                             <label for="discountInput">Discount (%):</label>
                             <input type="number" id="discountInput" min="0" max="100" step="1" value="0">
                             <label for="conditionSelect">Condition:</label>
@@ -140,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         </div>
                     `;
                     document.getElementById('addToInventoryBtn').addEventListener('click', addToInventory);
-                } else if (data.application.status === 'added_to_inventory') {
+                }else if (data.application.status === 'added_to_inventory') {
                     actionButtons.innerHTML = `<p><strong>Status:</strong> Already added to inventory</p>`;
                 } else if (data.application.status === 'rejected') {
                     actionButtons.innerHTML = `<p><strong>Status:</strong> Rejected ${data.application.rejection_reason ? ' - ' + data.application.rejection_reason : ''}</p>`;
@@ -157,22 +168,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   
     // Update application status
-    async function updateStatus(status) {
+    async function updateStatus(status, price = null) {
         if (!currentApplication) return;
-  
+    
         let rejectionReason = null;
         if (status === 'rejected') {
             rejectionReason = prompt('Please provide a reason for rejection (optional):');
         }
-  
+    
         try {
             const response = await fetch(`/api/supervisor/application/${currentApplication.type}/${currentApplication.id}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status, rejectionReason })
+                body: JSON.stringify({ status, rejectionReason, price }) // Include price in the request body
             });
             const data = await response.json();
-  
+    
             if (data.success) {
                 alert(`Status updated to ${status} successfully!`);
                 modal.style.display = 'none';
@@ -185,28 +196,26 @@ document.addEventListener("DOMContentLoaded", function () {
             alert('Error updating status.');
         }
     }
-  
     // Add to inventory with price and discount
     async function addToInventory() {
         if (!currentApplication) return;
-  
-        const price = document.getElementById('priceInput').value;
+    
         const discount = document.getElementById('discountInput').value;
         const condition = document.getElementById('conditionSelect').value;
-  
-        if (!price || price <= 0) {
-            alert('Please enter a valid price greater than 0.');
+    
+        if (discount && (isNaN(discount) || discount < 0 || discount > 100)) {
+            alert('Discount must be between 0 and 100.');
             return;
         }
-  
+    
         try {
             const response = await fetch(`/api/supervisor/add-to-inventory/${currentApplication.type}/${currentApplication.id}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ price, discount, condition })
+                body: JSON.stringify({ discount: discount || 0, condition })
             });
             const data = await response.json();
-  
+    
             if (data.success) {
                 alert('Item added to inventory successfully!');
                 modal.style.display = 'none';

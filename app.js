@@ -30,9 +30,9 @@ import {
   deleteCharger,       // Added
   getAllEarphones,
   getEarphonesById,
-  addEarphones,        // Added
-  updateEarphones,     // Added
-  deleteEarphones,     // Added
+  addEarphones,        
+  updateEarphones,     
+  deleteEarphones,     
   createPhoneApplication,
   getAllPhoneApplications,
   getPhoneApplicationsByUserId,
@@ -47,14 +47,19 @@ import {
   updateSupervisorPassword,
   getAllMouses,
   getMouseById,
-  addMouse,            // Added
-  updateMouse,         // Added
-  deleteMouse,         // Added
+  addMouse,            
+  updateMouse,         
+  deleteMouse,         
   getAllSmartwatches,
   getSmartwatchById,
   addSmartwatch,       // Added
   updateSmartwatch,    // Added
-  deleteSmartwatch     // Added
+  deleteSmartwatch ,
+  createOrder,         // Added
+  getOrdersByUserId,  // Added
+  getOrderById  ,  // Added
+  getAllSupervisors,
+  deleteSupervisor
 } from './db.js';
 
 
@@ -121,13 +126,6 @@ function requireSupervisorAuth(req, res, next) {
   }
 }
 
-function requireAdminAuth(req, res, next) {
-  if (req.session.user && req.session.user.role === 'admin') {
-    next();
-  } else {
-    res.redirect('/admin/login');
-  }
-}
 
 function requireCustomerAuth(req, res, next) {
   if (req.session.user && req.session.user.role === 'customer') {
@@ -152,6 +150,10 @@ app.get('/supervisor/login', (req, res) => {
   res.render("supervisor/supervisor-login", { error: null });
 });
 
+app.get('/supervisor/statistics', requireSupervisorAuth, async (req, res) => {
+  const supervisor = req.session.user;
+  res.render('supervisor/supervisor-statistics', { supervisor });
+});
 // Supervisor homepage (updated to match supervisor-portal-home.ejs)
 app.get('/supervisor', requireSupervisorAuth, async (req, res) => {
   const supervisor = req.session.user;
@@ -208,19 +210,129 @@ app.get('/api/supervisor/dashboard', requireSupervisorAuth, async (req, res) => 
   }
 });
 
+// Add this under "Supervisor Routes" in app.js
+app.get('/api/supervisor/statistics', requireSupervisorAuth, async (req, res) => {
+  try {
+      const db = await getDb();
+      const supervisorId = req.session.user.userId;
+
+      // Total items added to inventory
+      const itemsAdded = await db.get(
+          `SELECT COUNT(*) as count 
+           FROM supervisor_activity 
+           WHERE supervisor_id = ? 
+           AND action LIKE 'Added % to inventory%'`,
+          [supervisorId]
+      );
+
+      // Listings verified (approved or rejected)
+      const listingsVerified = await db.get(
+          `SELECT COUNT(*) as count 
+           FROM supervisor_activity 
+           WHERE supervisor_id = ? 
+           AND (action LIKE 'Updated % application%to approved%' 
+                OR action LIKE 'Updated % application%to rejected%')`,
+          [supervisorId]
+      );
+
+      // Pending listings
+      const pendingListings = await db.get(
+          `SELECT COUNT(*) as count 
+           FROM (
+               SELECT id FROM phone_applications WHERE status = 'pending'
+               UNION ALL
+               SELECT id FROM laptop_applications WHERE status = 'pending'
+           )`
+      );
+
+      // Average verification time (simplified calculation)
+      const avgTimeResult = await db.get(
+          `SELECT AVG(
+              strftime('%s', timestamp) - strftime('%s', created_at)
+          ) / 60 as avg_minutes 
+          FROM (
+              SELECT sa.timestamp, pa.created_at 
+              FROM supervisor_activity sa
+              JOIN phone_applications pa ON sa.action LIKE '%' || pa.id || '%'
+              WHERE sa.supervisor_id = ? AND sa.action LIKE 'Updated phone application%'
+              UNION ALL
+              SELECT sa.timestamp, la.created_at 
+              FROM supervisor_activity sa
+              JOIN laptop_applications la ON sa.action LIKE '%' || la.id || '%'
+              WHERE sa.supervisor_id = ? AND sa.action LIKE 'Updated laptop application%'
+          )`,
+          [supervisorId, supervisorId]
+      );
+
+      // Recent activity
+      const recentActivity = await db.all(
+          `SELECT action, timestamp 
+           FROM supervisor_activity 
+           WHERE supervisor_id = ? 
+           ORDER BY timestamp DESC 
+           LIMIT 5`,
+          [supervisorId]
+      );
+
+      res.json({
+          success: true,
+          statistics: {
+              totalItemsAdded: itemsAdded.count,
+              listingsVerified: listingsVerified.count,
+              pendingListings: pendingListings.count,
+              avgVerificationTime: avgTimeResult.avg_minutes ? Math.round(avgTimeResult.avg_minutes) : 0,
+              recentActivity: recentActivity.map(a => ({
+                  action: a.action,
+                  timestamp: new Date(a.timestamp).toLocaleString()
+              }))
+          }
+      });
+  } catch (error) {
+      console.error('Error fetching supervisor statistics:', error);
+      res.status(500).json({ success: false, message: 'Error fetching statistics' });
+  }
+});
 // Get all inventory items
+app.get('/api/supervisor/inventory', requireSupervisorAuth, async (req, res) => {
+  try {
+      const dbFunctions = {
+          phones: getAllPhones,
+          laptops: getAllLaptops,
+          earphones: getAllEarphones,
+          chargers: getAllChargers,
+          mouses: getAllMouses,
+          smartwatches: getAllSmartwatches
+      };
+
+      const allItems = [];
+      for (const [type, fetchFunction] of Object.entries(dbFunctions)) {
+          const items = await fetchFunction();
+          // Add type to each item and push to flat array
+          allItems.push(...items.map(item => ({ ...item, type })));
+      }
+
+      res.json({ success: true, items: allItems });
+  } catch (error) {
+      console.error('Error fetching inventory:', error);
+      res.status(500).json({ success: false, message: 'Failed to fetch inventory' });
+  }
+});
+
+
 app.post('/api/supervisor/inventory', requireSupervisorAuth, async (req, res) => {
     const { type, id, brand, pricing, image, ...specificData } = req.body;
+    console.log('item type in api:',type);
     try {
         let result;
-        if (type === 'earphones') {
+        const typeLower = type.toLowerCase();
+        if (typeLower === 'earphones') {
             result = await addEarphones({ id, title: specificData.title, brand, pricing, image, design: specificData.design, batteryLife: specificData.battery_life });
-        } else if (type === 'chargers') {
-            result = await addCharger({ id, title: specificData.title, brand, pricing, image, wattage: specificData.wattage, type: specificData.type, outputCurrent: specificData.outputCurrent });
-        } else if (type === 'mouses') {
-            result = await addMouse({ id, title: specificData.title, brand, pricing, image, type: specificData.type, connectivity: specificData.connectivity, resolution: specificData.resolution });
-        } else if (type === 'smartwatches') {
-            result = await addSmartwatch({ id, title: specificData.title, brand, pricing, image, displaySize: specificData.displaySize, displayType: specificData.displayType, batteryRuntime: specificData.batteryRuntime });
+        } else if (typeLower === 'chargers') {
+            result = await addCharger({ id, title: specificData.title, brand, pricing, image, wattage: specificData.wattage, type: specificData.Pin_type, outputCurrent: specificData.output_current });
+        } else if (typeLower === 'mouses') {
+            result = await addMouse({ id, title: specificData.title, brand, pricing, image, type: specificData.wire_type, connectivity: specificData.connectivity, resolution: specificData.resolution });
+        } else if (typeLower === 'smartwatches') {
+            result = await addSmartwatch({ id, title: specificData.title, brand, pricing, image, displaySize: specificData.display_size, displayType: specificData.display_type, batteryRuntime: specificData.battery_runtime });
         } else {
             return res.status(400).json({ success: false, message: 'Invalid item type' });
         }
@@ -241,7 +353,7 @@ app.put('/api/supervisor/inventory/:type/:id', requireSupervisorAuth, async (req
   const { brand, pricing, image, ...specificData } = req.body;
   try {
       let result;
-      if (type === 'phone') {
+      if (type === 'phones') {
           result = await updatePhone(id, {
               brand,
               pricing: { basePrice: pricing.originalPrice, discount: pricing.discount },
@@ -259,7 +371,7 @@ app.put('/api/supervisor/inventory/:type/:id', requireSupervisorAuth, async (req
               rom: specificData.rom,
               condition: specificData.condition
           });
-      } else if (type === 'laptop') {
+      } else if (type === 'laptops') {
           result = await updateLaptop(id, {
               brand,
               pricing: { basePrice: pricing.originalPrice, discount: pricing.discount },
@@ -854,7 +966,6 @@ app.get('/api/customer/listings', requireCustomerAuth, async (req, res) => {
 
     const laptopApplications = await getLaptopApplicationsByUserId(userId);
     const phoneApplications = await getPhoneApplicationsByUserId(userId);
-
     const listings = [
       ...laptopApplications.map(app => ({ ...app, type: 'laptop' })),
       ...phoneApplications.map(app => ({ ...app, type: 'phone' })),
@@ -1103,9 +1214,6 @@ app.get('/profile', requireCustomerAuth, (req, res) => {
     res.render("user-profile");
 });
 
-app.get('/orders', requireCustomerAuth, (req, res) => {
-    res.render("orders");
-});
 
 app.get('/login', (req, res) => {
     res.render("login-interfaces");
@@ -1149,59 +1257,7 @@ app.get('/api/supervisor/logout', (req, res) => {
     res.redirect('/supervisor/login');
 });
 
-// Admin routes
-app.get('/admin/login', (req, res) => {
-    res.render("admin/admin-login", { error: null });
-});
 
-app.get('/admin/home', requireAdminAuth, (req, res) => {
-    res.render("admin/home", { user: req.session.user });
-});
-
-// Admin laptop management routes
-
-app.post('/api/admin/login', async (req, res) => {
-    const { admin_id, password, security_token } = req.body;
-    
-    try {
-        const db = await getDb();
-        
-        const admin = await db.get(
-            'SELECT * FROM admins WHERE admin_id = ?',
-            [admin_id]
-        );
-        
-        if (!admin) {
-            console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
-            return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
-        }
-        
-        const passwordMatch = await bcrypt.compare(password, admin.password);
-        const tokenMatch = (security_token === admin.security_token);
-        
-        if (passwordMatch && tokenMatch) {
-            req.session.user = {
-                adminId: admin.admin_id,
-                name: admin.name,
-                role: 'admin',
-                loginTime: new Date().toISOString()
-            };
-            
-            return res.json({ success: true, name: admin.name });
-        } else {
-            console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
-            return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
-        }
-    } catch (error) {
-        console.error('Admin login error:', error);
-        return res.status(500).json({ success: false, message: 'Server error during login' });
-    }
-});
-
-app.get('/api/admin/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/admin/login');
-});
 
 // API routes for laptop management
 app.get('/api/laptops', async (req, res) => {
@@ -1315,9 +1371,6 @@ app.get('/product/:id', async (req, res) => {
     try {
         const phoneId = parseInt(req.params.id);
         const phone = await getPhoneById(phoneId);
-        
-        
-        
         
         res.render('product-details', { phone });
     } catch (error) {
@@ -1475,63 +1528,68 @@ app.get('/api/supervisor/verify-applications', requireSupervisorAuth, async (req
 // API to get specific application details
 app.get('/api/supervisor/application/:type/:id', requireSupervisorAuth, async (req, res) => {
   try {
-    const { type, id } = req.params;
-    let application;
-    if (type === 'phone') {
-      application = await getPhoneApplicationById(id);
-    } else if (type === 'laptop') {
-      application = await getLaptopApplicationById(id);
-    } else {
-      return res.status(400).json({ success: false, message: 'Invalid application type' });
-    }
+      const { type, id } = req.params;
+      let application;
+      if (type === 'phone') {
+          application = await getPhoneApplicationById(id);
+      } else if (type === 'laptop') {
+          application = await getLaptopApplicationById(id);
+      } else {
+          return res.status(400).json({ success: false, message: 'Invalid application type' });
+      }
 
-    if (!application) {
-      return res.status(404).json({ success: false, message: 'Application not found' });
-    }
+      if (!application) {
+          return res.status(404).json({ success: false, message: 'Application not found' });
+      }
 
-    res.json({ success: true, application, type });
+      console.log('Application data sent:', application); // Debugging
+      res.json({ success: true, application, type });
   } catch (error) {
-    console.error('Error fetching application details:', error);
-    res.status(500).json({ success: false, message: 'Error fetching application details' });
+      console.error('Error fetching application details:', error);
+      res.status(500).json({ success: false, message: 'Error fetching application details' });
   }
 });
 
 // API to update application status with supervisor actions
 app.put('/api/supervisor/application/:type/:id/status', requireSupervisorAuth, async (req, res) => {
   try {
-    const { type, id } = req.params;
-    const { status, rejectionReason, price } = req.body;
+      const { type, id } = req.params;
+      const { status, rejectionReason, price } = req.body;
 
-    if (!status || !['pending', 'approved', 'rejected', 'processing'].includes(status)) {
-      return res.status(400).json({ success: false, message: 'Invalid status' });
-    }
+      if (!status || !['pending', 'approved', 'rejected', 'processing'].includes(status)) {
+          return res.status(400).json({ success: false, message: 'Invalid status' });
+      }
 
-    let result;
-    if (type === 'phone') {
-      result = await updatePhoneApplicationStatus(id, status, status === 'rejected' ? rejectionReason : null, status === 'approved' ? price : null);
-    } else if (type === 'laptop') {
-      result = await updateLaptopApplicationStatus(id, status, status === 'rejected' ? rejectionReason : null, status === 'approved' ? price : null);
-    } else {
-      return res.status(400).json({ success: false, message: 'Invalid application type' });
-    }
+      if (status === 'approved' && (!price || price <= 0)) {
+          return res.status(400).json({ success: false, message: 'Valid price is required for approval' });
+      }
 
-    if (result.success) {
-      const db = await getDb();
-      await db.run(
-        'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
-        [
-          req.session.user.userId,
-          `Updated ${type} application #${id} to ${status}${status === 'rejected' && rejectionReason ? `: ${rejectionReason}` : ''}${status === 'approved' && price ? ` with price ${price}` : ''}`,
-          new Date().toISOString()
-        ]
-      );
-      res.json({ success: true, message: 'Status updated successfully' });
-    } else {
-      res.status(500).json({ success: false, message: result.message || 'Error updating status' });
-    }
+      let result;
+      if (type === 'phone') {
+          result = await updatePhoneApplicationStatus(id, status, rejectionReason, price);
+      } else if (type === 'laptop') {
+          result = await updateLaptopApplicationStatus(id, status, rejectionReason, price);
+      } else {
+          return res.status(400).json({ success: false, message: 'Invalid application type' });
+      }
+
+      if (result.success) {
+          const db = await getDb();
+          await db.run(
+              'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
+              [
+                  req.session.user.userId,
+                  `Updated ${type} application #${id} to ${status}${status === 'rejected' && rejectionReason ? `: ${rejectionReason}` : ''}${status === 'approved' ? ` with price ₹${price}` : ''}`,
+                  new Date().toISOString()
+              ]
+          );
+          res.json({ success: true, message: 'Status updated successfully' });
+      } else {
+          res.status(500).json({ success: false, message: result.message || 'Error updating status' });
+      }
   } catch (error) {
-    console.error('Error updating application status:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+      console.error('Error updating application status:', error);
+      res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
@@ -1553,13 +1611,10 @@ app.get('/api/supervisor/approved-listings', requireSupervisorAuth, async (req, 
 app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, async (req, res) => {
   try {
       const { type, id } = req.params;
-      const { price, condition, discount } = req.body;
+      const { discount, condition } = req.body;
 
-      if (!price || isNaN(price) || price <= 0) {
-          return res.status(400).json({ success: false, message: 'Valid price is required' });
-      }
-      if (!['Used', 'Like New', 'Refurbished'].includes(condition)) {
-          return res.status(400).json({ success: false, message: 'Invalid condition' });
+      if (!condition || !['Used', 'Like New', 'Refurbished'].includes(condition)) {
+          return res.status(400).json({ success: false, message: 'Valid condition is required' });
       }
       if (discount && (isNaN(discount) || discount < 0 || discount > 100)) {
           return res.status(400).json({ success: false, message: 'Discount must be between 0 and 100' });
@@ -1574,12 +1629,14 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
           return res.status(400).json({ success: false, message: 'Invalid type' });
       }
 
-      if (!application || application.status !== 'approved') {
-          return res.status(404).json({ success: false, message: 'Approved application not found' });
+      if (!application || application.status !== 'approved' || !application.price) {
+          return res.status(404).json({ success: false, message: 'Approved application with price not found' });
       }
 
+  
       const db = await getDb();
       if (type === 'phone') {
+        const price=(application.price*1.2)/(1-(discount/100));
           const phoneData = {
               id: Date.now(),
               brand: application.brand,
@@ -1595,27 +1652,28 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
               weight: application.weight || 'N/A',
               ram: application.ram,
               rom: application.rom,
-              basePrice: price, // Use price from input
+              basePrice:price, // Use the stored price
               discount: discount || 0,
-              condition: condition // Use condition from input
+              condition: condition
           };
           await addPhone(phoneData);
           await updatePhoneApplicationStatus(id, 'added_to_inventory');
       } else if (type === 'laptop') {
+        const price=(application.price*1.5).toFixed(0);
           const laptopData = {
               id: Date.now(),
               brand: application.brand,
               series: application.model,
               processorName: application.processor,
               processorGeneration: application.generation || 'N/A',
-              basePrice: price, // Use price from input
+              basePrice: price, // Use the stored price
               discount: discount || 0,
               ram: application.ram,
               storage_type: 'SSD',
               storage_capacity: application.storage,
               display_size: parseFloat(application.display_size) || 0,
               weight: parseFloat(application.weight) || 0,
-              condition: condition, // Use condition from input
+              condition: condition,
               os: application.os || 'N/A',
               image: application.image_path
           };
@@ -1625,7 +1683,7 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
 
       await db.run(
           'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
-          [req.session.user.userId, `Added ${type} #${id} to inventory with price ₹${price}, condition ${condition}, and ${discount || 0}% discount`, new Date().toISOString()]
+          [req.session.user.userId, `Added ${type} #${id} to inventory with price ₹${application.price}, condition ${condition}, and ${discount || 0}% discount`, new Date().toISOString()]
       );
 
       res.json({ success: true, message: 'Added to inventory successfully' });
@@ -1634,52 +1692,275 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
       res.status(500).json({ success: false, message: 'Error adding to inventory' });
   }
 });
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+
+app.get('/buy/:type/:id', requireCustomerAuth, async (req, res) => {
+  try {
+    const accessoryType = req.params.type.toLowerCase();
+    const accessoryId = req.params.id;
+    const userId = req.session.user.userId;
+
+    const fetchFunctions = {
+      'earphone': getEarphonesById,
+      'charger': getChargerById,
+      'mouse': getMouseById,
+      'smartwatch': getSmartwatchById,
+      'product': getPhoneById,
+      'laptop': getLaptopById
+    };
+
+    if (!fetchFunctions[accessoryType]) {
+      return res.status(400).render('404', { message: 'Invalid accessory type' });
+    }
+
+    const fetchFunction = fetchFunctions[accessoryType];
+    const accessory = await fetchFunction(accessoryId);
+
+    if (!accessory) {
+      return res.status(404).render('404', { message: `${accessoryType} not found` });
+    }
+
+    const finalPrice = parseFloat(accessory.pricing.originalPrice) -
+      (parseFloat(accessory.pricing.originalPrice) * parseFloat(accessory.pricing.discount) / 100);
+
+    res.render('dummy-payment', {
+      price: finalPrice,
+      type: accessoryType,
+      id: accessoryId,
+      accessory: accessory,
+      userId: userId // Pass userId to the template
+    });
+  } catch (error) {
+    console.error(`Error rendering payment page for ${req.params.type}:`, error);
+    res.status(500).render('error', { message: 'Failed to load payment page' });
+  }
+});
+app.get('/orders', requireCustomerAuth, async (req, res) => {
+  let order = {};
+  try {
+    if (req.query.order) {
+      order = JSON.parse(req.query.order);
+    } else if (req.query.orderId) {
+      order = await getOrderById(req.query.orderId);
+      if (!order || order.user_id !== req.session.user.userId) {
+        return res.status(404).render('404', { message: 'Order not found or unauthorized' });
+      }
+    }
+    res.render('orders', { order });
+  } catch (error) {
+    console.error('Error in /orders route:', error);
+    res.status(500).render('error', { message: 'Failed to load order confirmation' });
+  }
+});
+app.get('/myorders', requireCustomerAuth, (req, res) => {
+  try {
+    // Orders will be fetched client-side via /api/myorders
+    res.render('myorders', { orders: [] });
+  } catch (error) {
+    console.error('Error rendering myorders page:', error);
+    res.status(500).render('error', { message: 'Failed to load my orders' });
+  }
 });
 
-// Route to render dummy payment page for any accessory
-app.get('/buy/:type/:id', async (req, res) => {
-  try {
-      const accessoryType = req.params.type.toLowerCase(); // e.g., "earphone", "charger"
-      const accessoryId = req.params.id;
-
-      // Map accessory types to their respective fetch functions
-      const fetchFunctions = {
-          'earphone': getEarphonesById,
-          'charger': getChargerById, 
-          'mouse' :getMouseById,
-          'smartwatch':getSmartwatchById,
-          'product':getPhoneById,
-          'laptop':getLaptopById
-      };
-
-      // Check if the accessory type is supported
-      if (!fetchFunctions[accessoryType]) {
-          return res.status(400).render('404', { message: 'Invalid accessory type' });
-      }
-
-      // Fetch the accessory using the appropriate function
-      const fetchFunction = fetchFunctions[accessoryType];
-      const accessory = await fetchFunction(accessoryId);
-
-      if (!accessory) {
-          return res.status(404).render('404', { message: `${accessoryType} not found` });
-      }
-
-      // Calculate final price (assuming all accessories have pricing structure)
-      const finalPrice = parseFloat(accessory.pricing.originalPrice) - 
-          (parseFloat(accessory.pricing.originalPrice) * parseFloat(accessory.pricing.discount) / 100);
-
-      // Render the dummy-payment.ejs with price and accessory details
-      res.render('dummy-payment', { 
-          price: finalPrice,
-          type: accessoryType,
-          id: accessoryId
-          // Optionally: accessory: accessory (if you want to pass the full object)
-      });
-  } catch (error) {
-      console.error(`Error rendering payment page for ${req.params.type}:`, error);
-      res.status(500).render('error', { message: 'Failed to load payment page' });
+app.get('/checkout', (req, res) => {
+  const session = req.session.user;
+  if (!session || session.role !== 'customer') {
+      return res.redirect('/login');
   }
+  const userId = session.userId;
+  // Cart is managed client-side; pass userId to fetch from localStorage
+  res.render('checkout', { userId });
+});
+
+  function requireAdminAuth(req, res, next) {
+    if (req.session.user && req.session.user.role === 'admin') {
+      next();
+    } else {
+      res.redirect('/admin/login');
+    }
+  }
+
+  // Admin Routes
+app.get('/admin/login', (req, res) => {
+  if (req.session.user && req.session.user.role === 'admin') {
+    return res.redirect('/admin/home');
+  }
+  res.render('admin/admin-login', { error: null });
+});
+
+app.get('/admin/home', requireAdminAuth, (req, res) => {
+  res.render('admin/home', { admin: req.session.user });
+});
+
+app.post('/api/admin/login', async (req, res) => {
+  const { admin_id, password, security_token } = req.body;
+
+  if (!admin_id || !password || !security_token) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
+
+  try {
+    const db = await getDb();
+    const admin = await db.get('SELECT * FROM admins WHERE admin_id = ?', [admin_id]);
+
+    if (!admin) {
+      console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
+      return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, admin.password);
+    const tokenMatch = security_token === admin.security_token;
+
+    if (passwordMatch && tokenMatch) {
+      req.session.user = {
+        adminId: admin.admin_id,
+        name: admin.name,
+        role: 'admin',
+        loginTime: new Date().toISOString()
+      };
+      return res.json({ success: true, name: admin.name, redirect: '/admin/home' });
+    } else {
+      console.log(`Failed admin login attempt: ${admin_id} at ${new Date().toISOString()}`);
+      return res.status(401).json({ success: false, message: 'Invalid credentials. This attempt has been logged.' });
+    }
+  } catch (error) {
+    console.error('Admin login error:', error);
+    return res.status(500).json({ success: false, message: 'Server error during login' });
+  }
+});
+
+// Render Manage Supervisors Page
+// Render Manage Supervisors Page
+app.get('/admin/manage-supervisors', requireAdminAuth, (req, res) => {
+  res.render('admin/manage-supervisors', { admin: req.session.user });
+});
+
+// API to Get All Supervisors
+app.get('/api/admin/supervisors', requireAdminAuth, async (req, res) => {
+  try {
+    const db = await getDb();
+    const supervisors = await db.all(`
+      SELECT user_id, first_name, last_name, email, phone, username, created_at 
+      FROM supervisors
+    `);
+    console.log('Fetched supervisors:', supervisors); // Debug log
+    res.json({ success: true, supervisors });
+  } catch (error) {
+    console.error('Error fetching supervisors:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch supervisors' });
+  }
+});
+
+// API to Delete a Supervisor
+app.delete('/api/admin/supervisors/:userId', requireAdminAuth, async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const db = await getDb();
+    const result = await db.run('DELETE FROM supervisors WHERE user_id = ?', [userId]);
+    if (result.changes > 0) {
+      res.json({ success: true, message: 'Supervisor deleted successfully' });
+    } else {
+      res.status(404).json({ success: false, message: 'Supervisor not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting supervisor:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete supervisor' });
+  }
+});
+
+// API to Add a Supervisor (Ensure compatibility with your schema)
+app.post('/api/admin/add-supervisor', requireAdminAuth, async (req, res) => {
+  const { firstName, lastName, email, phone, username, password } = req.body;
+  const userId = `supervisor_${Date.now()}`; // Simple unique user_id; adjust if needed
+  try {
+    const db = await getDb();
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db.run(`
+      INSERT INTO supervisors (user_id, first_name, last_name, email, phone, username, password)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [userId, firstName, lastName, email, phone, username, hashedPassword]);
+    res.json({ success: true, message: 'Supervisor added successfully' });
+  } catch (error) {
+    console.error('Error adding supervisor:', error);
+    res.status(500).json({ success: false, message: 'Failed to add supervisor' });
+  }
+});
+
+app.get('/api/admin/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Error during logout:', err);
+      return res.json({ success: false, message: 'Logout failed' });
+    }
+    res.json({ success: true, redirect: '/admin/login' });
+  });
+});
+
+app.get('/admin/profile', requireAdminAuth, async (req, res) => {
+  try {
+    const db = await getDb();
+    const admin = await db.get('SELECT admin_id, name, email FROM admins WHERE admin_id = ?', [req.session.user.adminId]);
+    if (!admin) {
+      return res.status(404).render('error', { message: 'Admin not found' });
+    }
+    res.render('admin/admin-profile', { admin });
+  } catch (error) {
+    console.error('Error fetching admin profile:', error);
+    res.status(500).render('error', { message: 'Failed to load profile' });
+  }
+});
+
+
+// API to create an order
+app.post('/api/orders', requireCustomerAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.userId;
+    const orderData = req.body;
+
+    const result = await createOrder(userId, orderData);
+    if (!result.success) {
+      return res.status(500).json({ success: false, message: result.message });
+    }
+
+    res.json({ success: true, orderId: result.orderId });
+  } catch (error) {
+    console.error('Error in /api/orders:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// API to get user's orders
+app.get('/api/myorders', requireCustomerAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.userId;
+    const orders = await getOrdersByUserId(userId);
+    res.json(orders);
+  } catch (error) {
+    console.error('Error in /api/myorders:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// API to get a specific order by ID
+app.get('/api/orders/:orderId', requireCustomerAuth, async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const order = await getOrderById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Ensure the order belongs to the requesting user
+    if (order.user_id !== req.session.user.userId) {
+      return res.status(403).json({ success: false, message: 'Unauthorized access to order' });
+    }
+
+    res.json({ success: true, order });
+  } catch (error) {
+    console.error('Error in /api/orders/:orderId:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });

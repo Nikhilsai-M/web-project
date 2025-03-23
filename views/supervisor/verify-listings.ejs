@@ -25,9 +25,10 @@
         <aside class="sidebar">
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="/supervisor" ><i class="fas fa-house"></i> Home</a></li>
+                    <li><a href="/supervisor"><i class="fas fa-house"></i> Home</a></li>
                     <li><a href="/supervisor/verify-listings" class="active"><i class="fas fa-clipboard-check"></i> Verify Product Listings</a></li>
-                    <li><a href="/supervisor/manage-inventory" ><i class="fas fa-boxes"></i> Manage Inventory</a></li>
+                    <li><a href="/supervisor/manage-inventory"><i class="fas fa-boxes"></i> Manage Inventory</a></li>
+                    <li><a href="/supervisor/statistics"><i class="fas fa-chart-bar"></i> Statistics</a></li>
                     <li><a id="logout-button" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </nav>
@@ -47,6 +48,7 @@
                 <button class="filter-btn" data-filter="processing">On Processing</button>
                 <button class="filter-btn" data-filter="verified">Verified</button>
                 <button class="filter-btn" data-filter="added_to_inventory">Added to Inventory</button>
+                <button class="filter-btn" data-filter="rejected">Rejected</button> <!-- Added Rejected filter -->
             </div>
 
             <div class="listings-container" id="listingsContainer">

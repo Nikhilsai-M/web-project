@@ -1,26 +1,29 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("supervisor/home.js loaded!");
 
-    // Fetch dashboard data (pending listings and total items added)
     async function fetchDashboardData() {
         try {
             const response = await fetch('/api/supervisor/dashboard');
             const data = await response.json();
 
             if (data.success) {
-                document.getElementById('pendingListings').textContent = data.pendingListings || 0;
-                document.getElementById('itemsAdded').textContent = data.itemsAdded || 0; // Updated ID and key
+                const pendingListingsEl = document.getElementById('pendingListings');
+                const itemsAddedEl = document.getElementById('itemsAdded');
+                if (pendingListingsEl) pendingListingsEl.textContent = data.pendingListings || 0;
+                if (itemsAddedEl) itemsAddedEl.textContent = data.itemsAdded || 0;
 
                 const recentActivityList = document.getElementById('recentActivityList');
-                recentActivityList.innerHTML = '';
-                if (data.recentActivity && data.recentActivity.length > 0) {
-                    data.recentActivity.forEach(activity => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<i class="fas fa-check-circle"></i> ${activity}`;
-                        recentActivityList.appendChild(li);
-                    });
-                } else {
-                    recentActivityList.innerHTML = '<li><i class="fas fa-circle-notch"></i> No recent activity available.</li>';
+                if (recentActivityList) {
+                    recentActivityList.innerHTML = '';
+                    if (data.recentActivity && data.recentActivity.length > 0) {
+                        data.recentActivity.forEach(activity => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `<i class="fas fa-check-circle"></i> ${activity}`;
+                            recentActivityList.appendChild(li);
+                        });
+                    } else {
+                        recentActivityList.innerHTML = '<li><i class="fas fa-circle-notch"></i> No recent activity available.</li>';
+                    }
                 }
             } else {
                 console.error('Failed to load dashboard data:', data.message);
@@ -30,22 +33,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Logout functionality
     const logoutButton = document.getElementById("logout-button");
     if (logoutButton) {
         logoutButton.addEventListener("click", async function(e) {
             e.preventDefault();
-
             try {
                 const response = await fetch('/api/supervisor/logout', {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'Content-Type': 'application/json' }
                 });
-
                 const data = await response.json();
-
                 if (data.success) {
                     localStorage.removeItem("currentSession");
                     if (!localStorage.getItem("rememberUser")) {
@@ -63,13 +60,14 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Initial fetch of dashboard data (if on dashboard page)
-    if (document.getElementById('pendingListings')) {
+    // Only fetch dashboard data if on the home page
+    if (window.location.pathname === '/supervisor') {
         fetchDashboardData();
     }
 
-    // Expose function to update items added count dynamically
     window.updateItemsAdded = function () {
-        fetchDashboardData(); // Re-fetch dashboard data to update the count
+        if (window.location.pathname === '/supervisor') {
+            fetchDashboardData();
+        }
     };
 });

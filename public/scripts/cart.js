@@ -33,9 +33,8 @@ document.addEventListener("DOMContentLoaded", function() {
             window.location.href = "/";
         }
     });
-    
     document.querySelector(".checkout-btn").addEventListener("click", function() {
-        alert("Proceeding to checkout...");
+        window.location.href = "/checkout";
     });
 });
 

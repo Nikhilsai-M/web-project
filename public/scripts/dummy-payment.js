@@ -17,6 +17,63 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+async function processPayment() {
+    showMessage("Processing payment...", "info");
+
+    const selectedMethod = document.querySelector(".payment-method.selected")?.dataset.method;
+    if (!selectedMethod) {
+        showMessage("Please select a payment method.", "error");
+        return;
+    }
+
+    const amount = parseFloat(document.querySelector(".price").textContent.replace("₹", "").replace(",", ""));
+    const orderType = document.getElementById("order-type").value || "unknown";
+    const orderIdPrefix = document.getElementById("order-id").value || "unknown";
+    const orderAccessory = JSON.parse(document.getElementById("order-accessory").value || "{}");
+
+    const orderId = `${orderType.toUpperCase().slice(0, 3)}-${orderIdPrefix}-${Date.now()}`;
+    const orderData = {
+        orderId: orderId,
+        items: [{
+            type: orderType,
+            id: orderIdPrefix,
+            accessory: orderAccessory,
+            quantity: 1,
+            amount: amount
+        }],
+        totalAmount: amount,
+        paymentMethod: selectedMethod,
+        timestamp: new Date().toISOString()
+    };
+
+    try {
+        const response = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.message || 'Failed to save order');
+        }
+
+        setTimeout(() => {
+            showMessage("Payment successful!", "success");
+            setTimeout(() => {
+                console.log('Redirecting to:', `/orders?orderId=${result.orderId}`);
+                window.location.href = `/orders?orderId=${result.orderId}`;
+                setTimeout(() => {
+                    window.location.href = '/myorders';
+                }, 3000); // Redirect to /myorders after showing confirmation
+            }, 2000);
+        }, 1500);
+    } catch (error) {
+        console.error('Payment error:', error);
+        showMessage("Payment failed: " + error.message, "error");
+    }
+}
+
 function showPaymentDetails(method) {
     const paymentDetails = document.getElementById("payment-details");
     let content = "";
@@ -70,17 +127,6 @@ function verifyUpi() {
     } else {
         showMessage("Please enter a valid UPI ID", "error");
     }
-}
-
-function processPayment() {
-    showMessage("Processing payment...", "info");
-    
-    setTimeout(() => {
-        showMessage("Payment successful!", "success");
-        setTimeout(() => {
-            window.location.href = "/orders";
-        }, 2000);
-    }, 1500);
 }
 
 function showMessage(message, type) {

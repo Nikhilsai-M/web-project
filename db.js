@@ -109,7 +109,7 @@ export async function initializeDatabase() {
         id INTEGER PRIMARY KEY,
         brand TEXT NOT NULL,
         model TEXT NOT NULL,
-        color TEXT NOT NULL,
+        color TEXT ,
         image TEXT NOT NULL,
         processor TEXT NOT NULL,
         display TEXT NOT NULL,
@@ -183,7 +183,7 @@ await db.exec(`
     image_path TEXT,
     status TEXT DEFAULT 'pending',
     rejection_reason TEXT,
-    price REAL,  -- New column for price
+    price REAL, 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `);
@@ -247,7 +247,31 @@ await db.exec(`
         )
       `);
       
-   
+        // In initializeDatabase, after other table creations
+await db.exec(`
+  CREATE TABLE IF NOT EXISTS orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id TEXT UNIQUE NOT NULL,
+    user_id TEXT NOT NULL,
+    total_amount REAL NOT NULL,
+    payment_method TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES customers(user_id)
+  )
+`);
+
+await db.exec(`
+  CREATE TABLE IF NOT EXISTS order_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id TEXT NOT NULL,
+    item_type TEXT NOT NULL,
+    item_id TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    amount REAL NOT NULL,
+    accessory TEXT NOT NULL, -- JSON string of accessory details
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+  )
+`);
     // Check if any supervisors exist, add test ones if not
     const supervisorCount = await db.get('SELECT COUNT(*) as count FROM supervisors');
     
@@ -291,7 +315,77 @@ await db.exec(`
       console.log('Test admins added to database');
     }
     
+// Check if any phone applications exist, add test ones if not
+const phoneAppCount = await db.get('SELECT COUNT(*) as count FROM phone_applications');
+if (phoneAppCount.count === 0) {
+  await db.run(
+    `INSERT INTO phone_applications (user_id, brand, model, ram, rom, processor, network, size, weight, device_age, 
+      switching_on, phone_calls, cameras_working, battery_issues, physically_damaged, sound_issues, location, 
+      email, phone, battery, camera, os, image_path, status, created_at) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      'user_123', 'Samsung', 'Galaxy S20', '8GB', '128GB', 'Exynos 990', '4G', '6.2"', '163g', '2 years',
+      'Yes', 'Yes', 'Yes', 'No', 'No', 'No', 'New York', 'test@example.com', '1234567890', '4000mAh', 
+      '12MP', 'Android 11', 'https://example.com/image1.jpg', 'pending', '2025-03-20 10:00:00'
+    ]
+  );
+  await db.run(
+    `INSERT INTO phone_applications (user_id, brand, model, ram, rom, processor, network, size, weight, device_age, 
+      switching_on, phone_calls, cameras_working, battery_issues, physically_damaged, sound_issues, location, 
+      email, phone, battery, camera, os, image_path, status, created_at) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      'user_124', 'Apple', 'iPhone 12', '4GB', '64GB', 'A14 Bionic', '5G', '6.1"', '164g', '1 year',
+      'Yes', 'Yes', 'Yes', 'Yes', 'No', 'No', 'California', 'test2@example.com', '0987654321', '2810mAh', 
+      '12MP', 'iOS 14', 'https://example.com/image2.jpg', 'approved', '2025-03-21 12:00:00'
+    ]
+  );
+  console.log('Test phone applications added to database');
+}
 
+// Check if any laptop applications exist, add test ones if not
+const laptopAppCount = await db.get('SELECT COUNT(*) as count FROM laptop_applications');
+if (laptopAppCount.count === 0) {
+  await db.run(
+    `INSERT INTO laptop_applications (user_id, brand, model, ram, storage, processor, generation, display_size, 
+      weight, os, device_age, battery_issues, location, name, email, phone, image_path, status, created_at) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      'user_123', 'Dell', 'XPS 13', '16GB', '512GB', 'Intel i7', '11th', '13.4"', '1.2kg', 'Windows 11',
+      '1.5 years', 'No', 'Texas', 'John Doe', 'john@example.com', '1112223333', 'https://example.com/image3.jpg',
+      'pending', '2025-03-22 09:00:00'
+    ]
+  );
+  await db.run(
+    `INSERT INTO laptop_applications (user_id, brand, model, ram, storage, processor, generation, display_size, 
+      weight, os, device_age, battery_issues, location, name, email, phone, image_path, status, created_at) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      'user_124', 'Apple', 'MacBook Air', '8GB', '256GB', 'M1', '', '13.3"', '1.29kg', 'macOS',
+      '2 years', 'Yes', 'Florida', 'Jane Smith', 'jane@example.com', '4445556666', 'https://example.com/image4.jpg',
+      'rejected', '2025-03-22 14:00:00'
+    ]
+  );
+  console.log('Test laptop applications added to database');
+}
+
+// Check if any supervisor activity exists, add test ones if not
+const activityCount = await db.get('SELECT COUNT(*) as count FROM supervisor_activity');
+if (activityCount.count === 0) {
+  await db.run(
+    'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
+    ['supervisor_1', 'Updated phone application #1 to approved with price 500', '2025-03-21 12:30:00']
+  );
+  await db.run(
+    'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
+    ['supervisor_1', 'Added phone #12345 to inventory with price ₹500, condition Used, and 10% discount', '2025-03-21 13:00:00']
+  );
+  await db.run(
+    'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
+    ['supervisor_1', 'Updated laptop application #2 to rejected: Damaged screen', '2025-03-22 14:30:00']
+  );
+  console.log('Test supervisor activity added to database');
+}
 
     const mouseCount = await db.get('SELECT COUNT(*) as count FROM mouses');
 
@@ -1264,20 +1358,6 @@ export async function getPhoneApplicationById(id) {
   }
 }
 
-export async function updatePhoneApplicationStatus(id, status, rejectionReason = null, price = null) {
-  try {
-    const db = await getDb();
-    await db.run(
-      'UPDATE phone_applications SET status = ?, rejection_reason = ?, price = ? WHERE id = ?',
-      [status, rejectionReason, price, id]
-    );
-    return { success: true };
-  } catch (error) {
-    console.error('Error updating phone application status:', error);
-    return { success: false, message: error.message };
-  }
-}
-
 
 export async function deletePhoneApplication(id) {
   try {
@@ -1363,18 +1443,33 @@ export async function getLaptopApplicationById(id) {
     throw error;
   }
 }
+export async function updatePhoneApplicationStatus(id, status, rejectionReason = null, price = null) {
+  const db = await getDb();
+  try {
+      const result = await db.run(
+          'UPDATE phone_applications SET status = ?, rejection_reason = ?, price = ? WHERE id = ?',
+          [status, rejectionReason, price, id]
+      );
+      console.log(`Updated phone application #${id} with price: ${price}`); // Debugging
+      return result.changes > 0 ? { success: true } : { success: false, message: 'Application not found' };
+  } catch (error) {
+      console.error('Error updating phone application status:', error);
+      return { success: false, message: 'Database error' };
+  }
+}
 
 export async function updateLaptopApplicationStatus(id, status, rejectionReason = null, price = null) {
+  const db = await getDb();
   try {
-    const db = await getDb();
-    await db.run(
-      'UPDATE laptop_applications SET status = ?, rejection_reason = ?, price = ? WHERE id = ?',
-      [status, rejectionReason, price, id]
-    );
-    return { success: true };
+      const result = await db.run(
+          'UPDATE laptop_applications SET status = ?, rejection_reason = ?, price = ? WHERE id = ?',
+          [status, rejectionReason, price, id]
+      );
+      console.log(`Updated laptop application #${id} with price: ${price}`); // Debugging
+      return result.changes > 0 ? { success: true } : { success: false, message: 'Application not found' };
   } catch (error) {
-    console.error('Error updating laptop application status:', error);
-    return { success: false, message: error.message };
+      console.error('Error updating laptop application status:', error);
+      return { success: false, message: 'Database error' };
   }
 }
 
@@ -1593,7 +1688,7 @@ export async function addCharger(chargerData) {
     const { id, title, image, brand, wattage, type, pricing, outputCurrent } = chargerData;
 
     await db.run(
-      `INSERT INTO chargers (id, title, image, brand, wattage, type, original_price, discount, output_current) 
+      `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [id, title, image, brand, wattage, type, pricing.originalPrice, pricing.discount, outputCurrent]
     );
@@ -1849,5 +1944,149 @@ export async function deleteSmartwatch(id) {
   } catch (error) {
     console.error('Error deleting smartwatch:', error);
     return { success: false, message: error.message };
+  }
+}
+
+
+export async function createOrder(userId, orderData) {
+  try {
+    const db = await getDb();
+
+    // Start a transaction
+    await db.run('BEGIN TRANSACTION');
+
+    // Insert into orders table
+    const orderResult = await db.run(
+      `INSERT INTO orders (order_id, user_id, total_amount, payment_method) 
+       VALUES (?, ?, ?, ?)`,
+      [orderData.orderId, userId, orderData.totalAmount, orderData.paymentMethod]
+    );
+
+    // Insert each item into order_items
+    for (const item of orderData.items) {
+      await db.run(
+        `INSERT INTO order_items (order_id, item_type, item_id, quantity, amount, accessory) 
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+          orderData.orderId,
+          item.type,
+          item.id,
+          item.quantity,
+          item.amount,
+          JSON.stringify(item.accessory)
+        ]
+      );
+    }
+
+    // Update customer's orders_count
+    await db.run(
+      'UPDATE customers SET orders_count = orders_count + 1 WHERE user_id = ?',
+      [userId]
+    );
+
+    await db.run('COMMIT');
+    return { success: true, orderId: orderData.orderId };
+  } catch (error) {
+    await db.run('ROLLBACK');
+    console.error('Error creating order:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getOrdersByUserId(userId) {
+  try {
+    const db = await getDb();
+
+    // Get orders
+    const orders = await db.all(
+      'SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC',
+      [userId]
+    );
+
+    // For each order, get its items
+    for (let order of orders) {
+      const items = await db.all(
+        'SELECT * FROM order_items WHERE order_id = ?',
+        [order.order_id]
+      );
+      order.items = items.map(item => ({
+        type: item.item_type,
+        id: item.item_id,
+        quantity: item.quantity,
+        amount: item.amount,
+        accessory: JSON.parse(item.accessory)
+      }));
+      // Rename fields to match previous structure
+      order.orderId = order.order_id;
+      order.totalAmount = order.total_amount;
+      order.paymentMethod = order.payment_method;
+      order.timestamp = order.created_at;
+    }
+
+    return orders;
+  } catch (error) {
+    console.error('Error getting orders by user ID:', error);
+    throw error;
+  }
+}
+
+export async function getOrderById(orderId) {
+  try {
+    const db = await getDb();
+
+    const order = await db.get(
+      'SELECT * FROM orders WHERE order_id = ?',
+      [orderId]
+    );
+
+    if (!order) return null;
+
+    const items = await db.all(
+      'SELECT * FROM order_items WHERE order_id = ?',
+      [orderId]
+    );
+
+    order.items = items.map(item => ({
+      type: item.item_type,
+      id: item.item_id,
+      quantity: item.quantity,
+      amount: item.amount,
+      accessory: JSON.parse(item.accessory)
+    }));
+    order.orderId = order.order_id;
+    order.totalAmount = order.total_amount;
+    order.paymentMethod = order.payment_method;
+    order.timestamp = order.created_at;
+
+    return order;
+  } catch (error) {
+    console.error('Error getting order by ID:', error);
+    throw error;
+  }
+}
+
+//admin
+export async function getAllSupervisors() {
+  try {
+    const db = await getDb();
+    const supervisors = await db.all(`
+      SELECT user_id, first_name, last_name, email, phone, username, created_at 
+      FROM supervisors
+    `);
+    return supervisors;
+  } catch (error) {
+    console.error('Error fetching supervisors:', error);
+    throw error;
+  }
+}
+
+export async function deleteSupervisor(userId) {
+  try {
+    const db = await getDb();
+    const result = await db.run('DELETE FROM supervisors WHERE user_id = ?', [userId]);
+    return { success: result.changes > 0 };
+  } catch (error) {
+    console.error('Error deleting supervisor:', error);
+    throw error;
   }
 }

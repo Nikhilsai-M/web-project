@@ -80,7 +80,6 @@ function setupPaymentListeners() {
     const payBtn = document.getElementById("pay-btn");
     const messageDiv = document.getElementById("message");
 
-    // Fetch cart once at the top to avoid repeated localStorage calls
     const userId = document.getElementById("user-id").value;
     const userCartKey = `cart_${userId}`;
     const cart = JSON.parse(localStorage.getItem(userCartKey) || "[]");
@@ -92,7 +91,7 @@ function setupPaymentListeners() {
         });
     });
 
-    payBtn.addEventListener("click", function() {
+    payBtn.addEventListener("click", async function() {
         const selectedMethod = document.querySelector(".payment-method.selected")?.dataset.method;
         if (!selectedMethod) {
             showMessage("Please select a payment method.", "error");
@@ -101,7 +100,9 @@ function setupPaymentListeners() {
 
         showMessage("Processing payment...", "info");
 
+        const orderId = `ORD-${Date.now()}`;
         const orderData = {
+            orderId: orderId,
             items: cart.map(item => ({
                 type: determineItemType(item),
                 id: item.id,
@@ -114,23 +115,32 @@ function setupPaymentListeners() {
             timestamp: new Date().toISOString()
         };
 
-        let orders = JSON.parse(localStorage.getItem("userOrders")) || [];
-        orders.push(orderData);
-        localStorage.setItem("userOrders", JSON.stringify(orders));
-        localStorage.setItem("lastOrder", JSON.stringify(orderData));
+        try {
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
 
-        // Clear cart after successful payment
-        localStorage.setItem(userCartKey, JSON.stringify([]));
+            const result = await response.json();
+            if (!result.success) {
+                throw new Error(result.message || 'Failed to save order');
+            }
 
-        showMessage("Payment successful!", "success");
-        setTimeout(() => {
-            const orderQuery = encodeURIComponent(JSON.stringify(orderData));
-            console.log('Redirecting to:', `/orders?order=${orderQuery}`);
-            window.location.href = `/orders?order=${orderQuery}`;
-        }, 2000);
+            localStorage.setItem(userCartKey, JSON.stringify([]));
+
+            showMessage("Payment successful!", "success");
+            setTimeout(() => {
+                const orderQuery = encodeURIComponent(JSON.stringify(orderData));
+                console.log('Redirecting to:', `/orders?order=${orderQuery}`);
+                window.location.href = `/orders?order=${orderQuery}`;
+            }, 2000);
+        } catch (error) {
+            console.error('Payment error:', error);
+            showMessage("Payment failed: " + error.message, "error");
+        }
     });
 }
-
 function determineItemType(item) {
     if (item.model && item.ram && item.rom) return "phone";
     if (item.wattage && item.outputCurrent) return "charger";

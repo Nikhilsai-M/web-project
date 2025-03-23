@@ -247,7 +247,31 @@ await db.exec(`
         )
       `);
       
-   
+        // In initializeDatabase, after other table creations
+await db.exec(`
+  CREATE TABLE IF NOT EXISTS orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id TEXT UNIQUE NOT NULL,
+    user_id TEXT NOT NULL,
+    total_amount REAL NOT NULL,
+    payment_method TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES customers(user_id)
+  )
+`);
+
+await db.exec(`
+  CREATE TABLE IF NOT EXISTS order_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id TEXT NOT NULL,
+    item_type TEXT NOT NULL,
+    item_id TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    amount REAL NOT NULL,
+    accessory TEXT NOT NULL, -- JSON string of accessory details
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+  )
+`);
     // Check if any supervisors exist, add test ones if not
     const supervisorCount = await db.get('SELECT COUNT(*) as count FROM supervisors');
     
@@ -1849,5 +1873,123 @@ export async function deleteSmartwatch(id) {
   } catch (error) {
     console.error('Error deleting smartwatch:', error);
     return { success: false, message: error.message };
+  }
+}
+
+
+export async function createOrder(userId, orderData) {
+  try {
+    const db = await getDb();
+
+    // Start a transaction
+    await db.run('BEGIN TRANSACTION');
+
+    // Insert into orders table
+    const orderResult = await db.run(
+      `INSERT INTO orders (order_id, user_id, total_amount, payment_method) 
+       VALUES (?, ?, ?, ?)`,
+      [orderData.orderId, userId, orderData.totalAmount, orderData.paymentMethod]
+    );
+
+    // Insert each item into order_items
+    for (const item of orderData.items) {
+      await db.run(
+        `INSERT INTO order_items (order_id, item_type, item_id, quantity, amount, accessory) 
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+          orderData.orderId,
+          item.type,
+          item.id,
+          item.quantity,
+          item.amount,
+          JSON.stringify(item.accessory)
+        ]
+      );
+    }
+
+    // Update customer's orders_count
+    await db.run(
+      'UPDATE customers SET orders_count = orders_count + 1 WHERE user_id = ?',
+      [userId]
+    );
+
+    await db.run('COMMIT');
+    return { success: true, orderId: orderData.orderId };
+  } catch (error) {
+    await db.run('ROLLBACK');
+    console.error('Error creating order:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getOrdersByUserId(userId) {
+  try {
+    const db = await getDb();
+
+    // Get orders
+    const orders = await db.all(
+      'SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC',
+      [userId]
+    );
+
+    // For each order, get its items
+    for (let order of orders) {
+      const items = await db.all(
+        'SELECT * FROM order_items WHERE order_id = ?',
+        [order.order_id]
+      );
+      order.items = items.map(item => ({
+        type: item.item_type,
+        id: item.item_id,
+        quantity: item.quantity,
+        amount: item.amount,
+        accessory: JSON.parse(item.accessory)
+      }));
+      // Rename fields to match previous structure
+      order.orderId = order.order_id;
+      order.totalAmount = order.total_amount;
+      order.paymentMethod = order.payment_method;
+      order.timestamp = order.created_at;
+    }
+
+    return orders;
+  } catch (error) {
+    console.error('Error getting orders by user ID:', error);
+    throw error;
+  }
+}
+
+export async function getOrderById(orderId) {
+  try {
+    const db = await getDb();
+
+    const order = await db.get(
+      'SELECT * FROM orders WHERE order_id = ?',
+      [orderId]
+    );
+
+    if (!order) return null;
+
+    const items = await db.all(
+      'SELECT * FROM order_items WHERE order_id = ?',
+      [orderId]
+    );
+
+    order.items = items.map(item => ({
+      type: item.item_type,
+      id: item.item_id,
+      quantity: item.quantity,
+      amount: item.amount,
+      accessory: JSON.parse(item.accessory)
+    }));
+    order.orderId = order.order_id;
+    order.totalAmount = order.total_amount;
+    order.paymentMethod = order.payment_method;
+    order.timestamp = order.created_at;
+
+    return order;
+  } catch (error) {
+    console.error('Error getting order by ID:', error);
+    throw error;
   }
 }

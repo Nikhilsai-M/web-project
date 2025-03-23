@@ -1209,10 +1209,10 @@ app.get('/cart', (req, res) => {
 app.get('/profile', requireCustomerAuth, (req, res) => {
     res.render("user-profile");
 });
-
+/*
 app.get('/orders', requireCustomerAuth, (req, res) => {
     res.render("orders");
-});
+});*/
 
 app.get('/login', (req, res) => {
     res.render("login-interfaces");
@@ -1722,15 +1722,69 @@ app.get('/buy/:type/:id', async (req, res) => {
 
       // Render the dummy-payment.ejs with price and accessory details
       res.render('dummy-payment', { 
-          price: finalPrice,
-          type: accessoryType,
-          id: accessoryId
-          // Optionally: accessory: accessory (if you want to pass the full object)
+        price: finalPrice,
+        type: accessoryType,
+        id: accessoryId,
+        accessory: accessory
+          
       });
   } catch (error) {
       console.error(`Error rendering payment page for ${req.params.type}:`, error);
       res.status(500).render('error', { message: 'Failed to load payment page' });
   }
+});
+// Route to render order confirmation page
+app.get('/orders', (req, res) => {
+  console.log('Entering /orders route');
+  console.log('req.query:', req.query);
+
+  let order = {};
+  try {
+      if (req.query.order) {
+          console.log('Raw query order:', req.query.order);
+          order = JSON.parse(req.query.order); // Decode URI first
+          console.log('Parsed order:', order);
+      } else {
+          console.log('No order query parameter provided');
+      }
+  } catch (parseError) {
+      console.error('Error parsing req.query.order:', parseError);
+      order = {}; // Fallback
+  }
+
+  console.log('Final order object passed to render:', order);
+
+  try {
+      res.render('orders', { order }); // Shorthand for { order: order }
+  } catch (renderError) {
+      console.error('Error rendering orders.ejs:', renderError);
+      res.status(500).send('Internal Server Error: Failed to load order confirmation');
+  }
+});
+app.get('/myorders', (req, res) => {
+  console.log('Entering /myorders route');
+  try {
+      const orders = []; // Placeholder; replace with database fetch later
+      console.log('Rendering myorders with orders:', orders);
+      res.render('myorders', { orders });
+  } catch (error) {
+      console.error('Error rendering myorders page:', error);
+      res.status(500).render('error', { message: 'Failed to load my orders' });
+  }
+});
+
+app.get('/checkout', (req, res) => {
+  const session = req.session.user;
+  if (!session || session.role !== 'customer') {
+      return res.redirect('/login');
+  }
+  const userId = session.userId;
+  // Cart is managed client-side; pass userId to fetch from localStorage
+  res.render('checkout', { userId });
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
 
   function requireAdminAuth(req, res, next) {

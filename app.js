@@ -1792,6 +1792,10 @@ app.get('/admin/home', requireAdminAuth, (req, res) => {
   res.render('admin/home', { admin: req.session.user });
 });
 
+app.get('/admin/statistics', requireAdminAuth, (req, res) => {
+  res.render('admin/admin-statistics', { admin: req.session.user });
+});
+
 app.post('/api/admin/login', async (req, res) => {
   const { admin_id, password, security_token } = req.body;
 
@@ -1962,6 +1966,89 @@ app.get('/api/orders/:orderId', requireCustomerAuth, async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
+
+app.get('/api/admin/statistics', requireAdminAuth, async (req, res) => {
+  try {
+    const db = await getDb();
+
+    // Sales Count
+    const salesCountResult = await db.get(`
+      SELECT COUNT(*) as total_sales
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.order_id
+    `) || { total_sales: 0 };
+    console.log('Sales Count:', salesCountResult);
+
+    // Listings Count
+    const listingsCountResult = await db.get(`
+      SELECT 
+          (SELECT COUNT(*) FROM phone_applications) + 
+          (SELECT COUNT(*) FROM laptop_applications) as total_listings,
+          (SELECT COUNT(*) FROM phone_applications WHERE status IN ('approved', 'added_to_inventory')) + 
+          (SELECT COUNT(*) FROM laptop_applications WHERE status IN ('approved', 'added_to_inventory')) as approved_listings
+    `) || { total_listings: 0, approved_listings: 0 };
+    console.log('Listings Count:', listingsCountResult);
+
+    // Sales Revenue
+    const salesRevenueResult = await db.get(`
+      SELECT SUM(oi.amount * oi.quantity) as total_sales_revenue
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.order_id
+    `) || { total_sales_revenue: 0 };
+    console.log('Sales Revenue:', salesRevenueResult);
+
+    // Inventory Revenue Potential (Updated for specific price columns)
+    const inventoryRevenueResult = await db.get(`
+      SELECT 
+          COALESCE(
+              (SELECT SUM(CAST(COALESCE(base_price, '0') AS REAL)) 
+               FROM phones), 
+              0
+          ) +
+          COALESCE(
+              (SELECT SUM(CAST(COALESCE(base_price, '0') AS REAL)) 
+               FROM laptops), 
+              0
+          ) +
+          COALESCE(
+              (SELECT SUM(CAST(COALESCE(originalPrice, '0') AS REAL)) 
+               FROM chargers), 
+              0
+          ) +
+          COALESCE(
+              (SELECT SUM(CAST(COALESCE(original_price, '0') AS REAL)) 
+               FROM earphones), 
+              0
+          ) +
+          COALESCE(
+              (SELECT SUM(CAST(COALESCE(original_price, '0') AS REAL)) 
+               FROM mouses), 
+              0
+          ) +
+          COALESCE(
+              (SELECT SUM(CAST(COALESCE(original_price, '0') AS REAL)) 
+               FROM smartwatches), 
+              0
+          ) as total_inventory_revenue_potential
+    `) || { total_inventory_revenue_potential: 0 };
+    console.log('Inventory Revenue:', inventoryRevenueResult);
+
+    res.json({
+      success: true,
+      statistics: {
+        totalSales: salesCountResult.total_sales || 0,
+        totalListings: listingsCountResult.total_listings || 0,
+        approvedListings: listingsCountResult.approved_listings || 0,
+        totalSalesRevenue: salesRevenueResult.total_sales_revenue || 0,
+        totalInventoryRevenuePotential: inventoryRevenueResult.total_inventory_revenue_potential || 0
+      }
+    });
+  } catch (error) {
+    console.error('Detailed error fetching admin statistics:', error.message, error.stack);
+    res.status(500).json({ success: false, message: 'Error fetching statistics: ' + error.message });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

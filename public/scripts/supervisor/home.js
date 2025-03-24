@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (!localStorage.getItem("rememberUser")) {
                         localStorage.removeItem("rememberUser");
                     }
-                    window.location.href = '/';
+                    window.location.href = '/login';
                 } else {
                     console.error('Logout failed:', data.message);
                     alert('Failed to log out. Please try again.');

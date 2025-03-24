@@ -143,9 +143,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="form-group"><label>RAM:</label><input type="text" name="ram" value="${product.ram || ''}" required></div>
                 <div class="form-group"><label>ROM:</label><input type="text" name="rom" value="${product.rom || ''}" required></div>
                 <div class="form-group"><label>Condition:</label><select name="condition" required>
-                    <option value="Used" ${product.condition === 'Used' ? 'selected' : ''}>Used</option>
-                    <option value="Like New" ${product.condition === 'Like New' ? 'selected' : ''}>Like New</option>
-                    <option value="Refurbished" ${product.condition === 'Refurbished' ? 'selected' : ''}>Refurbished</option>
+                    <option value="Used" ${product.condition === 'Used' ? 'selected' : ''}>Good</option>
+                    <option value="Like New" ${product.condition === 'Like New' ? 'selected' : ''}>Very Good</option>
+                    <option value="Refurbished" ${product.condition === 'Refurbished' ? 'selected' : ''}>Superb</option>
                 </select></div>
             `;
         } else if (product.type === 'laptops') {
@@ -159,9 +159,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="form-group"><label>Display Size:</label><input type="number" name="display_size" value="${product.displaysize || ''}" step="0.1" required></div>
                 <div class="form-group"><label>Weight:</label><input type="number" name="weight" value="${product.weight || ''}" step="0.1" required></div>
                 <div class="form-group"><label>Condition:</label><select name="condition" required>
-                    <option value="Used" ${product.condition === 'Used' ? 'selected' : ''}>Used</option>
-                    <option value="Like New" ${product.condition === 'Like New' ? 'selected' : ''}>Like New</option>
-                    <option value="Refurbished" ${product.condition === 'Refurbished' ? 'selected' : ''}>Refurbished</option>
+                    <option value="Used" ${product.condition === 'Used' ? 'selected' : ''}>Good</option>
+                    <option value="Like New" ${product.condition === 'Like New' ? 'selected' : ''}>Very Good</option>
+                    <option value="Refurbished" ${product.condition === 'Refurbished' ? 'selected' : ''}>Superb</option>
                 </select></div>
                 <div class="form-group"><label>OS:</label><input type="text" name="os" value="${product.os || ''}" required></div>
             `;

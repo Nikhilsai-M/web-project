@@ -12,7 +12,7 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="logo">
-              <a href="/admin/home"><img  src="/images/header/logo1.png" alt="Logo"></a>  
+              <a href="/admin/home"><img src="/images/header/logo1.png" alt="Logo"></a>  
             </div>
             
             <div class="nav-items">
@@ -22,15 +22,15 @@
                 </div>
                 <div class="nav-item">
                     <i class="fa-solid fa-box"></i>
-                    <a href="/admin/manage-supervisors" style="text-decoration: none;color: white;">Manage supervisors</a>
+                    <a href="/admin/manage-supervisors" style="text-decoration: none; color: white;">Manage supervisors</a>
                 </div>
                 <div class="nav-item">
                     <i class="fa-solid fa-chart-simple"></i>
-                    <span>Analytics</span>
+                    <a href="/admin/statistics" style="text-decoration: none; color: white;">Analytics</a>
                 </div>
                 <div class="nav-item">
                     <i class="fa-solid fa-gear"></i>
-                    <span><a href="/api/admin/logout" style="text-decoration: none;color: white;">Logout</a></span>
+                    <a id="logout-button" style="text-decoration: none; color: white;">Logout</a>
                 </div>
             </div>
         </div>
@@ -39,129 +39,176 @@
         <div class="main-content">
             <div class="header">
                 <div class="user-actions">
-                    <div class="avatar">
-                    </div>
+                    <div class="avatar"></div>
                 </div>
             </div>
             
             <div class="dashboard-grid">
                 <div class="stats-card">
-                    <div class="card-title">TOTAL SALES</div>
-                    <div class="card-value">24,350</div>
+                    <div class="card-title">SALES REVENUE</div>
+                    <div class="card-value" id="sales-revenue">₹ Loading...</div>
                     <div class="card-indicator positive">
                         <i class="fa-solid fa-arrow-up"></i>
-                        <span>12.5% from last month</span>
+                        <span id="revenue-trend">Calculating...</span>
                     </div>
                 </div>
                 
                 <div class="stats-card">
-                    <div class="card-title">ACTIVE LISTINGS</div>
-                    <div class="card-value">145</div>
+                    <div class="card-title">APPROVED LISTINGS</div>
+                    <div class="card-value" id="approved-listings">Loading...</div>
                     <div class="card-indicator positive">
                         <i class="fa-solid fa-arrow-up"></i>
-                        <span>8.3% from last month</span>
+                        <span id="approved-trend">Calculating...</span>
                     </div>
                 </div>
             </div>
-            
 
-
-            <div class="sales-graph" style="margin-top: 2rem;">
-                <div class="section-title">Monthly Sales</div>
-                <div style="padding: 1rem;">
-                    <canvas id="salesChart" width="400" height="200"></canvas>
-                </div>
+            <!-- Bar Chart Section -->
+            <div class="chart-section" style="margin-top: 2rem;">
+                <div class="section-title">Sales and Listings Overview</div>
+                <canvas id="statsChart"></canvas>
             </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
     <script>
-        // Initialize the chart when the page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            const salesChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Sales ($)',
-                        data: [15000, 19000, 17000, 18500, 21000, 24350],
-                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                        borderColor: 'rgba(37, 99, 235, 1)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20,
-                                font: {
-                                    family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-                                }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.8)',
-                            titleFont: {
-                                family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-                                size: 14
-                            },
-                            bodyFont: {
-                                family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-                                size: 13
-                            },
-                            padding: 12,
-                            displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return '$' + context.parsed.y.toLocaleString();
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(226, 232, 240, 0.6)',
-                                drawBorder: false
-                            },
-                            ticks: {
-                                font: {
-                                    family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-                                },
-                                padding: 10,
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
-                                }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false,
-                                drawBorder: false
-                            },
-                            ticks: {
-                                font: {
-                                    family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-                                },
-                                padding: 10
-                            }
-                        }
+        let statsChart;
+
+        // Fetch statistics and update page
+        function fetchStatistics() {
+            fetch('/api/admin/statistics', { 
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`Server error: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const stats = data.statistics;
+
+                    // Update card values
+                    document.getElementById('sales-revenue').textContent = `₹ ${stats.totalSalesRevenue.toFixed(2)}`;
+                    document.getElementById('approved-listings').textContent = stats.approvedListings;
+                    
+                    document.getElementById('revenue-trend').textContent = 'Trend not available';
+                    document.getElementById('approved-trend').textContent = 'Trend not available';
+
+                    // Update or create bar chart
+                    const ctx = document.getElementById('statsChart').getContext('2d');
+                    const chartData = [
+                        stats.totalSales,
+                        stats.totalListings
+                    ];
+                    const chartLabels = [
+                        'Number of Sales',
+                        'Total Listings'
+                    ];
+
+                    if (statsChart) {
+                        statsChart.destroy(); // Destroy old chart to prevent overlap
                     }
+
+                    statsChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: chartLabels,
+                            datasets: [{
+                                label: 'Metrics',
+                                data: chartData,
+                                backgroundColor: [
+                                    'rgba(37, 99, 235, 0.6)',  // Blue for Sales
+                                    'rgba(16, 185, 129, 0.6)'  // Green for Listings
+                                ],
+                                borderColor: [
+                                    'rgba(37, 99, 235, 1)',
+                                    'rgba(16, 185, 129, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            animation: false, // No animations
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Count'
+                                    },
+                                    ticks: {
+                                        stepSize: 1, // Whole numbers for counts
+                                        callback: function(value) {
+                                            return value.toLocaleString('en-IN');
+                                        }
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Metrics'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false // Single dataset, no legend needed
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `${context.label}: ${context.parsed.y.toLocaleString('en-IN')}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    throw new Error(data.message || 'Unknown server error');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching statistics:', error);
+                document.querySelectorAll('.card-value').forEach(el => el.textContent = 'Error');
+            });
+        }
+
+        // Initial fetch
+        document.addEventListener('DOMContentLoaded', fetchStatistics);
+
+        // Logout
+        const logoutButton = document.getElementById("logout-button");
+        if (logoutButton) {
+            logoutButton.addEventListener("click", async function(e) {
+                e.preventDefault();
+                try {
+                    const response = await fetch('/api/admin/logout', { // Fixed endpoint to /admin/logout
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include'
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        localStorage.removeItem("currentSession");
+                        if (!localStorage.getItem("rememberUser")) {
+                            localStorage.removeItem("rememberUser");
+                        }
+                        window.location.href = '/admin/login';
+                    } else {
+                        console.error('Logout failed:', data.message);
+                        alert('Failed to log out. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error during logout:', error);
+                    alert('Error during logout. Please try again.');
                 }
             });
-        });
+        }
     </script>
-    <script src="/scripts/admin/admin-home.js"></script>
 </body>
 </html>

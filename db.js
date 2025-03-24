@@ -149,9 +149,9 @@ export async function initializeDatabase() {
         location TEXT NOT NULL,
         email TEXT NOT NULL,
         phone TEXT NOT NULL,
-        battery TEXT NOT NULL,          -- New column
-        camera TEXT NOT NULL,           -- New column
-        os TEXT NOT NULL,               -- New column
+        battery TEXT NOT NULL,          
+        camera TEXT NOT NULL,           
+        os TEXT NOT NULL,               
         image_path TEXT,
         status TEXT DEFAULT 'pending',
         rejection_reason TEXT,

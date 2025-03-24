@@ -26,7 +26,7 @@
                 </div>
                 <div class="nav-item">
                     <i class="fa-solid fa-chart-simple"></i>
-                    <span>Analytics</span>
+                    <a href="/admin/statistics" style="text-decoration: none;color: white;" >Analytics</a>
                 </div>
                 <div class="nav-item">
                     <i class="fa-solid fa-gear"></i>
@@ -85,6 +85,34 @@
         </div>
     </div>
 
+    <script>
+          const logoutButton = document.getElementById("logout-button");
+    if (logoutButton) {
+        logoutButton.addEventListener("click", async function(e) {
+            e.preventDefault();
+            try {
+                const response = await fetch('/api/supervisor/logout', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.removeItem("currentSession");
+                    if (!localStorage.getItem("rememberUser")) {
+                        localStorage.removeItem("rememberUser");
+                    }
+                    window.location.href = '/admin/login';
+                } else {
+                    console.error('Logout failed:', data.message);
+                    alert('Failed to log out. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+                alert('Error during logout. Please try again.');
+            }
+        });
+    }
+    </script>
     <script src="/scripts/admin/manage-supervisors.js"></script>
 </body>
 </html>

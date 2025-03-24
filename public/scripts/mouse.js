@@ -137,7 +137,6 @@ function addToCart(mouse) {
     showAddedToCartMessage(mouse.title);
 }
 
-// Function to filter mouses
 function filterMouses(mouses) {
     const checkedBrands = Array.from(document.querySelectorAll('.brand-filter:checked')).map(checkbox => checkbox.value);
     const checkedres = Array.from(document.querySelectorAll('.res-filter:checked')).map(checkbox => parseInt(checkbox.value));
@@ -145,8 +144,24 @@ function filterMouses(mouses) {
     const checkedcon = Array.from(document.querySelectorAll('.connect-filter:checked')).map(checkbox => checkbox.value);
     const checkedDiscounts = Array.from(document.querySelectorAll('.discount-filter:checked')).map(checkbox => parseInt(checkbox.value));
     
+    // Predefined list of main brands (excluding "Others")
+    const mainBrands = ["Logitech", "Razer", "HP", "Dell", "Microsoft"]; // Adjust based on your actual mouse brands
+
     const filteredMouses = mouses.filter(mouse => {
-        const matchesBrand = checkedBrands.length === 0 || checkedBrands.includes(mouse.brand);
+        // Brand filter with corrected "Others" handling
+        let matchesBrand = true;
+        if (checkedBrands.length > 0) {
+            const includesOthers = checkedBrands.includes("Others");
+            const includesSpecificBrand = checkedBrands.includes(mouse.brand);
+            const isOtherBrand = !mainBrands.includes(mouse.brand);
+
+            if (!includesOthers) {
+                matchesBrand = includesSpecificBrand;
+            } else {
+                matchesBrand = includesSpecificBrand || isOtherBrand;
+            }
+        }
+
         const matchedres = parseInt(mouse.resolution);
         const matchesres = checkedres.length === 0 || checkedres.some(e => matchedres >= e);
         const matchestype = checkedtype.length === 0 || checkedtype.includes(mouse.type);

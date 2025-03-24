@@ -299,6 +299,9 @@ async function filterProducts() {
     // Fetch laptop data from the database
     const laptopModels = await fetchLaptopData();
 
+    // Predefined list of main brands (excluding "Others")
+    const mainBrands = ["Acer", "Dell", "HP", "Lenovo", "Apple", "Asus", "Microsoft", "MSI"];
+
     // Check if any filters are active
     const hasActiveFilters = 
         selectedFilters.brands.length > 0 || 
@@ -321,8 +324,16 @@ async function filterProducts() {
         filteredProducts = laptopModels.filter(product => {
             const discountedPrice = calculateDiscountedPrice(product.pricing.basePrice, product.pricing.discount);
 
-            // Brand filter
-            if (selectedFilters.brands.length > 0 && !selectedFilters.brands.includes(product.brand)) return false;
+            // Brand filter with "Others" handling
+            if (selectedFilters.brands.length > 0) {
+                const includesOthers = selectedFilters.brands.includes("Others");
+                const includesSpecificBrand = selectedFilters.brands.includes(product.brand);
+                const isOtherBrand = !mainBrands.includes(product.brand);
+
+                if (!includesSpecificBrand && !(includesOthers && isOtherBrand)) {
+                    return false;
+                }
+            }
             
             // Price filter
             if (discountedPrice < selectedFilters.minPrice || discountedPrice > selectedFilters.maxPrice) return false;
@@ -375,6 +386,7 @@ async function filterProducts() {
             
             // OS filter
             if (selectedFilters.oses.length > 0 && !selectedFilters.oses.includes(product.os)) return false;
+            
             // Weight filter
             if (selectedFilters.weights.length > 0) {
                 let match = false;

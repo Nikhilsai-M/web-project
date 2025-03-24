@@ -140,16 +140,10 @@
                     // Update or create bar chart
                     const ctx = document.getElementById('statsChart').getContext('2d');
                     const chartData = [
-                        stats.totalSales,
-                        stats.totalListings,
-                        stats.approvedListings,
                         stats.totalSalesRevenue,
                         stats.totalInventoryRevenuePotential
                     ];
                     const chartLabels = [
-                        'Total Sales',
-                        'Total Listings',
-                        'Approved Listings',
                         'Sales Revenue (₹)',
                         'Inventory Potential (₹)'
                     ];
@@ -166,18 +160,12 @@
                                 label: 'Statistics',
                                 data: chartData,
                                 backgroundColor: [
-                                    'rgba(37, 99, 235, 0.6)',  // Blue
                                     'rgba(16, 185, 129, 0.6)', // Green
-                                    'rgba(245, 158, 11, 0.6)', // Orange
-                                    'rgba(139, 92, 246, 0.6)', // Purple
-                                    'rgba(236, 72, 153, 0.6)'  // Pink
+                                    'rgba(245, 158, 11, 0.6)' // Orange
                                 ],
                                 borderColor: [
-                                    'rgba(37, 99, 235, 1)',
                                     'rgba(16, 185, 129, 1)',
-                                    'rgba(245, 158, 11, 1)',
-                                    'rgba(139, 92, 246, 1)',
-                                    'rgba(236, 72, 153, 1)'
+                                    'rgba(245, 158, 11, 1)'
                                 ],
                                 borderWidth: 1
                             }]

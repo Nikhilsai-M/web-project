@@ -274,10 +274,15 @@ async function fetchPhoneData() {
 }
 
 // Function to filter products based on selected filters
+// Function to filter products based on selected filters
 async function filterProducts() {
     const selectedFilters = getSelectedFilters();
     console.log("Filtering with price range:", selectedFilters.minPrice, "to", selectedFilters.maxPrice);
-    const mobileModels= await fetchPhoneData();
+    const mobileModels = await fetchPhoneData();
+
+    // Predefined list of main brands (excluding "Others")
+    const mainBrands = ["Apple", "Samsung", "OnePlus", "Google", "Realme", "Xiaomi", "Motorola", "Vivo", "Lenovo", "Nothing"];
+
     // Check if any filters are active
     const hasActiveFilters = 
         selectedFilters.brands.length > 0 || 
@@ -295,7 +300,17 @@ async function filterProducts() {
         filteredProducts = mobileModels.filter(product => {
             const discountedPrice = calculateDiscountedPrice(product.price, product.discount);
 
-            if (selectedFilters.brands.length > 0 && !selectedFilters.brands.includes(product.brand)) return false;
+            // Brand filter with "Others" handling
+            if (selectedFilters.brands.length > 0) {
+                const includesOthers = selectedFilters.brands.includes("Others");
+                const includesSpecificBrand = selectedFilters.brands.includes(product.brand);
+                const isOtherBrand = !mainBrands.includes(product.brand);
+
+                if (!includesSpecificBrand && !(includesOthers && isOtherBrand)) {
+                    return false;
+                }
+            }
+
             if (discountedPrice < selectedFilters.minPrice || discountedPrice > selectedFilters.maxPrice) return false;
             if (selectedFilters.rams.length > 0 && !selectedFilters.rams.includes(parseInt(product.ram))) return false;
             if (selectedFilters.roms.length > 0 && !selectedFilters.roms.includes(parseInt(product.rom))) return false;
@@ -312,7 +327,6 @@ async function filterProducts() {
     
     console.log(`Displaying ${filteredProducts.length} products`);
 }
-
 // Function to clear all filters
 function clearAllFilters() {
     document.querySelectorAll(".filters input[type='checkbox']").forEach(checkbox => checkbox.checked = false);

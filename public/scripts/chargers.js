@@ -134,15 +134,35 @@ function addToCart(charger) {
     showAddedToCartMessage(charger.title);
 }
 
-// Function to filter chargers
 function filterChargers(chargers) {
-    const checkedBrands = Array.from(document.querySelectorAll('.brand-filter:checked')).map(checkbox => checkbox.value);
+    const checkedBrands = Array.from(document.querySelectorAll('.brand-filter:checked')).map(checkbox => checkbox.value.toLowerCase()); // Normalize to lowercase
+    console.log("Checked Brands:", checkedBrands);
+
     const checkedWattages = Array.from(document.querySelectorAll('.wattage-filter:checked')).map(checkbox => checkbox.value);
     const checkedTypes = Array.from(document.querySelectorAll('.type-filter:checked')).map(checkbox => checkbox.value);
     const checkedDiscounts = Array.from(document.querySelectorAll('.discount-filter:checked')).map(checkbox => parseInt(checkbox.value));
     
+    // Predefined list of main brands (lowercase for consistency)
+    const mainBrands = ["apple", "samsung", "anker", "belkin", "xiaomi"]; // Adjust this list, ensure lowercase
+    console.log("Main Brands:", mainBrands);
+
     const filteredChargers = chargers.filter(charger => {
-        const matchesBrand = checkedBrands.length === 0 || checkedBrands.includes(charger.brand);
+        const chargerBrand = charger.brand.toLowerCase(); // Normalize to lowercase
+        let matchesBrand = false;
+
+        if (checkedBrands.length === 0) {
+            matchesBrand = true; // No filters, include all
+            console.log(`Brand: ${chargerBrand}, No filters, Matches: ${matchesBrand}`);
+        } else if (checkedBrands.includes("others") && checkedBrands.length === 1) {
+            // Only "Others" checked: exclude main brands
+            matchesBrand = !mainBrands.includes(chargerBrand);
+            console.log(`Brand: ${chargerBrand}, Only Others, Is Main: ${mainBrands.includes(chargerBrand)}, Matches: ${matchesBrand}`);
+        } else {
+            // Specific brands or "Others" with others
+            matchesBrand = checkedBrands.includes(chargerBrand) || (checkedBrands.includes("others") && !mainBrands.includes(chargerBrand));
+            console.log(`Brand: ${chargerBrand}, Specific or Others, Checked: ${checkedBrands.includes(chargerBrand)}, Is Other: ${!mainBrands.includes(chargerBrand)}, Matches: ${matchesBrand}`);
+        }
+
         const matchesWattage = checkedWattages.length === 0 || checkedWattages.includes(charger.wattage);
         const matchesType = checkedTypes.length === 0 || checkedTypes.includes(charger.type);
         const discountValue = parseInt(charger.discount);
@@ -151,7 +171,7 @@ function filterChargers(chargers) {
         return matchesBrand && matchesWattage && matchesType && matchesDiscount;
     });
     
-    // Update the displayed chargers
+    console.log("Filtered Chargers:", filteredChargers.map(c => c.brand));
     displayChargers(filteredChargers);
 }
 

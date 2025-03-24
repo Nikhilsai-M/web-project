@@ -140,8 +140,24 @@ function filterEarphones(earphones) {
     const checkedDesign = Array.from(document.querySelectorAll('.design-filter:checked')).map(checkbox => checkbox.value);
     const checkedDiscounts = Array.from(document.querySelectorAll('.discount-filter:checked')).map(checkbox => parseInt(checkbox.value));
 
+    // Predefined list of main brands (excluding "Others")
+    const mainBrands = ["Apple", "Samsung", "Sony", "JBL", "Boat"]; // Adjust based on your actual earphone brands
+
     const filteredEarphones = earphones.filter(earphone => {
-        const matchesBrand = checkedBrands.length === 0 || checkedBrands.includes(earphone.brand);
+        // Brand filter with corrected "Others" handling
+        let matchesBrand = true;
+        if (checkedBrands.length > 0) {
+            const includesOthers = checkedBrands.includes("Others");
+            const includesSpecificBrand = checkedBrands.includes(earphone.brand);
+            const isOtherBrand = !mainBrands.includes(earphone.brand);
+
+            if (!includesOthers) {
+                matchesBrand = includesSpecificBrand;
+            } else {
+                matchesBrand = includesSpecificBrand || isOtherBrand;
+            }
+        }
+
         const batteryValue = parseInt(earphone.batteryLife);
         const matchesBattery = checkedBattery.length === 0 || checkedBattery.some(e => batteryValue >= e);
         const matchesDesign = checkedDesign.length === 0 || checkedDesign.includes(earphone.design);
@@ -154,8 +170,6 @@ function filterEarphones(earphones) {
     // Update the displayed earphones
     displayEarphones(filteredEarphones);
 }
- 
-
 // Function to clear all filters
 function clearAllFilters() {
     document.querySelectorAll('.brand-filter, .battery-filter, .design-filter, .discount-filter').forEach(checkbox => {

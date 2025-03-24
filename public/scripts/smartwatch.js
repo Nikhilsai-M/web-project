@@ -143,7 +143,6 @@ function addToCart(smartwatch) {
     showAddedToCartMessage(smartwatch.title);
 }
 
-// Function to filter smartwatches
 function filterWatches(smartwatches) {
     const checkedBrands = Array.from(document.querySelectorAll('.brand-filter:checked')).map(checkbox => checkbox.value);
     const checkedres = Array.from(document.querySelectorAll('.battery-filter:checked')).map(checkbox => parseInt(checkbox.value));
@@ -151,14 +150,28 @@ function filterWatches(smartwatches) {
     const checkedcon = Array.from(document.querySelectorAll('.displaytype-filter:checked')).map(checkbox => checkbox.value);
     const checkedDiscounts = Array.from(document.querySelectorAll('.discount-filter:checked')).map(checkbox => parseInt(checkbox.value));
     
+    // Predefined list of main brands (excluding "Others")
+    const mainBrands = ["Apple", "Samsung", "Garmin", "Fitbit", "Xiaomi"]; // Adjust based on your actual smartwatch brands
+
     const filteredWatches = smartwatches.filter(smartwatch => {
-        const matchesBrand = checkedBrands.length === 0 || checkedBrands.includes(smartwatch.brand);
+        // Brand filter with corrected "Others" handling
+        let matchesBrand = true;
+        if (checkedBrands.length > 0) {
+            const includesOthers = checkedBrands.includes("Others");
+            const includesSpecificBrand = checkedBrands.includes(smartwatch.brand);
+            const isOtherBrand = !mainBrands.includes(smartwatch.brand);
+
+            if (!includesOthers) {
+                matchesBrand = includesSpecificBrand;
+            } else {
+                matchesBrand = includesSpecificBrand || isOtherBrand;
+            }
+        }
+
         const matchedbattery = parseInt(smartwatch.batteryRuntime);
         const matchesres = checkedres.length === 0 || checkedres.some(e => matchedbattery >= e);
-        
         const matchedSize = parseInt(smartwatch.displaySize);
         const matchesSize = checkedtype.length === 0 || checkedtype.some(f => matchedSize >= f);
-        
         const matchescon = checkedcon.length === 0 || checkedcon.includes(smartwatch.displayType);
         const discountValue = parseInt(smartwatch.discount);
         const matchesDiscount = checkedDiscounts.length === 0 || checkedDiscounts.some(d => discountValue >= d);

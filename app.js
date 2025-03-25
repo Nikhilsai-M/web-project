@@ -500,7 +500,6 @@ app.get('/api/supervisor/logout', (req, res) => {
   });
 });
 
-// Add this after your existing supervisor routes in app.js
 
 // Update supervisor profile
 app.put('/api/supervisor/profile', requireSupervisorAuth, async (req, res) => {

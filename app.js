@@ -180,7 +180,8 @@ app.get('/supervisor/profile', requireSupervisorAuth, async (req, res) => {
     res.status(500).render('error', { message: 'Failed to load profile' });
   }
 });
-// Supervisor dashboard data
+
+
 app.get('/api/supervisor/dashboard', requireSupervisorAuth, async (req, res) => {
   try {
       const db = await getDb();
@@ -1637,7 +1638,7 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
   
       const db = await getDb();
       if (type === 'phone') {
-        const price=(application.price*1.2)/(1-(discount/100));
+        const price=(application.price*1.5).toFixed(0);
           const phoneData = {
               id: Date.now(),
               brand: application.brand,
@@ -1653,7 +1654,7 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
               weight: application.weight || 'N/A',
               ram: application.ram,
               rom: application.rom,
-              basePrice:price, // Use the stored price
+              basePrice:price, 
               discount: discount || 0,
               condition: condition
           };
@@ -1970,8 +1971,6 @@ app.get('/api/orders/:orderId', requireCustomerAuth, async (req, res) => {
 app.get('/api/admin/statistics', requireAdminAuth, async (req, res) => {
   try {
     const db = await getDb();
-
-    // Sales Count
     const salesCountResult = await db.get(`
       SELECT COUNT(*) as total_sales
       FROM order_items oi
@@ -1979,7 +1978,6 @@ app.get('/api/admin/statistics', requireAdminAuth, async (req, res) => {
     `) || { total_sales: 0 };
     console.log('Sales Count:', salesCountResult);
 
-    // Listings Count
     const listingsCountResult = await db.get(`
       SELECT 
           (SELECT COUNT(*) FROM phone_applications) + 
@@ -1997,7 +1995,6 @@ app.get('/api/admin/statistics', requireAdminAuth, async (req, res) => {
     `) || { total_sales_revenue: 0 };
     console.log('Sales Revenue:', salesRevenueResult);
 
-    // Inventory Revenue Potential (Updated for specific price columns)
     const inventoryRevenueResult = await db.get(`
       SELECT 
           COALESCE(

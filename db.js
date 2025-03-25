@@ -282,12 +282,7 @@ await db.exec(`
       
       await db.run(
         'INSERT INTO supervisors (user_id, first_name, last_name, email, phone, username, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        ['supervisor_1', 'John', 'Smith', 'john.smith@ecommerce.com', '1234567890', 'jsmith', password1]
-      );
-      
-      await db.run(
-        'INSERT INTO supervisors (user_id, first_name, last_name, email, phone, username, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        ['supervisor_2', 'Emily', 'Johnson', 'emily.johnson@ecommerce.com', '0987654321', 'ejohnson', password2]
+        ['supervisor_1', 'Nikhil', 'Sai', 'nikhil.sai@project.com', '1234567890', 'nikhil', password1]
       );
       
       console.log('Test supervisors added to database');

@@ -38,7 +38,7 @@
             <div class="page-header">
                 <h2>Verify Product Listings</h2>
                 <div class="date-display">
-                    <i class="far fa-calendar-alt"></i> <%= new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}) %>
+                    <i class="far fa-calendar-alt"></i> <%= new Date().toLocaleDateString('en-in', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}) %>
                 </div>
             </div>
 
@@ -48,7 +48,7 @@
                 <button class="filter-btn" data-filter="processing">On Processing</button>
                 <button class="filter-btn" data-filter="verified">Verified</button>
                 <button class="filter-btn" data-filter="added_to_inventory">Added to Inventory</button>
-                <button class="filter-btn" data-filter="rejected">Rejected</button> <!-- Added Rejected filter -->
+                <button class="filter-btn" data-filter="rejected">Rejected</button> 
             </div>
 
             <div class="listings-container" id="listingsContainer">

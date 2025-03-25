@@ -44,6 +44,7 @@ import {
   getLaptopApplicationById,
   updateLaptopApplicationStatus,
   authenticateSupervisor,
+  updateSupervisorProfile,
   updateSupervisorPassword,
   getAllMouses,
   getMouseById,
@@ -499,6 +500,65 @@ app.get('/api/supervisor/logout', (req, res) => {
   });
 });
 
+// Add this after your existing supervisor routes in app.js
+
+// Update supervisor profile
+app.put('/api/supervisor/profile', requireSupervisorAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.userId;
+    const { first_name, last_name, email, phone, username } = req.body;
+
+    // Basic validation
+    const errors = {};
+    if (!first_name || first_name.length < 2) {
+      errors.first_name = 'First name must be at least 2 characters';
+    }
+    if (!last_name || last_name.length < 2) {
+      errors.last_name = 'Last name must be at least 2 characters';
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    if (!phone || phone.length < 10) {
+      errors.phone = 'Please enter a valid phone number';
+    }
+    if (!username || username.length < 3) {
+      errors.username = 'Username must be at least 3 characters';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({ success: false, errors });
+    }
+
+    const result = await updateSupervisorProfile(userId, {
+      first_name,
+      last_name,
+      email,
+      phone,
+      username
+    });
+
+    if (result.success) {
+      // Update session data
+      req.session.user.first_name = first_name;
+      req.session.user.last_name = last_name;
+      req.session.user.email = email;
+      req.session.user.phone = phone;
+      req.session.user.username = username;
+
+      return res.json({ success: true, message: 'Profile updated successfully' });
+    } else {
+      return res.status(400).json({ 
+        success: false, 
+        message: result.message || 'Error updating profile' 
+      });
+    }
+  } catch (error) {
+    console.error('Error updating supervisor profile:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 app.post('/api/supervisor/password', requireSupervisorAuth, async (req, res) => {
   try {
     const userId = req.session.user.userId;

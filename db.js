@@ -858,6 +858,43 @@ export async function authenticateSupervisor(username, password) {
   }
 }
 
+// supervisor profile updating
+export async function updateSupervisorProfile(userId, updates) {
+  try {
+    const db = await getDb();
+    
+    const { first_name, last_name, email, phone, username } = updates;
+    
+    // Check if email or username already exists for another supervisor
+    const emailCheck = await db.get(
+      'SELECT user_id FROM supervisors WHERE email = ? AND user_id != ?',
+      [email, userId]
+    );
+    if (emailCheck) {
+      return { success: false, message: 'Email already in use by another supervisor' };
+    }
+
+    const usernameCheck = await db.get(
+      'SELECT user_id FROM supervisors WHERE username = ? AND user_id != ?',
+      [username, userId]
+    );
+    if (usernameCheck) {
+      return { success: false, message: 'Username already in use by another supervisor' };
+    }
+
+    await db.run(
+      `UPDATE supervisors 
+       SET first_name = ?, last_name = ?, email = ?, phone = ?, username = ? 
+       WHERE user_id = ?`,
+      [first_name, last_name, email, phone, username, userId]
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating supervisor profile:', error);
+    return { success: false, message: error.message };
+  }
+}
 // Supervisor password update function
 export async function updateSupervisorPassword(userId, newPassword) {
   try {

@@ -23,7 +23,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const newPassword = document.getElementById('newPassword');
     const cancelChangePassword = document.getElementById('cancelChangePassword');
 
-    // Fetch user profile data
+    let pieChart; // To store the Chart instance
+
+    // Fetch user profile data and render pie chart
     async function fetchProfile() {
         try {
             const response = await fetch('/api/customer/profile');
@@ -36,8 +38,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Update profile card
                 profileName.textContent = fullNameStr;
                 profileEmail.textContent = user.email;
-                ordersCount.textContent = user.orders_count;
-                itemsSoldCount.textContent = user.items_sold_count;
+                ordersCount.textContent = user.orders_count || 0;
+                itemsSoldCount.textContent = user.items_sold_count || 0;
                 
                 // Update personal information
                 fullName.textContent = fullNameStr;
@@ -45,14 +47,71 @@ document.addEventListener('DOMContentLoaded', function () {
                 phone.textContent = user.phone;
                 
                 // Update password last changed
-                passwordLastChanged.textContent = new Date(user.password_last_changed).toLocaleDateString();
+                passwordLastChanged.textContent = user.password_last_changed 
+                    ? new Date(user.password_last_changed).toLocaleDateString() 
+                    : 'N/A';
+
+                // Render pie chart
+                renderPieChart(user.orders_count || 0, user.items_sold_count || 0);
             } else {
                 alert('Failed to load profile: ' + data.message);
+                profileName.textContent = 'User';
+                profileEmail.textContent = 'N/A';
+                ordersCount.textContent = '0';
+                itemsSoldCount.textContent = '0';
+                fullName.textContent = 'N/A';
+                email.textContent = 'N/A';
+                phone.textContent = 'N/A';
+                passwordLastChanged.textContent = 'N/A';
+                renderPieChart(0, 0); // Fallback chart
             }
         } catch (error) {
             console.error('Error fetching profile:', error);
             alert('Error loading profile. Please try again later.');
+            profileName.textContent = 'User';
+            profileEmail.textContent = 'N/A';
+            ordersCount.textContent = '0';
+            itemsSoldCount.textContent = '0';
+            fullName.textContent = 'N/A';
+            email.textContent = 'N/A';
+            phone.textContent = 'N/A';
+            passwordLastChanged.textContent = 'N/A';
+            renderPieChart(0, 0); // Fallback chart
         }
+    }
+
+    // Render pie chart
+    function renderPieChart(orders, itemsSold) {
+        const ctx = document.getElementById('ordersPieChart').getContext('2d');
+        
+        // Destroy existing chart if it exists
+        if (pieChart) {
+            pieChart.destroy();
+        }
+
+        pieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Orders', 'Items Sold'],
+                datasets: [{
+                    data: [orders, itemsSold],
+                    backgroundColor: ['#36A2EB', '#FF6384'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Orders vs Items Sold'
+                    }
+                }
+            }
+        });
     }
 
     // Show edit form for personal information
@@ -63,10 +122,10 @@ document.addEventListener('DOMContentLoaded', function () {
             
             if (data.success) {
                 const user = data.user;
-                editFirstName.value = user.first_name;
-                editLastName.value = user.last_name;
-                editEmail.value = user.email;
-                editPhone.value = user.phone;
+                editFirstName.value = user.first_name || '';
+                editLastName.value = user.last_name || '';
+                editEmail.value = user.email || '';
+                editPhone.value = user.phone || '';
                 
                 personalInfoDisplay.style.display = 'none';
                 personalInfoForm.style.display = 'grid';
@@ -108,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.success) {
                 personalInfoForm.style.display = 'none';
                 personalInfoDisplay.style.display = 'grid';
-                fetchProfile(); // Refresh profile data
+                fetchProfile(); // Refresh profile data and chart
             } else {
                 alert('Failed to update profile: ' + (data.message || 'Validation errors'));
                 if (data.errors) {
@@ -161,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 changePasswordBtn.style.display = 'block';
                 currentPassword.value = '';
                 newPassword.value = '';
-                fetchProfile(); // Refresh password last changed date
+                fetchProfile(); // Refresh password last changed date and chart
             } else {
                 alert('Failed to update password: ' + data.message);
             }

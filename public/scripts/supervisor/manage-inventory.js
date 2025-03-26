@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <p><strong>ID:</strong> ${product.id}</p>
                 <div class="form-group"><label>Brand:</label><input type="text" name="brand" value="${product.brand || ''}" required></div>
                 <div class="form-group"><label>Original Price (₹):</label><input type="number" name="price" value="${product.originalPrice || product.basePrice || product.pricing.basePrice||''}" min="0" step="1" required></div>
-                <div class="form-group"><label>Discount (%):</label><input type="number" name="discount" value="${product.discount || product.pricing.discount||'0'}" min="0" max="100" step="1" required></div>
+                <div class="form-group"><label>Discount (%):</label><input type="number" name="discount" value="${product.discount || product.pricing.discount ||'0'}" min="0" max="100" step="1" required></div>
                 <div class="form-group"><label>Image URL:</label><input type="text" name="image" value="${product.image || ''}" required></div>
         `;
         if (product.type === 'phones') {
@@ -206,7 +206,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Create new inventory item
     submitButton.addEventListener('click', async (e) => {
-        e.preventDefault();
+         e.preventDefault();
         const formData = new FormData(createForm);
         const itemType = formData.get('itemType').toLowerCase();
         const data = {

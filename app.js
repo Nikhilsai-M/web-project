@@ -212,7 +212,7 @@ app.get('/api/supervisor/dashboard', requireSupervisorAuth, async (req, res) => 
   }
 });
 
-// Add this under "Supervisor Routes" in app.js
+
 app.get('/api/supervisor/statistics', requireSupervisorAuth, async (req, res) => {
   try {
       const db = await getDb();
@@ -227,7 +227,7 @@ app.get('/api/supervisor/statistics', requireSupervisorAuth, async (req, res) =>
           [supervisorId]
       );
 
-      // Listings verified (approved or rejected)
+      // Listings verified 
       const listingsVerified = await db.get(
           `SELECT COUNT(*) as count 
            FROM supervisor_activity 
@@ -247,25 +247,6 @@ app.get('/api/supervisor/statistics', requireSupervisorAuth, async (req, res) =>
            )`
       );
 
-      // Average verification time (simplified calculation)
-      const avgTimeResult = await db.get(
-          `SELECT AVG(
-              strftime('%s', timestamp) - strftime('%s', created_at)
-          ) / 60 as avg_minutes 
-          FROM (
-              SELECT sa.timestamp, pa.created_at 
-              FROM supervisor_activity sa
-              JOIN phone_applications pa ON sa.action LIKE '%' || pa.id || '%'
-              WHERE sa.supervisor_id = ? AND sa.action LIKE 'Updated phone application%'
-              UNION ALL
-              SELECT sa.timestamp, la.created_at 
-              FROM supervisor_activity sa
-              JOIN laptop_applications la ON sa.action LIKE '%' || la.id || '%'
-              WHERE sa.supervisor_id = ? AND sa.action LIKE 'Updated laptop application%'
-          )`,
-          [supervisorId, supervisorId]
-      );
-
       // Recent activity
       const recentActivity = await db.all(
           `SELECT action, timestamp 
@@ -282,7 +263,6 @@ app.get('/api/supervisor/statistics', requireSupervisorAuth, async (req, res) =>
               totalItemsAdded: itemsAdded.count,
               listingsVerified: listingsVerified.count,
               pendingListings: pendingListings.count,
-              avgVerificationTime: avgTimeResult.avg_minutes ? Math.round(avgTimeResult.avg_minutes) : 0,
               recentActivity: recentActivity.map(a => ({
                   action: a.action,
                   timestamp: new Date(a.timestamp).toLocaleString()
@@ -309,7 +289,7 @@ app.get('/api/supervisor/inventory', requireSupervisorAuth, async (req, res) => 
       const allItems = [];
       for (const [type, fetchFunction] of Object.entries(dbFunctions)) {
           const items = await fetchFunction();
-          // Add type to each item and push to flat array
+          // pushing to array with type as index(map toaray)
           allItems.push(...items.map(item => ({ ...item, type })));
       }
 
@@ -442,8 +422,8 @@ app.delete('/api/supervisor/inventory/:type/:id', requireSupervisorAuth, async (
   const { type, id } = req.params;
   try {
       let result;
-      if (type === 'phone') result = await deletePhone(id);
-      else if (type === 'laptop') result = await deleteLaptop(id);
+      if (type === 'phones') result = await deletePhone(id);
+      else if (type === 'laptops') result = await deleteLaptop(id);
       else if (type === 'earphones') result = await deleteEarphones(id);
       else if (type === 'chargers') result = await deleteCharger(id);
       else if (type === 'mouses') result = await deleteMouse(id);

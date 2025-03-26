@@ -1,13 +1,9 @@
-// public/scripts/supervisor/supervisor-statistics.js
-
 document.addEventListener('DOMContentLoaded', () => {
     // Initial fetch
     fetchStatistics();
 
-    // Poll every 30 seconds for updates
-    setInterval(fetchStatistics, 30000);
+    setInterval(fetchStatistics, 3000);
 
-    // Logout button handler
     document.getElementById('logout-button').addEventListener('click', handleLogout);
 });
 
@@ -17,7 +13,7 @@ async function fetchStatistics() {
             headers: {
                 'Accept': 'application/json'
             },
-            credentials: 'include' // Include session cookies
+            credentials: 'include' 
         });
 
         if (!response.ok) {

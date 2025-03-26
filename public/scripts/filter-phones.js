@@ -261,7 +261,7 @@ function updateSliderBackground() {
 // Function to fetch mobile data from the database
 async function fetchPhoneData() {
     try {
-        const response = await fetch('/api/product'); // Replace with your API endpoint
+        const response = await fetch('/api/product'); 
         if (!response.ok) {
             throw new Error('Failed to fetch laptop data');
         }
@@ -273,7 +273,6 @@ async function fetchPhoneData() {
     }
 }
 
-// Function to filter products based on selected filters
 // Function to filter products based on selected filters
 async function filterProducts() {
     const selectedFilters = getSelectedFilters();

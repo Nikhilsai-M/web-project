@@ -36,9 +36,9 @@ function displayProducts(filteredProducts) {
         const discountedPrice = calculateDiscountedPrice(product.pricing.basePrice, product.pricing.discount);
         
         // Ensure image is an absolute URL
-        const imageUrl = product.image.startsWith('http') 
-            ? product.image 
-            : `https://res.cloudinary.com/dqohkpeyp/image/upload/${product.image}`; 
+        // const imageUrl = product.image.startsWith('http') 
+        //     ? product.image 
+        //     : `https://res.cloudinary.com/dqohkpeyp/image/upload/${product.image}`; 
         
         const productElement = document.createElement('div');
         productElement.className = 'product';
@@ -48,7 +48,7 @@ function displayProducts(filteredProducts) {
             <a href="/product/${product.id}" class="product-link">
                 <div class="product-container">
                     <div class="product-image">
-                        <img src="${imageUrl}" alt="${product.brand} ${product.model}">
+                        <img src="${product.image}" alt="${product.brand} ${product.model}">
                     </div>
                     <div class="product-details">
                         <h4>${product.brand} ${product.model}</h4>
@@ -261,7 +261,7 @@ function updateSliderBackground() {
 // Function to fetch mobile data from the database
 async function fetchPhoneData() {
     try {
-        const response = await fetch('/api/product'); // Replace with your API endpoint
+        const response = await fetch('/api/product'); 
         if (!response.ok) {
             throw new Error('Failed to fetch laptop data');
         }
@@ -273,7 +273,6 @@ async function fetchPhoneData() {
     }
 }
 
-// Function to filter products based on selected filters
 // Function to filter products based on selected filters
 async function filterProducts() {
     const selectedFilters = getSelectedFilters();

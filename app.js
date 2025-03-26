@@ -44,6 +44,7 @@ import {
   getLaptopApplicationById,
   updateLaptopApplicationStatus,
   authenticateSupervisor,
+  updateSupervisorProfile,
   updateSupervisorPassword,
   getAllMouses,
   getMouseById,
@@ -180,7 +181,8 @@ app.get('/supervisor/profile', requireSupervisorAuth, async (req, res) => {
     res.status(500).render('error', { message: 'Failed to load profile' });
   }
 });
-// Supervisor dashboard data
+
+
 app.get('/api/supervisor/dashboard', requireSupervisorAuth, async (req, res) => {
   try {
       const db = await getDb();
@@ -210,7 +212,7 @@ app.get('/api/supervisor/dashboard', requireSupervisorAuth, async (req, res) => 
   }
 });
 
-// Add this under "Supervisor Routes" in app.js
+
 app.get('/api/supervisor/statistics', requireSupervisorAuth, async (req, res) => {
   try {
       const db = await getDb();
@@ -225,7 +227,7 @@ app.get('/api/supervisor/statistics', requireSupervisorAuth, async (req, res) =>
           [supervisorId]
       );
 
-      // Listings verified (approved or rejected)
+      // Listings verified 
       const listingsVerified = await db.get(
           `SELECT COUNT(*) as count 
            FROM supervisor_activity 
@@ -245,25 +247,6 @@ app.get('/api/supervisor/statistics', requireSupervisorAuth, async (req, res) =>
            )`
       );
 
-      // Average verification time (simplified calculation)
-      const avgTimeResult = await db.get(
-          `SELECT AVG(
-              strftime('%s', timestamp) - strftime('%s', created_at)
-          ) / 60 as avg_minutes 
-          FROM (
-              SELECT sa.timestamp, pa.created_at 
-              FROM supervisor_activity sa
-              JOIN phone_applications pa ON sa.action LIKE '%' || pa.id || '%'
-              WHERE sa.supervisor_id = ? AND sa.action LIKE 'Updated phone application%'
-              UNION ALL
-              SELECT sa.timestamp, la.created_at 
-              FROM supervisor_activity sa
-              JOIN laptop_applications la ON sa.action LIKE '%' || la.id || '%'
-              WHERE sa.supervisor_id = ? AND sa.action LIKE 'Updated laptop application%'
-          )`,
-          [supervisorId, supervisorId]
-      );
-
       // Recent activity
       const recentActivity = await db.all(
           `SELECT action, timestamp 
@@ -280,7 +263,6 @@ app.get('/api/supervisor/statistics', requireSupervisorAuth, async (req, res) =>
               totalItemsAdded: itemsAdded.count,
               listingsVerified: listingsVerified.count,
               pendingListings: pendingListings.count,
-              avgVerificationTime: avgTimeResult.avg_minutes ? Math.round(avgTimeResult.avg_minutes) : 0,
               recentActivity: recentActivity.map(a => ({
                   action: a.action,
                   timestamp: new Date(a.timestamp).toLocaleString()
@@ -307,7 +289,7 @@ app.get('/api/supervisor/inventory', requireSupervisorAuth, async (req, res) => 
       const allItems = [];
       for (const [type, fetchFunction] of Object.entries(dbFunctions)) {
           const items = await fetchFunction();
-          // Add type to each item and push to flat array
+          // pushing to array with type as index(map toaray)
           allItems.push(...items.map(item => ({ ...item, type })));
       }
 
@@ -440,8 +422,8 @@ app.delete('/api/supervisor/inventory/:type/:id', requireSupervisorAuth, async (
   const { type, id } = req.params;
   try {
       let result;
-      if (type === 'phone') result = await deletePhone(id);
-      else if (type === 'laptop') result = await deleteLaptop(id);
+      if (type === 'phones') result = await deletePhone(id);
+      else if (type === 'laptops') result = await deleteLaptop(id);
       else if (type === 'earphones') result = await deleteEarphones(id);
       else if (type === 'chargers') result = await deleteCharger(id);
       else if (type === 'mouses') result = await deleteMouse(id);
@@ -498,6 +480,64 @@ app.get('/api/supervisor/logout', (req, res) => {
   });
 });
 
+
+// Update supervisor profile
+app.put('/api/supervisor/profile', requireSupervisorAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.userId;
+    const { first_name, last_name, email, phone, username } = req.body;
+
+    // Basic validation
+    const errors = {};
+    if (!first_name || first_name.length < 2) {
+      errors.first_name = 'First name must be at least 2 characters';
+    }
+    if (!last_name || last_name.length < 2) {
+      errors.last_name = 'Last name must be at least 2 characters';
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    if (!phone || phone.length < 10) {
+      errors.phone = 'Please enter a valid phone number';
+    }
+    if (!username || username.length < 3) {
+      errors.username = 'Username must be at least 3 characters';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({ success: false, errors });
+    }
+
+    const result = await updateSupervisorProfile(userId, {
+      first_name,
+      last_name,
+      email,
+      phone,
+      username
+    });
+
+    if (result.success) {
+      // Update session data
+      req.session.user.first_name = first_name;
+      req.session.user.last_name = last_name;
+      req.session.user.email = email;
+      req.session.user.phone = phone;
+      req.session.user.username = username;
+
+      return res.json({ success: true, message: 'Profile updated successfully' });
+    } else {
+      return res.status(400).json({ 
+        success: false, 
+        message: result.message || 'Error updating profile' 
+      });
+    }
+  } catch (error) {
+    console.error('Error updating supervisor profile:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 app.post('/api/supervisor/password', requireSupervisorAuth, async (req, res) => {
   try {
     const userId = req.session.user.userId;
@@ -1707,7 +1747,7 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
   
       const db = await getDb();
       if (type === 'phone') {
-        const price=(application.price*1.2)/(1-(discount/100));
+        const price=(application.price*1.5).toFixed(0);
           const phoneData = {
               id: Date.now(),
               brand: application.brand,
@@ -1723,7 +1763,7 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
               weight: application.weight || 'N/A',
               ram: application.ram,
               rom: application.rom,
-              basePrice:price, // Use the stored price
+              basePrice:price, 
               discount: discount || 0,
               condition: condition
           };
@@ -2040,8 +2080,6 @@ app.get('/api/orders/:orderId', requireCustomerAuth, async (req, res) => {
 app.get('/api/admin/statistics', requireAdminAuth, async (req, res) => {
   try {
     const db = await getDb();
-
-    // Sales Count
     const salesCountResult = await db.get(`
       SELECT COUNT(*) as total_sales
       FROM order_items oi
@@ -2049,7 +2087,6 @@ app.get('/api/admin/statistics', requireAdminAuth, async (req, res) => {
     `) || { total_sales: 0 };
     console.log('Sales Count:', salesCountResult);
 
-    // Listings Count
     const listingsCountResult = await db.get(`
       SELECT 
           (SELECT COUNT(*) FROM phone_applications) + 
@@ -2067,7 +2104,6 @@ app.get('/api/admin/statistics', requireAdminAuth, async (req, res) => {
     `) || { total_sales_revenue: 0 };
     console.log('Sales Revenue:', salesRevenueResult);
 
-    // Inventory Revenue Potential (Updated for specific price columns)
     const inventoryRevenueResult = await db.get(`
       SELECT 
           COALESCE(

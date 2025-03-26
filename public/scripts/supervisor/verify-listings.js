@@ -180,7 +180,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const response = await fetch(`/api/supervisor/application/${currentApplication.type}/${currentApplication.id}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status, rejectionReason, price }) // Include price in the request body
+                body: JSON.stringify({ status, rejectionReason, price }) 
             });
             const data = await response.json();
     

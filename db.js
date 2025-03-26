@@ -282,12 +282,7 @@ await db.exec(`
       
       await db.run(
         'INSERT INTO supervisors (user_id, first_name, last_name, email, phone, username, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        ['supervisor_1', 'John', 'Smith', 'john.smith@ecommerce.com', '1234567890', 'jsmith', password1]
-      );
-      
-      await db.run(
-        'INSERT INTO supervisors (user_id, first_name, last_name, email, phone, username, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        ['supervisor_2', 'Emily', 'Johnson', 'emily.johnson@ecommerce.com', '0987654321', 'ejohnson', password2]
+        ['supervisor_1', 'Nikhil', 'Sai', 'nikhil.sai@project.com', '1234567890', 'nikhil', password1]
       );
       
       console.log('Test supervisors added to database');
@@ -386,6 +381,123 @@ if (activityCount.count === 0) {
   );
   console.log('Test supervisor activity added to database');
 }
+
+
+await db.run(
+  `INSERT INTO phones 
+   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    1, 
+    'APPLE', // brand
+    'iphone 12', 
+    'Black', // color
+    '/images/best_in_value/Apple_iPhone_12webp.webp', 
+    'a 20 bionic', 
+    '4.9', 
+    1000, 
+    '8MP + 8Mp',
+    'iOS', 
+    '5G', 
+    '167', 
+    '4', 
+    '128', 
+    45000, 
+    8, 
+    'Good' ]
+);
+await db.run(
+  `INSERT INTO phones 
+   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    2, 
+    'SAMSUNG', // brand
+    'Galax S10 lite', 
+    'Black', // color
+    '/images/best_in_value/Samsung_Galaxy_S10_Lite.webp', 
+    'snapdragon 6gen', 
+    '5.9', 
+    2000, 
+    '28MP + 28Mp',
+    'Android', 
+    '5G', 
+    '200', 
+    '4', 
+    '128', 
+    22800, 
+    10, 
+    'Good' ]
+);
+await db.run(
+  `INSERT INTO phones 
+   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    3, 
+    'REALME', // brand
+    '9', 
+    'gold', // color
+    '/images/best_in_value/realme 9.webp', 
+    'snapdragon 6gen', 
+    '5.9', 
+    2000, 
+    '28MP + 28Mp',
+    'Android', 
+    '5G', 
+    '200', 
+    '4', 
+    '128', 
+    22999, 
+    57, 
+    'Very Good' ]
+);
+await db.run(
+  `INSERT INTO phones 
+   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    4, 
+    'ONEPLUS', // brand
+    'Nord 2', 
+    'Black', // color
+    '/images/best_in_value/OnePlus_Nord_2.webp', 
+    'snapdragon 6gen', 
+    '5.9', 
+    2000, 
+    '28MP + 28Mp',
+    'Android', 
+    '5G', 
+    '200', 
+    '4', 
+    '128', 
+    27999, 
+    50, 
+    'Good' ]
+);
+await db.run(
+  `INSERT INTO phones 
+   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    5, 
+    'GOOGLE', // brand
+    'Pixel 7', 
+    'white', // color
+    '/images/best_in_value/Google pixel 7.webp', 
+    'snapdragon 6gen', 
+    '5.9', 
+    2000, 
+    '28MP + 28Mp',
+    'Android', 
+    '5G', 
+    '200', 
+    '4', 
+    '128', 
+    28299, 
+    53, 
+    'Superb' ]
+);
 
     const mouseCount = await db.get('SELECT COUNT(*) as count FROM mouses');
 
@@ -863,6 +975,43 @@ export async function authenticateSupervisor(username, password) {
   }
 }
 
+// supervisor profile updating
+export async function updateSupervisorProfile(userId, updates) {
+  try {
+    const db = await getDb();
+    
+    const { first_name, last_name, email, phone, username } = updates;
+    
+    // Check if email or username already exists for another supervisor
+    const emailCheck = await db.get(
+      'SELECT user_id FROM supervisors WHERE email = ? AND user_id != ?',
+      [email, userId]
+    );
+    if (emailCheck) {
+      return { success: false, message: 'Email already in use by another supervisor' };
+    }
+
+    const usernameCheck = await db.get(
+      'SELECT user_id FROM supervisors WHERE username = ? AND user_id != ?',
+      [username, userId]
+    );
+    if (usernameCheck) {
+      return { success: false, message: 'Username already in use by another supervisor' };
+    }
+
+    await db.run(
+      `UPDATE supervisors 
+       SET first_name = ?, last_name = ?, email = ?, phone = ?, username = ? 
+       WHERE user_id = ?`,
+      [first_name, last_name, email, phone, username, userId]
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating supervisor profile:', error);
+    return { success: false, message: error.message };
+  }
+}
 // Supervisor password update function
 export async function updateSupervisorPassword(userId, newPassword) {
   try {

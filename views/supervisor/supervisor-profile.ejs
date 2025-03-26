@@ -45,45 +45,49 @@
                     <i class="far fa-calendar-alt"></i> <%= new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}) %>
                 </div>
             </div>
-
-            <!-- Profile Details -->
-            <section class="profile-section">
-                <h3><i class="fas fa-user"></i> Personal Information</h3>
-                <div class="profile-details">
-                    <div class="detail-item">
-                        <label>User ID:</label>
-                        <span><%= supervisor.user_id %></span>
-                    </div>
-                    <div class="detail-item">
-                        <label>First Name:</label>
-                        <span><%= supervisor.first_name %></span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Last Name:</label>
-                        <span><%= supervisor.last_name %></span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Email:</label>
-                        <span><%= supervisor.email %></span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Phone:</label>
-                        <span><%= supervisor.phone %></span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Username:</label>
-                        <span><%= supervisor.username %></span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Role:</label>
-                        <span>Supervisor</span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Joined:</label>
-                        <span><%= new Date(supervisor.created_at).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'}) %></span>
-                    </div>
-                </div>
-            </section>
+    <section class="profile-section">
+    <h3><i class="fas fa-user"></i> Personal Information</h3>
+    <div class="profile-details" id="profile-details">
+        <div class="detail-item">
+            <label>User ID:</label>
+            <span><%= supervisor.user_id %></span>
+        </div>
+        <div class="detail-item">
+            <label>First Name:</label>
+            <span class="editable" data-field="first_name"><%= supervisor.first_name %></span>
+        </div>
+        <div class="detail-item">
+            <label>Last Name:</label>
+            <span class="editable" data-field="last_name"><%= supervisor.last_name %></span>
+        </div>
+        <div class="detail-item">
+            <label>Email:</label>
+            <span class="editable" data-field="email"><%= supervisor.email %></span>
+        </div>
+        <div class="detail-item">
+            <label>Phone:</label>
+            <span class="editable" data-field="phone"><%= supervisor.phone %></span>
+        </div>
+        <div class="detail-item">
+            <label>Username:</label>
+            <span class="editable" data-field="username"><%= supervisor.username %></span>
+        </div>
+        <div class="detail-item">
+            <label>Role:</label>
+            <span>Supervisor</span>
+        </div>
+        <div class="detail-item">
+            <label>Joined:</label>
+            <span><%= new Date(supervisor.created_at).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'}) %></span>
+        </div>
+    </div>
+    <div class="profile-actions">
+        <button id="edit-profile-btn" class="btn-edit"><i class="fas fa-edit"></i> Edit Profile</button>
+        <button id="save-profile-btn" class="btn-submit" style="display: none;"><i class="fas fa-save"></i> Save Changes</button>
+        <button id="cancel-edit-btn" class="btn-cancel" style="display: none;"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+    <div id="profile-message" class="message"></div>
+</section>
 
             <!-- Change Password -->
             <section class="password-section">

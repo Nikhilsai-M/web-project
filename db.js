@@ -382,6 +382,123 @@ if (activityCount.count === 0) {
   console.log('Test supervisor activity added to database');
 }
 
+
+await db.run(
+  `INSERT INTO phones 
+   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    1, 
+    'APPLE', // brand
+    'iphone 12', 
+    'Black', // color
+    '/images/best_in_value/Apple_iPhone_12webp.webp', 
+    'a 20 bionic', 
+    '4.9', 
+    1000, 
+    '8MP + 8Mp',
+    'iOS', 
+    '5G', 
+    '167', 
+    '4', 
+    '128', 
+    45000, 
+    8, 
+    'Good' ]
+);
+await db.run(
+  `INSERT INTO phones 
+   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    2, 
+    'SAMSUNG', // brand
+    'Galax S10 lite', 
+    'Black', // color
+    '/images/best_in_value/Samsung_Galaxy_S10_Lite.webp', 
+    'snapdragon 6gen', 
+    '5.9', 
+    2000, 
+    '28MP + 28Mp',
+    'Android', 
+    '5G', 
+    '200', 
+    '4', 
+    '128', 
+    22800, 
+    10, 
+    'Good' ]
+);
+await db.run(
+  `INSERT INTO phones 
+   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    3, 
+    'REALME', // brand
+    '9', 
+    'gold', // color
+    '/images/best_in_value/realme 9.webp', 
+    'snapdragon 6gen', 
+    '5.9', 
+    2000, 
+    '28MP + 28Mp',
+    'Android', 
+    '5G', 
+    '200', 
+    '4', 
+    '128', 
+    22999, 
+    57, 
+    'Very Good' ]
+);
+await db.run(
+  `INSERT INTO phones 
+   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    4, 
+    'ONEPLUS', // brand
+    'Nord 2', 
+    'Black', // color
+    '/images/best_in_value/OnePlus_Nord_2.webp', 
+    'snapdragon 6gen', 
+    '5.9', 
+    2000, 
+    '28MP + 28Mp',
+    'Android', 
+    '5G', 
+    '200', 
+    '4', 
+    '128', 
+    27999, 
+    50, 
+    'Good' ]
+);
+await db.run(
+  `INSERT INTO phones 
+   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    5, 
+    'GOOGLE', // brand
+    'Pixel 7', 
+    'white', // color
+    '/images/best_in_value/Google pixel 7.webp', 
+    'snapdragon 6gen', 
+    '5.9', 
+    2000, 
+    '28MP + 28Mp',
+    'Android', 
+    '5G', 
+    '200', 
+    '4', 
+    '128', 
+    28299, 
+    53, 
+    'Superb' ]
+);
+
     const mouseCount = await db.get('SELECT COUNT(*) as count FROM mouses');
 
 if (mouseCount.count === 0) {

@@ -25,9 +25,9 @@ import {
   deletePhone,
   getAllChargers,
   getChargerById,
-  addCharger,          // Added
-  updateCharger,       // Added
-  deleteCharger,       // Added
+  addCharger,          
+  updateCharger,       
+  deleteCharger,       
   getAllEarphones,
   getEarphonesById,
   addEarphones,        
@@ -53,14 +53,16 @@ import {
   deleteMouse,         
   getAllSmartwatches,
   getSmartwatchById,
-  addSmartwatch,       // Added
-  updateSmartwatch,    // Added
+  addSmartwatch,       
+  updateSmartwatch,    
   deleteSmartwatch ,
-  createOrder,         // Added
-  getOrdersByUserId,  // Added
-  getOrderById  ,  // Added
+  createOrder,         
+  getOrdersByUserId,  
+  getOrderById  ,  
   getAllSupervisors,
-  deleteSupervisor
+  deleteSupervisor,
+  getLatestPhones,
+  getLatestLaptops
 } from './db.js';
 
 
@@ -684,6 +686,24 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+app.get('/api/latest-laptops', async (req, res) => {
+  try {
+    const laptops = await getLatestLaptops(5); // Fetch 5 latest laptops
+    res.json(laptops);
+  } catch (error) {
+    console.error('Error fetching latest laptops:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/api/latest-phones', async (req, res) => {
+  try {
+    const phones = await getLatestPhones(5); // Get 5 latest phones
+    res.json(phones);
+  } catch (error) {
+    console.error('Error in /api/latest-phones:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 app.post('/api/sell-phone', upload.single('device-image'), async (req, res) => {
   try {
     console.log('Request body:', req.body); // Log all incoming form fields
@@ -1822,7 +1842,6 @@ app.get('/buy/:type/:id', requireCustomerAuth, async (req, res) => {
     if (!fetchFunctions[accessoryType]) {
       return res.status(400).render('404', { message: 'Invalid accessory type' });
     }
-
     const fetchFunction = fetchFunctions[accessoryType];
     const accessory = await fetchFunction(accessoryId);
 
@@ -1830,8 +1849,8 @@ app.get('/buy/:type/:id', requireCustomerAuth, async (req, res) => {
       return res.status(404).render('404', { message: `${accessoryType} not found` });
     }
 
-    const finalPrice = parseFloat(accessory.pricing.originalPrice) -
-      (parseFloat(accessory.pricing.originalPrice) * parseFloat(accessory.pricing.discount) / 100);
+    const finalPrice = parseFloat(accessory.pricing.originalPrice||accessory.pricing.basePrice) -
+      (parseFloat(accessory.pricing.originalPrice||accessory.pricing.basePrice) * parseFloat(accessory.pricing.discount) / 100);
 
     res.render('dummy-payment', {
       price: finalPrice,

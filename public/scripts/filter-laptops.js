@@ -35,9 +35,6 @@ function displayProducts(filteredProducts) {
     filteredProducts.forEach(product => {
         const discountedPrice = calculateDiscountedPrice(product.pricing.basePrice, product.pricing.discount);
         
-        const imageUrl = product.image.startsWith('http') 
-            ? product.image 
-            : `https://res.cloudinary.com/dqohkpeyp/image/upload/${product.image}`;
         
         const productElement = document.createElement('div');
         productElement.className = 'product';
@@ -47,7 +44,7 @@ function displayProducts(filteredProducts) {
         <a href="/laptop/${product.id}" class="product-link">
             <div class="product-container">
                 <div class="product-image">
-                    <img src="${imageUrl}" alt="${product.brand} ${product.series}">
+                    <img src="${product.image }" alt="${product.brand} ${product.series}">
                 </div>
                 <div class="product-details">
                     <h4>${product.brand} ${product.series}</h4>

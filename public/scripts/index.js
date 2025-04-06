@@ -27,6 +27,57 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    async function fetchAndRenderLatestProducts() {
+        try {
+          const response = await fetch('/api/latest-phones');
+          if (!response.ok) throw new Error('Failed to fetch latest products');
+          const products = await response.json();
+    
+          const grid = document.getElementById('latest-products-grid');
+          grid.innerHTML = ''; // Clear existing content
+    
+          // Edge Case 1: Handle no products
+          if (products.length === 0) {
+            grid.innerHTML = '<p>No new products available.</p>';
+            return;
+          }
+    
+          products.forEach(product => {
+            const finalPrice = calculateFinalPrice(product);
+            const originalPrice = product.basePrice;
+    
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+              <a href="/product/${product.id}" style="text-decoration: none; color: #000;">
+                <img src="${product.image}" alt="${product.brand} ${product.model}">
+                <p class="best_in_value_phone_name">${product.brand} ${product.model} </p>
+                <p class="price">₹${finalPrice.toLocaleString('en-IN')} <span class="old-price">₹${originalPrice.toLocaleString('en-IN')}</span></p>
+                <p class="discount">${product.discount}% off</p>
+                <p>Grade: ${product.condition}</p>
+                <p>FREE 6 Months Warranty</p>
+              </a>
+            `;
+            grid.appendChild(card);
+          });
+        } catch (error) {
+          console.error('Error fetching latest products:', error);
+          const grid = document.getElementById('latest-products-grid');
+          grid.innerHTML = '<p>Error loading products. Please try again later.</p>';
+        }
+      }
+    
+      // Pricing calculation function
+      function calculateFinalPrice(product) {
+        const price = parseFloat(product.basePrice || 0);
+        const discount = parseFloat(product.discount || 0);
+        const finalPrice = Number((price - (price * discount / 100)).toFixed(2));
+        return finalPrice;
+      }
+    
+      fetchAndRenderLatestProducts();
+      setInterval(fetchAndRenderLatestProducts, 30000);
+      
     // Handle user login state
     function updateUserInterface() {
         // Get current session data

@@ -310,6 +310,16 @@ await db.exec(`
       console.log('Test admins added to database');
     }
     
+    const laptopCount = await db.get('SELECT COUNT(*) as count FROM laptops');
+if (laptopCount.count === 0) {
+  await db.run(
+    `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, base_price, discount, ram, storage_type, storage_capacity, display_size, weight, condition, os, image) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [1, 'Dell', 'XPS 13', 'Intel i7', '11th', 120000, 10, '16GB', 'SSD', '512GB', 13.4, 1.2, 'Good', 'Windows 11', '/images/buy_laptop/dell-xps13.webp']
+  );
+  console.log('Test laptops added to database');
+}
+
 // Check if any phone applications exist, add test ones if not
 const phoneAppCount = await db.get('SELECT COUNT(*) as count FROM phone_applications');
 if (phoneAppCount.count === 0) {
@@ -2111,8 +2121,9 @@ export async function createOrder(userId, orderData) {
       [orderData.orderId, userId, orderData.totalAmount, orderData.paymentMethod]
     );
 
-    // Insert each item into order_items
+    // Insert each item into order_items and delete from inventory
     for (const item of orderData.items) {
+      // Insert into order_items
       await db.run(
         `INSERT INTO order_items (order_id, item_type, item_id, quantity, amount, accessory) 
          VALUES (?, ?, ?, ?, ?, ?)`,
@@ -2125,6 +2136,41 @@ export async function createOrder(userId, orderData) {
           JSON.stringify(item.accessory)
         ]
       );
+
+      // Delete the item from its respective inventory table based on type
+      let tableName;
+      switch (item.type.toLowerCase()) {
+        case 'product':
+          tableName = 'phones';
+          break;
+        case 'laptop':
+          tableName = 'laptops';
+          break;
+        case 'earphone':
+          tableName = 'earphones';
+          break;
+        case 'charger':
+          tableName = 'chargers';
+          break;
+        case 'mouse':
+          tableName = 'mouses';
+          break;
+        case 'smartwatch':
+          tableName = 'smartwatches';
+          break;
+        default:
+          throw new Error(`Unknown item type: ${item.type}`);
+      }
+
+      // Delete the item from the inventory
+      const deleteResult = await db.run(
+        `DELETE FROM ${tableName} WHERE id = ?`,
+        [item.id]
+      );
+
+      if (deleteResult.changes === 0) {
+        throw new Error(`Item with ID ${item.id} not found in ${tableName}`);
+      }
     }
 
     // Update customer's orders_count
@@ -2133,9 +2179,11 @@ export async function createOrder(userId, orderData) {
       [userId]
     );
 
+    // Commit the transaction
     await db.run('COMMIT');
     return { success: true, orderId: orderData.orderId };
   } catch (error) {
+    // Rollback the transaction on error
     await db.run('ROLLBACK');
     console.error('Error creating order:', error);
     return { success: false, message: error.message };
@@ -2236,6 +2284,50 @@ export async function deleteSupervisor(userId) {
     return { success: result.changes > 0 };
   } catch (error) {
     console.error('Error deleting supervisor:', error);
+    throw error;
+  }
+}
+
+// db.js
+export async function getLatestPhones(limit = 5) {
+  try {
+    const db = await getDb();
+    const phones = await db.all(
+      'SELECT * FROM phones ORDER BY created_at DESC LIMIT ?',
+      [limit]
+    );
+    return phones.map(phone => ({
+      id: phone.id,
+      brand: phone.brand,
+      model: phone.model,
+      image: phone.image,
+      basePrice: phone.base_price,
+      discount: phone.discount,
+      condition: phone.condition
+    }));
+  } catch (error) {
+    console.error('Error fetching latest phones:', error);
+    throw error;
+  }
+}
+export async function getLatestLaptops(limit = 5) {
+  try {
+    const db = await getDb();
+    const laptops = await db.all(
+      'SELECT * FROM laptops ORDER BY created_at DESC LIMIT ?',
+      [limit]
+    );
+    return laptops.map(laptop => ({
+      id: laptop.id,
+      brand: laptop.brand,
+      series: laptop.series,
+      image: laptop.image,
+      basePrice: laptop.base_price,
+      discount: laptop.discount,
+      condition: laptop.condition
+    }));
+  } catch (error) {
+    console.error('Error fetching latest laptops:', error);
     throw error;
   }
 }

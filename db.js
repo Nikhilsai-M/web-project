@@ -1,945 +1,1107 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { console } from 'inspector';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const dbPath = path.join(__dirname, 'database.sqlite');
+// MongoDB connection
+const connectToMongoDB = async () => {
+  try {
+    await mongoose.connect('mongodb://localhost:27017/electronics_store');
+    console.log('Connected to MongoDB');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw error;
+  }
+};
+// Mongoose Schemas
+const supervisorSchema = new mongoose.Schema({
+  user_id: { type: String, required: true, unique: true },
+  first_name: { type: String, required: true },
+  last_name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  phone: { type: String, required: true },
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
+});
 
-let db;
+const supervisorActivitySchema = new mongoose.Schema({
+  supervisor_id: { type: String, required: true },
+  action: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now },
+});
 
-// Create and initialize the database
+const adminSchema = new mongoose.Schema({
+  admin_id: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  security_token: { type: String, required: true },
+  name: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
+});
+
+const customerSchema = new mongoose.Schema({
+  user_id: { type: String, required: true, unique: true },
+  first_name: { type: String, required: true },
+  last_name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  phone: { type: String, required: true },
+  password: { type: String, required: true },
+  orders_count: { type: Number, default: 0 },
+  items_sold_count: { type: Number, default: 0 },
+  password_last_changed: { type: Date, default: Date.now },
+  created_at: { type: Date, default: Date.now },
+});
+
+const laptopSchema = new mongoose.Schema({
+  id: { type: Number, required: true, unique: true },
+  brand: { type: String, required: true },
+  series: { type: String, required: true },
+  processor_name: { type: String, required: true },
+  processor_generation: { type: String, required: true },
+  base_price: { type: Number, required: true },
+  discount: { type: Number },
+  ram: { type: String, required: true },
+  storage_type: { type: String, required: true },
+  storage_capacity: { type: String, required: true },
+  display_size: { type: Number, required: true },
+  weight: { type: Number, required: true },
+  condition: { type: String, required: true },
+  os: { type: String, required: true },
+  image: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
+});
+
+const phoneSchema = new mongoose.Schema({
+  id: { type: Number, required: true, unique: true },
+  brand: { type: String, required: true },
+  model: { type: String, required: true },
+  color: { type: String },
+  image: { type: String, required: true },
+  processor: { type: String, required: true },
+  display: { type: String, required: true },
+  battery: { type: Number, required: true },
+  camera: { type: String, required: true },
+  os: { type: String, required: true },
+  network: { type: String, required: true },
+  weight: { type: String, required: true },
+  ram: { type: String, required: true },
+  rom: { type: String, required: true },
+  base_price: { type: Number, required: true },
+  discount: { type: Number },
+  condition: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
+});
+
+const phoneApplicationSchema = new mongoose.Schema({
+  user_id: { type: String },
+  brand: { type: String, required: true },
+  model: { type: String, required: true },
+  ram: { type: String, required: true },
+  rom: { type: String, required: true },
+  processor: { type: String, required: true },
+  network: { type: String, required: true },
+  size: { type: String },
+  weight: { type: String },
+  device_age: { type: String, required: true },
+  switching_on: { type: String, required: true },
+  phone_calls: { type: String, required: true },
+  cameras_working: { type: String, required: true },
+  battery_issues: { type: String, required: true },
+  physically_damaged: { type: String, required: true },
+  sound_issues: { type: String, required: true },
+  location: { type: String, required: true },
+  email: { type: String, required: true },
+  phone: { type: String, required: true },
+  battery: { type: String, required: true },
+  camera: { type: String, required: true },
+  os: { type: String, required: true },
+  image_path: { type: String },
+  status: { type: String, default: 'pending' },
+  rejection_reason: { type: String },
+  price: { type: Number },
+  created_at: { type: Date, default: Date.now },
+});
+
+const laptopApplicationSchema = new mongoose.Schema({
+  user_id: { type: String },
+  brand: { type: String, required: true },
+  model: { type: String, required: true },
+  ram: { type: String, required: true },
+  storage: { type: String, required: true },
+  processor: { type: String, required: true },
+  generation: { type: String },
+  display_size: { type: String },
+  weight: { type: String },
+  os: { type: String },
+  device_age: { type: String },
+  battery_issues: { type: String },
+  location: { type: String, required: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  phone: { type: String, required: true },
+  image_path: { type: String },
+  status: { type: String, default: 'pending' },
+  rejection_reason: { type: String },
+  price: { type: Number },
+  created_at: { type: Date, default: Date.now },
+});
+
+const earphoneSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  title: { type: String, required: true },
+  image: { type: String, required: true },
+  brand: { type: String, required: true },
+  original_price: { type: Number, required: true },
+  discount: { type: String, required: true },
+  design: { type: String, required: true },
+  battery_life: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
+});
+
+const chargerSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  title: { type: String, required: true },
+  image: { type: String, required: true },
+  brand: { type: String, required: true },
+  wattage: { type: String, required: true },
+  type: { type: String, required: true },
+  originalPrice: { type: Number, required: true },
+  discount: { type: String, required: true },
+  outputCurrent: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
+});
+
+const mouseSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  title: { type: String, required: true },
+  image: { type: String, required: true },
+  brand: { type: String, required: true },
+  original_price: { type: Number, required: true },
+  discount: { type: String, required: true },
+  type: { type: String, required: true },
+  connectivity: { type: String, required: true },
+  resolution: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
+});
+
+const smartwatchSchema = new mongoose.Schema({
+  id: { type: String, required: true, unique: true },
+  title: { type: String, required: true },
+  image: { type: String, required: true },
+  brand: { type: String, required: true },
+  original_price: { type: Number, required: true },
+  discount: { type: String, required: true },
+  display_size: { type: String, required: true },
+  display_type: { type: String, required: true },
+  battery_runtime: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
+});
+
+const orderSchema = new mongoose.Schema({
+  order_id: { type: String, required: true, unique: true },
+  user_id: { type: String, required: true },
+  total_amount: { type: Number, required: true },
+  payment_method: { type: String, required: true },
+  created_at: { type: Date, default: Date.now },
+});
+
+const orderItemSchema = new mongoose.Schema({
+  order_id: { type: String, required: true },
+  item_type: { type: String, required: true },
+  item_id: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  amount: { type: Number, required: true },
+  accessory: { type: Object, required: true },
+});
+
+// Create Mongoose Models
+const Supervisor = mongoose.model('Supervisor', supervisorSchema);
+const SupervisorActivity = mongoose.model('SupervisorActivity', supervisorActivitySchema);
+const Admin = mongoose.model('Admin', adminSchema);
+const Customer = mongoose.model('Customer', customerSchema);
+const Laptop = mongoose.model('Laptop', laptopSchema);
+const Phone = mongoose.model('Phone', phoneSchema);
+const PhoneApplication = mongoose.model('PhoneApplication', phoneApplicationSchema);
+const LaptopApplication = mongoose.model('LaptopApplication', laptopApplicationSchema);
+const Earphone = mongoose.model('Earphone', earphoneSchema);
+const Charger = mongoose.model('Charger', chargerSchema);
+const Mouse = mongoose.model('Mouse', mouseSchema);
+const Smartwatch = mongoose.model('Smartwatch', smartwatchSchema);
+const Order = mongoose.model('Order', orderSchema);
+const OrderItem = mongoose.model('OrderItem', orderItemSchema);
+
+// Initialize Database
 export async function initializeDatabase() {
   try {
-    db = await open({
-      filename: ":memory:",
-      driver: sqlite3.Database
-    });
-    
-    // Create supervisors table with new schema
-    await db.exec(`
-          CREATE TABLE IF NOT EXISTS supervisors (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id TEXT UNIQUE NOT NULL,
-      first_name TEXT NOT NULL,
-      last_name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      phone TEXT NOT NULL,
-      username TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-    `);
-    
-    // Create supervisor_activity table (for tracking actions, as previously defined)
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS supervisor_activity (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        supervisor_id TEXT NOT NULL,
-        action TEXT NOT NULL,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    
-    // Create admins table
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS admins (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        admin_id TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        security_token TEXT NOT NULL,
-        name TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    
-    // Create customers table
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS customers (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT UNIQUE NOT NULL,
-        first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        phone TEXT NOT NULL,
-        password TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    // Add columns if they don't exist (for existing databases)
-    await db.exec(`
-      ALTER TABLE customers ADD COLUMN orders_count INTEGER DEFAULT 0;
-    `).catch(() => {});
-    await db.exec(`
-      ALTER TABLE customers ADD COLUMN items_sold_count INTEGER DEFAULT 0;
-    `).catch(() => {});
-    await db.exec(`
-      ALTER TABLE customers ADD COLUMN password_last_changed DATETIME DEFAULT CURRENT_TIMESTAMP;
-    `).catch(() => {});
-    
-    // Create laptops table
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS laptops (
-        id INTEGER PRIMARY KEY,
-        brand TEXT NOT NULL,
-        series TEXT NOT NULL,
-        processor_name TEXT NOT NULL,
-        processor_generation TEXT NOT NULL,
-        base_price REAL NOT NULL,
-        discount INTEGER,
-        ram TEXT NOT NULL,
-        storage_type TEXT NOT NULL,
-        storage_capacity TEXT NOT NULL,
-        display_size REAL NOT NULL,
-        weight REAL NOT NULL,
-        condition TEXT NOT NULL,
-        os TEXT NOT NULL,
-        image TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    
-    // Create phones table
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS phones (
-        id INTEGER PRIMARY KEY,
-        brand TEXT NOT NULL,
-        model TEXT NOT NULL,
-        color TEXT ,
-        image TEXT NOT NULL,
-        processor TEXT NOT NULL,
-        display TEXT NOT NULL,
-        battery INTEGER NOT NULL,
-        camera TEXT NOT NULL,
-        os TEXT NOT NULL,
-        network TEXT NOT NULL,
-        weight TEXT NOT NULL,
-        ram TEXT NOT NULL,
-        rom TEXT NOT NULL,
-        base_price REAL NOT NULL,
-        discount INTEGER,
-        condition TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+    await connectToMongoDB();
 
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS phone_applications (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT,
-        brand TEXT NOT NULL,
-        model TEXT NOT NULL,
-        ram TEXT NOT NULL,
-        rom TEXT NOT NULL,
-        processor TEXT NOT NULL,
-        network TEXT NOT NULL,
-        size TEXT,
-        weight TEXT,
-        device_age TEXT NOT NULL,
-        switching_on TEXT NOT NULL,
-        phone_calls TEXT NOT NULL,
-        cameras_working TEXT NOT NULL,
-        battery_issues TEXT NOT NULL,
-        physically_damaged TEXT NOT NULL,
-        sound_issues TEXT NOT NULL,
-        location TEXT NOT NULL,
-        email TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        battery TEXT NOT NULL,          
-        camera TEXT NOT NULL,           
-        os TEXT NOT NULL,               
-        image_path TEXT,
-        status TEXT DEFAULT 'pending',
-        rejection_reason TEXT,
-        price REAL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-// Update laptop_applications table
-await db.exec(`
-  CREATE TABLE IF NOT EXISTS laptop_applications (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT,
-    brand TEXT NOT NULL,
-    model TEXT NOT NULL,
-    ram TEXT NOT NULL,
-    storage TEXT NOT NULL,
-    processor TEXT NOT NULL,
-    generation TEXT,
-    display_size TEXT,
-    weight TEXT,
-    os TEXT,
-    device_age TEXT,
-    battery_issues TEXT,
-    location TEXT NOT NULL,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    image_path TEXT,
-    status TEXT DEFAULT 'pending',
-    rejection_reason TEXT,
-    price REAL, 
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`);
- 
-    
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS earphones (
-        id TEXT PRIMARY KEY,
-        title TEXT NOT NULL,
-        image TEXT NOT NULL,
-        brand TEXT NOT NULL,
-        original_price REAL NOT NULL,
-        discount TEXT NOT NULL,
-        design TEXT NOT NULL,
-        battery_life TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS chargers (
-          id TEXT PRIMARY KEY,
-          title TEXT NOT NULL,
-          image TEXT NOT NULL,
-          brand TEXT NOT NULL,
-          wattage TEXT NOT NULL,
-          type TEXT NOT NULL,
-          originalPrice REAL NOT NULL,
-          discount TEXT NOT NULL,
-          outputCurrent TEXT NOT NULL
-    )
-      `);
-  
-      await db.exec(`
-        CREATE TABLE IF NOT EXISTS mouses (
-          id TEXT PRIMARY KEY,
-          title TEXT NOT NULL,
-          image TEXT NOT NULL,
-          brand TEXT NOT NULL,
-          original_price REAL NOT NULL,
-          discount TEXT NOT NULL,
-          type TEXT NOT NULL,
-          connectivity TEXT NOT NULL,
-          resolution TEXT NOT NULL,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-      `);
-
-      await db.exec(`
-        CREATE TABLE IF NOT EXISTS smartwatches (
-          id TEXT PRIMARY KEY,
-          title TEXT NOT NULL,
-          image TEXT NOT NULL,
-          brand TEXT NOT NULL,
-          original_price REAL NOT NULL,
-          discount TEXT NOT NULL,
-          display_size TEXT NOT NULL,
-          display_type TEXT NOT NULL,
-          battery_runtime TEXT NOT NULL,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-      `);
-      
-        // In initializeDatabase, after other table creations
-await db.exec(`
-  CREATE TABLE IF NOT EXISTS orders (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    order_id TEXT UNIQUE NOT NULL,
-    user_id TEXT NOT NULL,
-    total_amount REAL NOT NULL,
-    payment_method TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES customers(user_id)
-  )
-`);
-
-await db.exec(`
-  CREATE TABLE IF NOT EXISTS order_items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    order_id TEXT NOT NULL,
-    item_type TEXT NOT NULL,
-    item_id TEXT NOT NULL,
-    quantity INTEGER NOT NULL,
-    amount REAL NOT NULL,
-    accessory TEXT NOT NULL, -- JSON string of accessory details
-    FOREIGN KEY (order_id) REFERENCES orders(order_id)
-  )
-`);
-    // Check if any supervisors exist, add test ones if not
-    const supervisorCount = await db.get('SELECT COUNT(*) as count FROM supervisors');
-    
-    if (supervisorCount.count === 0) {
-      // Hash passwords
+    // Check and insert test supervisors
+    const supervisorCount = await Supervisor.countDocuments();
+    if (supervisorCount === 0) {
       const password1 = await bcrypt.hash('Supervisor@123', 10);
       const password2 = await bcrypt.hash('Supervisor@456', 10);
-      
-      await db.run(
-        'INSERT INTO supervisors (user_id, first_name, last_name, email, phone, username, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        ['supervisor_1', 'Nikhil', 'Sai', 'nikhil.sai@project.com', '1234567890', 'nikhil', password1]
-      );
-      
+      await Supervisor.insertMany([
+        {
+          user_id: 'supervisor_1',
+          first_name: 'Nikhil',
+          last_name: 'Sai',
+          email: 'nikhil.sai@project.com',
+          phone: '1234567890',
+          username: 'nikhil',
+          password: password1,
+        },
+        // Add more if needed
+      ]);
       console.log('Test supervisors added to database');
     }
-    
-    // Check if we have any admins, if not add the test ones
-    const adminCount = await db.get('SELECT COUNT(*) as count FROM admins');
-    
-    if (adminCount.count === 0) {
-      // Hash passwords
+
+    // Check and insert test admins
+    const adminCount = await Admin.countDocuments();
+    if (adminCount === 0) {
       const adminPassword1 = await bcrypt.hash('Admin@123', 10);
       const adminPassword2 = await bcrypt.hash('Admin@456', 10);
-      
-      // Insert test admins
-      await db.run(
-        'INSERT INTO admins (admin_id, password, security_token, name) VALUES (?, ?, ?, ?)',
-        ['ADMIN001', adminPassword1, 'TOKEN001', 'admin1']
-      );
-      
-      await db.run(
-        'INSERT INTO admins (admin_id, password, security_token, name) VALUES (?, ?, ?, ?)',
-        ['ADMIN002', adminPassword2, 'TOKEN002', 'admin2']
-      );
-      
+      await Admin.insertMany([
+        {
+          admin_id: 'ADMIN001',
+          password: adminPassword1,
+          security_token: 'TOKEN001',
+          name: 'admin1',
+        },
+        {
+          admin_id: 'ADMIN002',
+          password: adminPassword2,
+          security_token: 'TOKEN002',
+          name: 'admin2',
+        },
+      ]);
       console.log('Test admins added to database');
     }
-    
-    const laptopCount = await db.get('SELECT COUNT(*) as count FROM laptops');
-if (laptopCount.count === 0) {
-  await db.run(
-    `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, base_price, discount, ram, storage_type, storage_capacity, display_size, weight, condition, os, image) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [1, 'Dell', 'XPS 13', 'Intel i7', '11th', 120000, 10, '16GB', 'SSD', '512GB', 13.4, 1.2, 'Good', 'Windows 11', '/images/buy_laptop/dell-xps13.webp']
-  );
-  console.log('Test laptops added to database');
-}
 
-// Check if any phone applications exist, add test ones if not
-const phoneAppCount = await db.get('SELECT COUNT(*) as count FROM phone_applications');
-if (phoneAppCount.count === 0) {
-  await db.run(
-    `INSERT INTO phone_applications (user_id, brand, model, ram, rom, processor, network, size, weight, device_age, 
-      switching_on, phone_calls, cameras_working, battery_issues, physically_damaged, sound_issues, location, 
-      email, phone, battery, camera, os, image_path, status, created_at) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      'user_123', 'Samsung', 'Galaxy S20', '8GB', '128GB', 'Exynos 990', '4G', '6.2"', '163g', '2 years',
-      'Yes', 'Yes', 'Yes', 'No', 'No', 'No', 'New York', 'test@example.com', '1234567890', '4000mAh', 
-      '12MP', 'Android 11', 'https://example.com/image1.jpg', 'pending', '2025-03-20 10:00:00'
-    ]
-  );
-  await db.run(
-    `INSERT INTO phone_applications (user_id, brand, model, ram, rom, processor, network, size, weight, device_age, 
-      switching_on, phone_calls, cameras_working, battery_issues, physically_damaged, sound_issues, location, 
-      email, phone, battery, camera, os, image_path, status, created_at) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      'user_124', 'Apple', 'iPhone 12', '4GB', '64GB', 'A14 Bionic', '5G', '6.1"', '164g', '1 year',
-      'Yes', 'Yes', 'Yes', 'Yes', 'No', 'No', 'California', 'test2@example.com', '0987654321', '2810mAh', 
-      '12MP', 'iOS 14', 'https://example.com/image2.jpg', 'approved', '2025-03-21 12:00:00'
-    ]
-  );
-  console.log('Test phone applications added to database');
-}
-
-// Check if any laptop applications exist, add test ones if not
-const laptopAppCount = await db.get('SELECT COUNT(*) as count FROM laptop_applications');
-if (laptopAppCount.count === 0) {
-  await db.run(
-    `INSERT INTO laptop_applications (user_id, brand, model, ram, storage, processor, generation, display_size, 
-      weight, os, device_age, battery_issues, location, name, email, phone, image_path, status, created_at) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      'user_123', 'Dell', 'XPS 13', '16GB', '512GB', 'Intel i7', '11th', '13.4"', '1.2kg', 'Windows 11',
-      '1.5 years', 'No', 'Texas', 'John Doe', 'john@example.com', '1112223333', 'https://example.com/image3.jpg',
-      'pending', '2025-03-22 09:00:00'
-    ]
-  );
-  await db.run(
-    `INSERT INTO laptop_applications (user_id, brand, model, ram, storage, processor, generation, display_size, 
-      weight, os, device_age, battery_issues, location, name, email, phone, image_path, status, created_at) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      'user_124', 'Apple', 'MacBook Air', '8GB', '256GB', 'M1', '', '13.3"', '1.29kg', 'macOS',
-      '2 years', 'Yes', 'Florida', 'Jane Smith', 'jane@example.com', '4445556666', 'https://example.com/image4.jpg',
-      'rejected', '2025-03-22 14:00:00'
-    ]
-  );
-  console.log('Test laptop applications added to database');
-}
-
-// Check if any supervisor activity exists, add test ones if not
-const activityCount = await db.get('SELECT COUNT(*) as count FROM supervisor_activity');
-if (activityCount.count === 0) {
-  await db.run(
-    'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
-    ['supervisor_1', 'Updated phone application #1 to approved with price 500', '2025-03-21 12:30:00']
-  );
-  await db.run(
-    'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
-    ['supervisor_1', 'Added phone #12345 to inventory with price ₹500, condition Used, and 10% discount', '2025-03-21 13:00:00']
-  );
-  await db.run(
-    'INSERT INTO supervisor_activity (supervisor_id, action, timestamp) VALUES (?, ?, ?)',
-    ['supervisor_1', 'Updated laptop application #2 to rejected: Damaged screen', '2025-03-22 14:30:00']
-  );
-  console.log('Test supervisor activity added to database');
-}
-
-
-await db.run(
-  `INSERT INTO phones 
-   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  [
-    1, 
-    'APPLE', // brand
-    'iphone 12', 
-    'Black', // color
-    '/images/best_in_value/Apple_iPhone_12webp.webp', 
-    'a 20 bionic', 
-    '4.9', 
-    1000, 
-    '8MP + 8Mp',
-    'iOS', 
-    '5G', 
-    '167', 
-    '4', 
-    '128', 
-    45000, 
-    8, 
-    'Good' ]
-);
-await db.run(
-  `INSERT INTO phones 
-   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  [
-    2, 
-    'SAMSUNG', // brand
-    'Galax S10 lite', 
-    'Black', // color
-    '/images/best_in_value/Samsung_Galaxy_S10_Lite.webp', 
-    'snapdragon 6gen', 
-    '5.9', 
-    2000, 
-    '28MP + 28Mp',
-    'Android', 
-    '5G', 
-    '200', 
-    '4', 
-    '128', 
-    22800, 
-    10, 
-    'Good' ]
-);
-await db.run(
-  `INSERT INTO phones 
-   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  [
-    3, 
-    'REALME', // brand
-    '9', 
-    'gold', // color
-    '/images/best_in_value/realme 9.webp', 
-    'snapdragon 6gen', 
-    '5.9', 
-    2000, 
-    '28MP + 28Mp',
-    'Android', 
-    '5G', 
-    '200', 
-    '4', 
-    '128', 
-    22999, 
-    57, 
-    'Very Good' ]
-);
-await db.run(
-  `INSERT INTO phones 
-   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  [
-    4, 
-    'ONEPLUS', // brand
-    'Nord 2', 
-    'Black', // color
-    '/images/best_in_value/OnePlus_Nord_2.webp', 
-    'snapdragon 6gen', 
-    '5.9', 
-    2000, 
-    '28MP + 28Mp',
-    'Android', 
-    '5G', 
-    '200', 
-    '4', 
-    '128', 
-    27999, 
-    50, 
-    'Good' ]
-);
-await db.run(
-  `INSERT INTO phones 
-   (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  [
-    5, 
-    'GOOGLE', // brand
-    'Pixel 7', 
-    'white', // color
-    '/images/best_in_value/Google pixel 7.webp', 
-    'snapdragon 6gen', 
-    '5.9', 
-    2000, 
-    '28MP + 28Mp',
-    'Android', 
-    '5G', 
-    '200', 
-    '4', 
-    '128', 
-    28299, 
-    53, 
-    'Superb' ]
-);
-
-    const mouseCount = await db.get('SELECT COUNT(*) as count FROM mouses');
-
-if (mouseCount.count === 0) {
-  // Insert the sample mouse data
-  await db.run(
-    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["logitech_m196_202", "Logitech M196 Wireless Optical Mouse with Bluetooth", "images/accessories/mouses/Logitech M196.webp", "Logitech", 1125, "20%", "Wireless", "Bluetooth & USB", "4600"]
-  );
-
-  await db.run(
-    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["logitech_g502_303", "Logitech G502 Hero / Hero 25K Sensor, Adj DPI Upto 25600, RGB, 11 Programmable Buttons Wired Optical Gaming Mouse", "images/accessories/mouses/Logotech G502 Hero.webp", "Logitech", 5495, "25%", "Wired", "USB", "5600"]
-  );
-
-  await db.run(
-    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["arctic_fox_breathing_404", "Arctic Fox Breathing Lights and DPI Upto 3600 Wired Optical Gaming Mouse", "images/accessories/mouses/Arctic Fox Breathing Lights.webp", "Arctic Fox", 599, "35%", "Wired", "USB", "3600"]
-  );
-
-  await db.run(
-    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["zebronics_jaguar_606", "ZEBRONICS Zeb-Jaguar Wireless Optical Mouse", "images/accessories/mouses/Zebronics Zeb Jaguar.webp", "ZEBRONICS", 1190, "39%", "Wireless", "USB", "1700"]
-  );
-
-  await db.run(
-    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["zebronics_rise_707", "ZEBRONICS ZEB-RISE Wired Optical Mouse", "images/accessories/mouses/Zebronics Zeb Rise.webp", "ZEBRONICS", 699, "19%", "Wired", "USB", "1200"]
-  );
-
-  await db.run(
-    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["zebronics_blanc_808", "ZEBRONICS Zeb-Blanc /Dual Mode,Type C rechargeable built-in battery,upto 1600 DPI Wireless Optical Mouse", "images/accessories/mouses/Zebronics Zeb Blanc.webp", "ZEBRONICS", 999, "15%", "Wireless", "Bluetooth & USB", "1600"]
-  );
-
-  await db.run(
-    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["dell_ms116_909", "DELL MS 116-BK Wired Optical Mouse", "images/accessories/mouses/Dell MS 116-BK.webp", "DELL", 650, "30%", "Wired", "USB", "1000"]
-  );
-
-  await db.run(
-    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["hp_m160_1010", "HP M160 Wired Optical Gaming Mouse", "images/accessories/mouses/HP M160.webp", "HP", 799, "40%", "Wired", "USB", "1000"]
-  );
-
-  await db.run(
-    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["hp_z3700_1111", "HP Z3700 /Slim form with USB receiver,16 month battery life, 1200DPI Wireless Optical Mouse", "images/accessories/mouses/HP Z3700.webp", "HP", 1499, "30%", "Wireless", "USB", "1200"]
-  );
-
-  await db.run(
-    `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["logitech_b175_101", "Logitech B175 / Optical Tracking, 12-Months Battery Life, Ambidextrous Wireless Optical Mouse", "images/accessories/mouses/Logitech B175.webp", "Logitech", 995, "49%", "Wireless", "USB", "3000"]
-  );
-}
-    // Check if any phones exist, add initial data if not
-    const phoneCount = await db.get('SELECT COUNT(*) as count FROM phones');
-    
-    
-    const chargercount=await db.get('SELECT COUNT(*) as count FROM chargers');
-    if(chargercount.count===0){
-      await db.run(  
-        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
-        ["chg001", "Apple 20W USB-C Power Adapter", "images/accessories/chargers/apple_20w.webp", "Apple", "20", "USB C", 1900, "10%", "3A"]  
-    );  
-    
-    await db.run(  
-        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
-        ["chg002", "Samsung 25W Fast Charger", "images/accessories/chargers/samsung_25.webp", "Samsung", "25", "USB C", 1800, "15%", "2.5A"]  
-    );  
-    
-    await db.run(  
-        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
-        ["chg003", "RoarX 33 W SuperVOOC 6 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)", "images/accessories/chargers/roar_33v.webp", "RoarX", "33", "USB C", 2999, "87%", "6A"]  
-    );  
-    
-    await db.run(  
-        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
-        ["chg004", "EYNK 44 W Quick Charge 5 A Wall Charger for Mobile with Detachable Cable  (Supported All Flash Charge 2.0 devices, White, Cable Included)", "images/accessories/chargers/eynk_44.webp", "EYNK", "44", "USB C", 2999, "71%", "5A"]  
-    );  
-    
-    await db.run(  
-        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
-        ["chg005", "Pacificdeals 44 W Supercharge 4 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)", "images/accessories/chargers/PACIFIC.webp", "Pacificdeals", "44", "USB C", 1999, "63%", "4A"]  
-    );  
-    
-    await db.run(  
-        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
-        ["chg006", "SB 80 W SuperVOOC 7.3 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)", "images/accessories/chargers/sb_80.webp", "SB", "80", "USB C", 2499, "86%", "7.3A"]  
-    );  
-    
-    await db.run(  
-        `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,  
-        ["chg007", "Apple Lightning Cable 2 m MW2R3ZM/A  (Compatible with Mobile, Tablet, White)", "images/accessories/chargers/apple_light.webp", "Apple", "20", "lightning", 2900, "0%", "3A"]  
-    );  
+    // Check and insert test laptops
+    const laptopCount = await Laptop.countDocuments();
+    if (laptopCount === 0) {
+      await Laptop.create({
+        id: 1,
+        brand: 'Dell',
+        series: 'XPS 13',
+        processor_name: 'Intel i7',
+        processor_generation: '11th',
+        base_price: 120000,
+        discount: 10,
+        ram: '16GB',
+        storage_type: 'SSD',
+        storage_capacity: '512GB',
+        display_size: 13.4,
+        weight: 1.2,
+        condition: 'Good',
+        os: 'Windows 11',
+        image: '/images/buy_laptop/dell-xps13.webp',
+      });
+      console.log('Test laptops added to database');
     }
 
-    const smartwatchCount = await db.get('SELECT COUNT(*) as count FROM smartwatches');
-
-if (smartwatchCount.count === 0) {
-  // Insert the sample smartwatch data
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw1", "Apple Watch Series 8, 41mm GPS + Cellular ECG app, Temperature sensor, Crash Detection", "images/accessories/smartwatches/Apple Watch Series8.webp", "Apple", 55900, "5%", "41", "Retina Display", "18"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw2", "Apple Watch Series 10 GPS 46mm Silver Aluminium with Denim Sport Band", "images/accessories/smartwatches/Apple Watch Series10.webp", "Apple", 49900, "15%", "46", "Retina Display", "18"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw3", "Apple Watch Series 9 GPS 45mm Aluminium Case with Sport Band - S/M", "images/accessories/smartwatches/Apple Watch Series9.webp", "Apple", 59900, "18%", "45", "Retina Display", "18"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw8", "Fire-Boltt Ninja Calling Pro Plus 46.5mm (1.83) Display Bluetooth Calling, AI Voice Smartwatch", "images/accessories/smartwatches/Fire-Boltt Ninja.webp", "Fire-Boltt", 1999, "50%", "46.5", "HD Display", "5"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw9", "Fire-Boltt Hurricane 33.02mm (1.3) Curved Glass Display with BT Calling, 100+ Sports Modes Smartwatch", "images/accessories/smartwatches/Fire-Boltt Hurricane.webp", "Fire-Boltt", 8999, "86%", "33.02", "Retina HD Color Display", "15"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw12", "Fire-Boltt Blizzard 32.5mm (1.28) Luxury watch with BT Calling, Stainless Steel Body Smartwatch", "images/accessories/smartwatches/Fire-Boltt Blizzard.webp", "Fire-Boltt", 19999, "93%", "32.5", "circular 1.28 inch HD display", "7"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw13", "Fire-Boltt Gladiator 49.7mm Display, Stainless Steel, Bluetooth Call, 123 sports modes Smartwatch", "images/accessories/smartwatches/Fire-Boltt Gladiator.webp", "Fire-Boltt", 9999, "87%", "49.7", "HD display", "15"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw14", "Fire-Boltt Clickk 54.1mm (2.12 inch) AMOLED Display, Front Camera, Nano SIM Slot, 1000mAh Smartwatch", "images/accessories/smartwatches/Fire-Boltt Clickk.webp", "Fire-Boltt", 24999, "84%", "54.1", "AMOLED display", "5"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw16", "boAt Wave Fury with 1.83'' HD Display, Bluetooth Calling & Functional Crown Smartwatch", "images/accessories/smartwatches/boAt Wave Fury.webp", "boAt", 6999, "64%", "48", "HD display", "7"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw17", "boAt Storm Call 3 Plus w/ Turn by Turn Navigation, QR Tray, 4.97cm(1.96'') HD Display Smartwatch", "images/accessories/smartwatches/boAt Storm.webp", "boAt", 7499, "84%", "49", "HD display", "7"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw18", "boAt Lunar Discovery w/ Turn by Turn Navigation, 3.53 cm HD Display & BT Calling Smartwatch", "images/accessories/smartwatches/boAt Lunar Discovery.webp", "boAt", 8499, "83%", "35.3", "HD display", "7"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw23", "Noise Icon 2 1.8'' Display with Bluetooth Calling, Women's Edition, AI Voice Assistant Smartwatch", "images/accessories/smartwatches/Noise Icon2.webp", "Noise", 5999, "80%", "48", "HD display", "7"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw24", "Noise Colorfit Icon 2 1.8'' Display with Bluetooth Calling, AI Voice Assistant Smartwatch", "images/accessories/smartwatches/Noise Colorfit Icon2.webp", "Noise", 5999, "81%", "48", "HD display", "7"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw25", "Noise Loop 1.85'' Display with Advanced Bluetooth Calling, 550 Nits Brightness Smartwatch", "images/accessories/smartwatches/Noise Loop.webp", "Noise", 6999, "85%", "49", "TFT LCD display", "7"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw31", "SAMSUNG Galaxy Fit3 | AMOLED Display & Aluminium Body | Upto 13Day Battery | 5ATM & IP68", "images/accessories/smartwatches/Samsung Galaxy Fit3.webp", "Samsung", 9999, "65%", "40.64", "AMOLED display", "13"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw32", "SAMSUNG Galaxy Watch FE, 40mm BT, Sapphire Crystal Display, Sleep Coach, Fall Detection", "images/accessories/smartwatches/Samsung Galaxy WatchFE.webp", "Samsung", 29999, "66%", "40", "Sapphire Crystal display", "40"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw33", "SAMSUNG Watch7 40mm BT", "images/accessories/smartwatches/Samsung Watch7.webp", "Samsung", 32999, "10%", "40", "AMOLED display", "20"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw34", "SAMSUNG Galaxy Watch6 Bluetooth", "images/accessories/smartwatches/Samsung Galaxy Watch6.webp", "Samsung", 36999, "56%", "44", "AMOLED display", "40"]
-  );
-
-  await db.run(
-    `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ["sw35", "SAMSUNG Galaxy Watch Ultra LTE", "images/accessories/smartwatches/Samsung Galaxy Ultra.webp", "Samsung", 69999, "14%", "47", "AMOLED display", "20"]
-  );
-}
-    const earphoneCount=await db.get('SELECT COUNT(*) as count FROM earphones');
-    if(earphoneCount.count ===0) {
-      
-
-      await db.run(
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          'boat_airdopes_456',
-          'boAt Airdopes 181 Pro w/ 100 HRS Playback, 4 Mics ENx Technology & ASAP Charge Bluetooth  (Frosted Mint, True Wireless)',
-          'images/accessories/earphones/boat_airdopes.webp',
-          'Boat',
-          4990,
-          '81%',
-          'Earbuds',
-          '100',
-        ]
-      );
-
-      await db.run(
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          'boult_y1_789',
-          'Boult Y1 with Zen ENC Mic, 50H Battery, Fast Charging, Pro+ Calling, Knurled Design Bluetooth  (Black, True Wireless)',
-          'images/accessories/earphones/boult_y1.webp',
-          'Boult',
-          5499,
-          '85%',
-          'Earbuds',
-          '50',
-        ]
-      );
-      await db.run(
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          'oneplus_bullet_404',
-          'OnePlus Bullets Wireless Z2 Bluetooth 5.0 in Ear Earphones, Bombastic Bass E310A Bluetooth  (Blue, In the Ear)',
-          'images/accessories/earphones/oneplus_bullet.webp',
-          'OnePlus',
-          2999,
-          '10%',
-          'behind the neck',
-          '50',
-        ]
-      );
-
-      await db.run(
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          'realme_neo_505',
-          'realme Buds Air Neo Bluetooth  (White, True Wireless)',
-          'images/accessories/earphones/realme_neo.webp',
-          'realme',
-          3999,
-          '25%',
-          'Earbuds',
-          '17',
-        ]
-      );
-
-      await db.run(
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          'realme_t110_606',
-          'realme Buds T110 (RMA2306) with AI ENC for calls, 38 hours of Playback and Deep Bass Bluetooth  (Jazz Blue, True Wireless)',
-          'images/accessories/earphones/realme_t110.webp',
-          'realme',
-          2999,
-          '63%',
-          'Earbuds',
-          '38',
-        ]
-      );
-
-      await db.run(
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          'realme_neckneo_707',
-          'realme Buds Wireless 3 Neo with 13.4mm Driver, 32 hrs Playback, Dual Device Connection Bluetooth  (Black, In the Ear)',
-          'images/accessories/earphones/realme_neckneo.webp',
-          'realme',
-          2499,
-          '60%',
-          'behind the neck',
-          '32',
-        ]
-      );
-
-      await db.run(
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          'samsung_sm_808',
-          'SAMSUNG SM-R400NZ Bluetooth  (Graphite, True Wireless)',
-          'images/accessories/earphones/samsung_sm.webp',
-          'SAMSUNG',
-          12999,
-          '52%',
-          'Earbuds',
-          '43',
-        ]
-      );
-      await db.run(  
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
-        [  
-            'noise_vs_222',  
-            'Noise Buds VS102 Plus with 70 Hrs Playtime, Environmental Noise Cancellation, Quad Mic Bluetooth  (Deep Wine, True Wireless)',  
-            'images/accessories/earphones/noise_vs.webp',  
-            'Noise',  
-            3999,  
-            '75%',  
-            'Earbuds',  
-            '70',  
-        ]  
-    );  
-    
-    await db.run(  
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
-        [  
-            'noise_airwave_333',  
-            'Noise Airwave Pro with ANC, 60 Hrs of Playtime, Low latency(Up to 40ms), 3 EQ Modes Bluetooth  (Metallic Blue, In the Ear)',  
-            'images/accessories/earphones/noise_airwave.webp',  
-            'Noise',  
-            3999,  
-            '62%',  
-            'behind the neck',  
-            '60',  
-        ]  
-    );  
-    
-    await db.run(  
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
-        [  
-            'portronics_s16_444',  
-            'Portronics Twins S16 in Ear Earbuds Bluetooth  (Green, In the Ear)',  
-            'images/accessories/earphones/portronics_s16.webp',  
-            'Portronics',  
-            1999,  
-            '62%',  
-            'Earbuds',  
-            '24',  
-        ]  
-    );  
-    
-    await db.run(  
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
-        [  
-            'portronics_s5_555',  
-            'Portronics Harmonics Twins S5 Smart TWS Earbuds,15Hrs Playtime, LED Display, Game Mode,5.2v Bluetooth  (Black, In the Ear)',  
-            'images/accessories/earphones/portronics_s5.webp',  
-            'Portronics',  
-            2999,  
-            '82%',  
-            'Earbuds',  
-            '15',  
-        ]  
-    );  
-    
-    await db.run(  
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
-        [  
-            'jbl_beam_888',  
-            'JBL Wave Beam TWS, 32Hr Playtime, IP54, Smart Ambient & TalkThru Mode, JBL App Bluetooth  (Beige, In the Ear)',  
-            'images/accessories/earphones/jbl_beam.webp',  
-            'JBL',  
-            4999,  
-            '50%',  
-            'Earbuds',  
-            '32',  
-        ]  
-    );  
-    
-    await db.run(  
-        `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life)   
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,  
-        [  
-            'jbl_125bt_999',  
-            'JBL Tune 125BT Flex Neckband with 16 Hour Playtime, Quick Charge, Multipoint Connect Bluetooth  (Grey, In the Ear)',  
-            'images/accessories/earphones/jbl_125bt.webp',  
-            'JBL',  
-            2999,  
-            '33%',  
-            'behind the neck',  
-            '16',  
-        ]  
-    );  
-
+    // Check and insert test phone applications
+    const phoneAppCount = await PhoneApplication.countDocuments();
+    if (phoneAppCount === 0) {
+      await PhoneApplication.insertMany([
+        {
+          user_id: 'user_123',
+          brand: 'Samsung',
+          model: 'Galaxy S20',
+          ram: '8GB',
+          rom: '128GB',
+          processor: 'Exynos 990',
+          network: '4G',
+          size: '6.2"',
+          weight: '163g',
+          device_age: '2 years',
+          switching_on: 'Yes',
+          phone_calls: 'Yes',
+          cameras_working: 'Yes',
+          battery_issues: 'No',
+          physically_damaged: 'No',
+          sound_issues: 'No',
+          location: 'New York',
+          email: 'test@example.com',
+          phone: '1234567890',
+          battery: '4000mAh',
+          camera: '12MP',
+          os: 'Android 11',
+          image_path: 'https://example.com/image1.jpg',
+          status: 'pending',
+          created_at: new Date('2025-03-20T10:00:00Z'),
+        },
+        {
+          user_id: 'user_124',
+          brand: 'Apple',
+          model: 'iPhone 12',
+          ram: '4GB',
+          rom: '64GB',
+          processor: 'A14 Bionic',
+          network: '5G',
+          size: '6.1"',
+          weight: '164g',
+          device_age: '1 year',
+          switching_on: 'Yes',
+          phone_calls: 'Yes',
+          cameras_working: 'Yes',
+          battery_issues: 'Yes',
+          physically_damaged: 'No',
+          sound_issues: 'No',
+          location: 'California',
+          email: 'test2@example.com',
+          phone: '0987654321',
+          battery: '2810mAh',
+          camera: '12MP',
+          os: 'iOS 14',
+          image_path: 'https://example.com/image2.jpg',
+          status: 'approved',
+          created_at: new Date('2025-03-21T12:00:00Z'),
+        },
+      ]);
+      console.log('Test phone applications added to database');
     }
-    
-    return db;
+
+    // Check and insert test laptop applications
+    const laptopAppCount = await LaptopApplication.countDocuments();
+    if (laptopAppCount === 0) {
+      await LaptopApplication.insertMany([
+        {
+          user_id: 'user_123',
+          brand: 'Dell',
+          model: 'XPS 13',
+          ram: '16GB',
+          storage: '512GB',
+          processor: 'Intel i7',
+          generation: '11th',
+          display_size: '13.4"',
+          weight: '1.2kg',
+          os: 'Windows 11',
+          device_age: '1.5 years',
+          battery_issues: 'No',
+          location: 'Texas',
+          name: 'John Doe',
+          email: 'john@example.com',
+          phone: '1112223333',
+          image_path: 'https://example.com/image3.jpg',
+          status: 'pending',
+          created_at: new Date('2025-03-22T09:00:00Z'),
+        },
+        {
+          user_id: 'user_124',
+          brand: 'Apple',
+          model: 'MacBook Air',
+          ram: '8GB',
+          storage: '256GB',
+          processor: 'M1',
+          generation: '',
+          display_size: '13.3"',
+          weight: '1.29kg',
+          os: 'macOS',
+          device_age: '2 years',
+          battery_issues: 'Yes',
+          location: 'Florida',
+          name: 'Jane Smith',
+          email: 'jane@example.com',
+          phone: '4445556666',
+          image_path: 'https://example.com/image4.jpg',
+          status: 'rejected',
+          created_at: new Date('2025-03-22T14:00:00Z'),
+        },
+      ]);
+      console.log('Test laptop applications added to database');
+    }
+
+    // Check and insert test supervisor activity
+    const activityCount = await SupervisorActivity.countDocuments();
+    if (activityCount === 0) {
+      await SupervisorActivity.insertMany([
+        {
+          supervisor_id: 'supervisor_1',
+          action: 'Updated phone application #1 to approved with price 500',
+          timestamp: new Date('2025-03-21T12:30:00Z'),
+        },
+        {
+          supervisor_id: 'supervisor_1',
+          action: 'Added phone #12345 to inventory with price ₹500, condition Used, and 10% discount',
+          timestamp: new Date('2025-03-21T13:00:00Z'),
+        },
+        {
+          supervisor_id: 'supervisor_1',
+          action: 'Updated laptop application #2 to rejected: Damaged screen',
+          timestamp: new Date('2025-03-22T14:30:00Z'),
+        },
+      ]);
+      console.log('Test supervisor activity added to database');
+    }
+
+    // Check and insert test phones
+    const phoneCount = await Phone.countDocuments();
+    if (phoneCount === 0) {
+      await Phone.insertMany([
+        {
+          id: 1,
+          brand: 'APPLE',
+          model: 'iphone 12',
+          color: 'Black',
+          image: '/images/best_in_value/Apple_iPhone_12webp.webp',
+          processor: 'a 20 bionic',
+          display: '4.9',
+          battery: 1000,
+          camera: '8MP + 8Mp',
+          os: 'iOS',
+          network: '5G',
+          weight: '167',
+          ram: '4',
+          rom: '128',
+          base_price: 45000,
+          discount: 8,
+          condition: 'Good',
+        },
+        {
+          id: 2,
+          brand: 'SAMSUNG',
+          model: 'Galax S10 lite',
+          color: 'Black',
+          image: '/images/best_in_value/Samsung_Galaxy_S10_Lite.webp',
+          processor: 'snapdragon 6gen',
+          display: '5.9',
+          battery: 2000,
+          camera: '28MP + 28Mp',
+          os: 'Android',
+          network: '5G',
+          weight: '200',
+          ram: '4',
+          rom: '128',
+          base_price: 22800,
+          discount: 10,
+          condition: 'Good',
+        },
+        {
+          id: 3,
+          brand: 'REALME',
+          model: '9',
+          color: 'gold',
+          image: '/images/best_in_value/realme 9.webp',
+          processor: 'snapdragon 6gen',
+          display: '5.9',
+          battery: 2000,
+          camera: '28MP + 28Mp',
+          os: 'Android',
+          network: '5G',
+          weight: '200',
+          ram: '4',
+          rom: '128',
+          base_price: 22999,
+          discount: 57,
+          condition: 'Very Good',
+        },
+        {
+          id: 4,
+          brand: 'ONEPLUS',
+          model: 'Nord 2',
+          color: 'Black',
+          image: '/images/best_in_value/OnePlus_Nord_2.webp',
+          processor: 'snapdragon 6gen',
+          display: '5.9',
+          battery: 2000,
+          camera: '28MP + 28Mp',
+          os: 'Android',
+          network: '5G',
+          weight: '200',
+          ram: '4',
+          rom: '128',
+          base_price: 27999,
+          discount: 50,
+          condition: 'Good',
+        },
+        {
+          id: 5,
+          brand: 'GOOGLE',
+          model: 'Pixel 7',
+          color: 'white',
+          image: '/images/best_in_value/Google pixel 7.webp',
+          processor: 'snapdragon 6gen',
+          display: '5.9',
+          battery: 2000,
+          camera: '28MP + 28Mp',
+          os: 'Android',
+          network: '5G',
+          weight: '200',
+          ram: '4',
+          rom: '128',
+          base_price: 28299,
+          discount: 53,
+          condition: 'Superb',
+        },
+      ]);
+      console.log('Test phones added to database');
+    }
+
+    // Check and insert test mouses
+    const mouseCount = await Mouse.countDocuments();
+    if (mouseCount === 0) {
+      await Mouse.insertMany([
+        {
+          id: 'logitech_m196_202',
+          title: 'Logitech M196 Wireless Optical Mouse with Bluetooth',
+          image: 'images/accessories/mouses/Logitech M196.webp',
+          brand: 'Logitech',
+          original_price: 1125,
+          discount: '20%',
+          type: 'Wireless',
+          connectivity: 'Bluetooth & USB',
+          resolution: '4600',
+        },
+        {
+          id: 'logitech_g502_303',
+          title: 'Logitech G502 Hero / Hero 25K Sensor, Adj DPI Upto 25600, RGB, 11 Programmable Buttons Wired Optical Gaming Mouse',
+          image: 'images/accessories/mouses/Logotech G502 Hero.webp',
+          brand: 'Logitech',
+          original_price: 5495,
+          discount: '25%',
+          type: 'Wired',
+          connectivity: 'USB',
+          resolution: '5600',
+        },
+        {
+          id: 'arctic_fox_breathing_404',
+          title: 'Arctic Fox Breathing Lights and DPI Upto 3600 Wired Optical Gaming Mouse',
+          image: 'images/accessories/mouses/Arctic Fox Breathing Lights.webp',
+          brand: 'Arctic Fox',
+          original_price: 599,
+          discount: '35%',
+          type: 'Wired',
+          connectivity: 'USB',
+          resolution: '3600',
+        },
+        {
+          id: 'zebronics_jaguar_606',
+          title: 'ZEBRONICS Zeb-Jaguar Wireless Optical Mouse',
+          image: 'images/accessories/mouses/Zebronics Zeb Jaguar.webp',
+          brand: 'ZEBRONICS',
+          original_price: 1190,
+          discount: '39%',
+          type: 'Wireless',
+          connectivity: 'USB',
+          resolution: '1700',
+        },
+        {
+          id: 'zebronics_rise_707',
+          title: 'ZEBRONICS ZEB-RISE Wired Optical Mouse',
+          image: 'images/accessories/mouses/Zebronics Zeb Rise.webp',
+          brand: 'ZEBRONICS',
+          original_price: 699,
+          discount: '19%',
+          type: 'Wired',
+          connectivity: 'USB',
+          resolution: '1200',
+        },
+        {
+          id: 'zebronics_blanc_808',
+          title: 'ZEBRONICS Zeb-Blanc /Dual Mode,Type C rechargeable built-in battery,upto 1600 DPI Wireless Optical Mouse',
+          image: 'images/accessories/mouses/Zebronics Zeb Blanc.webp',
+          brand: 'ZEBRONICS',
+          original_price: 999,
+          discount: '15%',
+          type: 'Wireless',
+          connectivity: 'Bluetooth & USB',
+          resolution: '1600',
+        },
+        {
+          id: 'dell_ms116_909',
+          title: 'DELL MS 116-BK Wired Optical Mouse',
+          image: 'images/accessories/mouses/Dell MS 116-BK.webp',
+          brand: 'DELL',
+          original_price: 650,
+          discount: '30%',
+          type: 'Wired',
+          connectivity: 'USB',
+          resolution: '1000',
+        },
+        {
+          id: 'hp_m160_1010',
+          title: 'HP M160 Wired Optical Gaming Mouse',
+          image: 'images/accessories/mouses/HP M160.webp',
+          brand: 'HP',
+          original_price: 799,
+          discount: '40%',
+          type: 'Wired',
+          connectivity: 'USB',
+          resolution: '1000',
+        },
+        {
+          id: 'hp_z3700_1111',
+          title: 'HP Z3700 /Slim form with USB receiver,16 month battery life, 1200DPI Wireless Optical Mouse',
+          image: 'images/accessories/mouses/HP Z3700.webp',
+          brand: 'HP',
+          original_price: 1499,
+          discount: '30%',
+          type: 'Wireless',
+          connectivity: 'USB',
+          resolution: '1200',
+        },
+        {
+          id: 'logitech_b175_101',
+          title: 'Logitech B175 / Optical Tracking, 12-Months Battery Life, Ambidextrous Wireless Optical Mouse',
+          image: 'images/accessories/mouses/Logitech B175.webp',
+          brand: 'Logitech',
+          original_price: 995,
+          discount: '49%',
+          type: 'Wireless',
+          connectivity: 'USB',
+          resolution: '3000',
+        },
+      ]);
+      console.log('Test mouses added to database');
+    }
+
+    // Check and insert test chargers
+    const chargerCount = await Charger.countDocuments();
+    if (chargerCount === 0) {
+      await Charger.insertMany([
+        {
+          id: 'chg001',
+          title: 'Apple 20W USB-C Power Adapter',
+          image: 'images/accessories/chargers/apple_20w.webp',
+          brand: 'Apple',
+          wattage: '20',
+          type: 'USB C',
+          originalPrice: 1900,
+          discount: '10%',
+          outputCurrent: '3A',
+        },
+        {
+          id: 'chg002',
+          title: 'Samsung 25W Fast Charger',
+          image: 'images/accessories/chargers/samsung_25.webp',
+          brand: 'Samsung',
+          wattage: '25',
+          type: 'USB C',
+          originalPrice: 1800,
+          discount: '15%',
+          outputCurrent: '2.5A',
+        },
+        {
+          id: 'chg003',
+          title: 'RoarX 33 W SuperVOOC 6 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)',
+          image: 'images/accessories/chargers/roar_33v.webp',
+          brand: 'RoarX',
+          wattage: '33',
+          type: 'USB C',
+          originalPrice: 2999,
+          discount: '87%',
+          outputCurrent: '6A',
+        },
+        {
+          id: 'chg004',
+          title: 'EYNK 44 W Quick Charge 5 A Wall Charger for Mobile with Detachable Cable  (Supported All Flash Charge 2.0 devices, White, Cable Included)',
+          image: 'images/accessories/chargers/eynk_44.webp',
+          brand: 'EYNK',
+          wattage: '44',
+          type: 'USB C',
+          originalPrice: 2999,
+          discount: '71%',
+          outputCurrent: '5A',
+        },
+        {
+          id: 'chg005',
+          title: 'Pacificdeals 44 W Supercharge 4 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)',
+          image: 'images/accessories/chargers/PACIFIC.webp',
+          brand: 'Pacificdeals',
+          wattage: '44',
+          type: 'USB C',
+          originalPrice: 1999,
+          discount: '63%',
+          outputCurrent: '4A',
+        },
+        {
+          id: 'chg006',
+          title: 'SB 80 W SuperVOOC 7.3 A Wall Charger for Mobile with Detachable Cable  (White, Cable Included)',
+          image: 'images/accessories/chargers/sb_80.webp',
+          brand: 'SB',
+          wattage: '80',
+          type: 'USB C',
+          originalPrice: 2499,
+          discount: '86%',
+          outputCurrent: '7.3A',
+        },
+        {
+          id: 'chg007',
+          title: 'Apple Lightning Cable 2 m MW2R3ZM/A  (Compatible with Mobile, Tablet, White)',
+          image: 'images/accessories/chargers/apple_light.webp',
+          brand: 'Apple',
+          wattage: '20',
+          type: 'lightning',
+          originalPrice: 2900,
+          discount: '0%',
+          outputCurrent: '3A',
+        },
+      ]);
+      console.log('Test chargers added to database');
+    }
+
+    // Check and insert test smartwatches
+    const smartwatchCount = await Smartwatch.countDocuments();
+    if (smartwatchCount === 0) {
+      await Smartwatch.insertMany([
+        {
+          id: 'sw1',
+          title: 'Apple Watch Series 8, 41mm GPS + Cellular ECG app, Temperature sensor, Crash Detection',
+          image: 'images/accessories/smartwatches/Apple Watch Series8.webp',
+          brand: 'Apple',
+          original_price: 55900,
+          discount: '5%',
+          display_size: '41',
+          display_type: 'Retina Display',
+          battery_runtime: '18',
+        },
+        {
+          id: 'sw2',
+          title: 'Apple Watch Series 10 GPS 46mm Silver Aluminium with Denim Sport Band',
+          image: 'images/accessories/smartwatches/Apple Watch Series10.webp',
+          brand: 'Apple',
+          original_price: 49900,
+          discount: '15%',
+          display_size: '46',
+          display_type: 'Retina Display',
+          battery_runtime: '18',
+        },
+        {
+          id: 'sw3',
+          title: 'Apple Watch Series 9 GPS 45mm Aluminium Case with Sport Band - S/M',
+          image: 'images/accessories/smartwatches/Apple Watch Series9.webp',
+          brand: 'Apple',
+          original_price: 59900,
+          discount: '18%',
+          display_size: '45',
+          display_type: 'Retina Display',
+          battery_runtime: '18',
+        },
+        {
+          id: 'sw8',
+          title: 'Fire-Boltt Ninja Calling Pro Plus 46.5mm (1.83) Display Bluetooth Calling, AI Voice Smartwatch',
+          image: 'images/accessories/smartwatches/Fire-Boltt Ninja.webp',
+          brand: 'Fire-Boltt',
+          original_price: 1999,
+          discount: '50%',
+          display_size: '46.5',
+          display_type: 'HD Display',
+          battery_runtime: '5',
+        },
+        {
+          id: 'sw9',
+          title: 'Fire-Boltt Hurricane 33.02mm (1.3) Curved Glass Display with BT Calling, 100+ Sports Modes Smartwatch',
+          image: 'images/accessories/smartwatches/Fire-Boltt Hurricane.webp',
+          brand: 'Fire-Boltt',
+          original_price: 8999,
+          discount: '86%',
+          display_size: '33.02',
+          display_type: 'Retina HD Color Display',
+          battery_runtime: '15',
+        },
+        {
+          id: 'sw12',
+          title: 'Fire-Boltt Blizzard 32.5mm (1.28) Luxury watch with BT Calling, Stainless Steel Body Smartwatch',
+          image: 'images/accessories/smartwatches/Fire-Boltt Blizzard.webp',
+          brand: 'Fire-Boltt',
+          original_price: 19999,
+          discount: '93%',
+          display_size: '32.5',
+          display_type: 'circular 1.28 inch HD display',
+          battery_runtime: '7',
+        },
+        {
+          id: 'sw13',
+          title: 'Fire-Boltt Gladiator 49.7mm Display, Stainless Steel, Bluetooth Call, 123 sports modes Smartwatch',
+          image: 'images/accessories/smartwatches/Fire-Boltt Gladiator.webp',
+          brand: 'Fire-Boltt',
+          original_price: 9999,
+          discount: '87%',
+          display_size: '49.7',
+          display_type: 'HD display',
+          battery_runtime: '15',
+        },
+        {
+          id: 'sw14',
+          title: 'Fire-Boltt Clickk 54.1mm (2.12 inch) AMOLED Display, Front Camera, Nano SIM Slot, 1000mAh Smartwatch',
+          image: 'images/accessories/smartwatches/Fire-Boltt Clickk.webp',
+          brand: 'Fire-Boltt',
+          original_price: 24999,
+          discount: '84%',
+          display_size: '54.1',
+          display_type: 'AMOLED display',
+          battery_runtime: '5',
+        },
+        {
+          id: 'sw16',
+          title: 'boAt Wave Fury with 1.83 HD Display, Bluetooth Calling & Functional Crown Smartwatch',
+          image: 'images/accessories/smartwatches/boAt Wave Fury.webp',
+          brand: 'boAt',
+          original_price: 6999,
+          discount: '64%',
+          display_size: '48',
+          display_type: 'HD display',
+          battery_runtime: '7',
+        },
+        {
+          id: 'sw17',
+          title: 'boAt Storm Call 3 Plus w/ Turn by Turn Navigation, QR Tray, 4.97cm(1.96) HD Display Smartwatch',
+          image: 'images/accessories/smartwatches/boAt Storm.webp',
+          brand: 'boAt',
+          original_price: 7499,
+          discount: '84%',
+          display_size: '49',
+          display_type: 'HD display',
+          battery_runtime: '7',
+        },
+        {
+          id: 'sw18',
+          title: 'boAt Lunar Discovery w/ Turn by Turn Navigation, 3.53 cm HD Display & BT Calling Smartwatch',
+          image: 'images/accessories/smartwatches/boAt Lunar Discovery.webp',
+          brand: 'boAt',
+          original_price: 8499,
+          discount: '83%',
+          display_size: '35.3',
+          display_type: 'HD display',
+          battery_runtime: '7',
+        },
+        {
+          id: 'sw23',
+          title: "Noise Icon 2 1.8 Display with Bluetooth Calling, Women's Edition, AI Voice Assistant Smartwatch",
+          image: 'images/accessories/smartwatches/Noise Icon2.webp',
+          brand: 'Noise',
+          original_price: 5999,
+          discount: '80%',
+          display_size: '48',
+          display_type: 'HD display',
+          battery_runtime: '7',
+        },
+        {
+          id: 'sw24',
+          title: 'Noise Colorfit Icon 2 1.8 Display with Bluetooth Calling, AI Voice Assistant Smartwatch',
+          image: 'images/accessories/smartwatches/Noise Colorfit Icon2.webp',
+          brand: 'Noise',
+          original_price: 5999,
+          discount: '81%',
+          display_size: '48',
+          display_type: 'HD display',
+          battery_runtime: '7',
+        },
+        {
+          id: 'sw25',
+          title: 'Noise Loop 1.85 Display with Advanced Bluetooth Calling, 550 Nits Brightness Smartwatch',
+          image: 'images/accessories/smartwatches/Noise Loop.webp',
+          brand: 'Noise',
+          original_price: 6999,
+          discount: '85%',
+          display_size: '49',
+          display_type: 'TFT LCD display',
+          battery_runtime: '7',
+        },
+        {
+          id: 'sw31',
+          title: 'SAMSUNG Galaxy Fit3 | AMOLED Display & Aluminium Body | Upto 13Day Battery | 5ATM & IP68',
+          image: 'images/accessories/smartwatches/Samsung Galaxy Fit3.webp',
+          brand: 'Samsung',
+          original_price: 9999,
+          discount: '65%',
+          display_size: '40.64',
+          display_type: 'AMOLED display',
+          battery_runtime: '13',
+        },
+        {
+          id: 'sw32',
+          title: 'SAMSUNG Galaxy Watch FE, 40mm BT, Sapphire Crystal Display, Sleep Coach, Fall Detection',
+          image: 'images/accessories/smartwatches/Samsung Galaxy WatchFE.webp',
+          brand: 'Samsung',
+          original_price: 29999,
+          discount: '66%',
+          display_size: '40',
+          display_type: 'Sapphire Crystal display',
+          battery_runtime: '40',
+        },
+        {
+          id: 'sw33',
+          title: 'SAMSUNG Watch7 40mm BT',
+          image: 'images/accessories/smartwatches/Samsung Watch7.webp',
+          brand: 'Samsung',
+          original_price: 32999,
+          discount: '10%',
+          display_size: '40',
+          display_type: 'AMOLED display',
+          battery_runtime: '20',
+        },
+        {
+          id: 'sw34',
+          title: 'SAMSUNG Galaxy Watch6 Bluetooth',
+          image: 'images/accessories/smartwatches/Samsung Galaxy Watch6.webp',
+          brand: 'Samsung',
+          original_price: 36999,
+          discount: '56%',
+          display_size: '44',
+          display_type: 'AMOLED display',
+          battery_runtime: '40',
+        },
+        {
+          id: 'sw35',
+          title: 'SAMSUNG Galaxy Watch Ultra LTE',
+          image: 'images/accessories/smartwatches/Samsung Galaxy Ultra.webp',
+          brand: 'Samsung',
+          original_price: 69999,
+          discount: '14%',
+          display_size: '47',
+          display_type: 'AMOLED display',
+          battery_runtime: '20',
+        },
+      ]);
+      console.log('Test smartwatches added to database');
+    }
+
+    // Check and insert test earphones
+    const earphoneCount = await Earphone.countDocuments();
+    if (earphoneCount === 0) {
+      await Earphone.insertMany([
+        {
+          id: 'boat_airdopes_456',
+          title: 'boAt Airdopes 181 Pro w/ 100 HRS Playback, 4 Mics ENx Technology & ASAP Charge Bluetooth  (Frosted Mint, True Wireless)',
+          image: 'images/accessories/earphones/boat_airdopes.webp',
+          brand: 'Boat',
+          original_price: 4990,
+          discount: '81%',
+          design: 'Earbuds',
+          battery_life: '100',
+        },
+        {
+          id: 'boult_y1_789',
+          title: 'Boult Y1 with Zen ENC Mic, 50H Battery, Fast Charging, Pro+ Calling, Knurled Design Bluetooth  (Black, True Wireless)',
+          image: 'images/accessories/earphones/boult_y1.webp',
+          brand: 'Boult',
+          original_price: 5499,
+          discount: '85%',
+          design: 'Earbuds',
+          battery_life: '50',
+        },
+        {
+          id: 'oneplus_bullet_404',
+          title: 'OnePlus Bullets Wireless Z2 Bluetooth 5.0 in Ear Earphones, Bombastic Bass E310A Bluetooth  (Blue, In the Ear)',
+          image: 'images/accessories/earphones/oneplus_bullet.webp',
+          brand: 'OnePlus',
+          original_price: 2999,
+          discount: '10%',
+          design: 'behind the neck',
+          battery_life: '50',
+        },
+        {
+          id: 'realme_neo_505',
+          title: 'realme Buds Air Neo Bluetooth  (White, True Wireless)',
+          image: 'images/accessories/earphones/realme_neo.webp',
+          brand: 'realme',
+          original_price: 3999,
+          discount: '25%',
+          design: 'Earbuds',
+          battery_life: '17',
+        },
+        {
+          id: 'realme_t110_606',
+          title: 'realme Buds T110 (RMA2306) with AI ENC for calls, 38 hours of Playback and Deep Bass Bluetooth  (Jazz Blue, True Wireless)',
+          image: 'images/accessories/earphones/realme_t110.webp',
+          brand: 'realme',
+          original_price: 2999,
+          discount: '63%',
+          design: 'Earbuds',
+          battery_life: '38',
+        },
+        {
+          id: 'realme_neckneo_707',
+          title: 'realme Buds Wireless 3 Neo with 13.4mm Driver, 32 hrs Playback, Dual Device Connection Bluetooth  (Black, In the Ear)',
+          image: 'images/accessories/earphones/realme_neckneo.webp',
+          brand: 'realme',
+          original_price: 2499,
+          discount: '60%',
+          design: 'behind the neck',
+          battery_life: '32',
+        },
+        {
+          id: 'samsung_sm_808',
+          title: 'SAMSUNG SM-R400NZ Bluetooth  (Graphite, True Wireless)',
+          image: 'images/accessories/earphones/samsung_sm.webp',
+          brand: 'SAMSUNG',
+          original_price: 12999,
+          discount: '52%',
+          design: 'Earbuds',
+          battery_life: '43',
+        },
+        {
+          id: 'noise_vs_222',
+          title: 'Noise Buds VS102 Plus with 70 Hrs Playtime, Environmental Noise Cancellation, Quad Mic Bluetooth  (Deep Wine, True Wireless)',
+          image: 'images/accessories/earphones/noise_vs.webp',
+          brand: 'Noise',
+          original_price: 3999,
+          discount: '75%',
+          design: 'Earbuds',
+          battery_life: '70',
+        },
+        {
+          id: 'noise_airwave_333',
+          title: 'Noise Airwave Pro with ANC, 60 Hrs of Playtime, Low latency(Up to 40ms), 3 EQ Modes Bluetooth  (Metallic Blue, In the Ear)',
+          image: 'images/accessories/earphones/noise_airwave.webp',
+          brand: 'Noise',
+          original_price: 3999,
+          discount: '62%',
+          design: 'behind the neck',
+          battery_life: '60',
+        },
+        {
+          id: 'portronics_s16_444',
+          title: 'Portronics Twins S16 in Ear Earbuds Bluetooth  (Green, In the Ear)',
+          image: 'images/accessories/earphones/portronics_s16.webp',
+          brand: 'Portronics',
+          original_price: 1999,
+          discount: '62%',
+          design: 'Earbuds',
+          battery_life: '24',
+        },
+        {
+          id: 'portronics_s5_555',
+          title: 'Portronics Harmonics Twins S5 Smart TWS Earbuds,15Hrs Playtime, LED Display, Game Mode,5.2v Bluetooth  (Black, In the Ear)',
+          image: 'images/accessories/earphones/portronics_s5.webp',
+          brand: 'Portronics',
+          original_price: 2999,
+          discount: '82%',
+          design: 'Earbuds',
+          battery_life: '15',
+        },
+        {
+          id: 'jbl_beam_888',
+          title: 'JBL Wave Beam TWS, 32Hr Playtime, IP54, Smart Ambient & TalkThru Mode, JBL App Bluetooth  (Beige, In the Ear)',
+          image: 'images/accessories/earphones/jbl_beam.webp',
+          brand: 'JBL',
+          original_price: 4999,
+          discount: '50%',
+          design: 'Earbuds',
+          battery_life: '32',
+        },
+        {
+          id: 'jbl_125bt_999',
+          title: 'JBL Tune 125BT Flex Neckband with 16 Hour Playtime, Quick Charge, Multipoint Connect Bluetooth  (Grey, In the Ear)',
+          image: 'images/accessories/earphones/jbl_125bt.webp',
+          brand: 'JBL',
+          original_price: 2999,
+          discount: '33%',
+          design: 'behind the neck',
+          battery_life: '16',
+        },
+      ]);
+      console.log('Test earphones added to database');
+    }
+
+    return mongoose.connection;
   } catch (error) {
     console.error('Database initialization error:', error);
     throw error;
@@ -948,19 +1110,17 @@ if (smartwatchCount.count === 0) {
 
 // Function to get the database connection
 export async function getDb() {
-  if (!db) {
+  if (mongoose.connection.readyState === 0) {
     await initializeDatabase();
   }
-  return db;
+  return mongoose.connection;
 }
 
+// Supervisor Authentication
 export async function authenticateSupervisor(username, password) {
   try {
-    const db = await getDb();
-    
     console.log(`Attempting to authenticate supervisor with username: ${username}`);
-    
-    const supervisor = await db.get('SELECT * FROM supervisors WHERE username = ?', [username]);
+    const supervisor = await Supervisor.findOne({ username }).lean();
     
     if (!supervisor) {
       console.log(`No supervisor found with username: ${username}`);
@@ -968,7 +1128,6 @@ export async function authenticateSupervisor(username, password) {
     }
     
     console.log(`Supervisor found: ${JSON.stringify(supervisor)}`);
-    
     const passwordMatch = await bcrypt.compare(password, supervisor.password);
     
     if (!passwordMatch) {
@@ -985,35 +1144,25 @@ export async function authenticateSupervisor(username, password) {
   }
 }
 
-// supervisor profile updating
+// Supervisor Profile Updating
 export async function updateSupervisorProfile(userId, updates) {
   try {
-    const db = await getDb();
-    
     const { first_name, last_name, email, phone, username } = updates;
     
     // Check if email or username already exists for another supervisor
-    const emailCheck = await db.get(
-      'SELECT user_id FROM supervisors WHERE email = ? AND user_id != ?',
-      [email, userId]
-    );
+    const emailCheck = await Supervisor.findOne({ email, user_id: { $ne: userId } });
     if (emailCheck) {
       return { success: false, message: 'Email already in use by another supervisor' };
     }
 
-    const usernameCheck = await db.get(
-      'SELECT user_id FROM supervisors WHERE username = ? AND user_id != ?',
-      [username, userId]
-    );
+    const usernameCheck = await Supervisor.findOne({ username, user_id: { $ne: userId } });
     if (usernameCheck) {
       return { success: false, message: 'Username already in use by another supervisor' };
     }
 
-    await db.run(
-      `UPDATE supervisors 
-       SET first_name = ?, last_name = ?, email = ?, phone = ?, username = ? 
-       WHERE user_id = ?`,
-      [first_name, last_name, email, phone, username, userId]
+    await Supervisor.updateOne(
+      { user_id: userId },
+      { $set: { first_name, last_name, email, phone, username } }
     );
     
     return { success: true };
@@ -1022,16 +1171,15 @@ export async function updateSupervisorProfile(userId, updates) {
     return { success: false, message: error.message };
   }
 }
-// Supervisor password update function
+
+// Supervisor Password Update
 export async function updateSupervisorPassword(userId, newPassword) {
   try {
-    const db = await getDb();
-    
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     
-    await db.run(
-      'UPDATE supervisors SET password = ? WHERE user_id = ?',
-      [hashedPassword, userId]
+    await Supervisor.updateOne(
+      { user_id: userId },
+      { $set: { password: hashedPassword } }
     );
     
     return { success: true };
@@ -1040,37 +1188,36 @@ export async function updateSupervisorPassword(userId, newPassword) {
     return { success: false, message: error.message };
   }
 }
-// Laptop data functions
+
+// Laptop Data Functions
 export async function getAllLaptops() {
   try {
-    const db = await getDb();
-    const laptops = await db.all('SELECT * FROM laptops');
+    const laptops = await Laptop.find().lean();
     
-    // Transform the flat data structure back to the nested structure expected by the frontend
     return laptops.map(laptop => ({
       id: laptop.id,
       brand: laptop.brand,
       series: laptop.series,
       processor: {
         name: laptop.processor_name,
-        generation: laptop.processor_generation
+        generation: laptop.processor_generation,
       },
       pricing: {
         basePrice: laptop.base_price,
-        discount: laptop.discount
+        discount: laptop.discount,
       },
       memory: {
         ram: laptop.ram,
         storage: {
           type: laptop.storage_type,
-          capacity: laptop.storage_capacity
-        }
+          capacity: laptop.storage_capacity,
+        },
       },
       displaysize: laptop.display_size,
       weight: laptop.weight,
       condition: laptop.condition,
       os: laptop.os,
-      image: laptop.image
+      image: laptop.image,
     }));
   } catch (error) {
     console.error('Error getting laptops:', error);
@@ -1080,38 +1227,36 @@ export async function getAllLaptops() {
 
 export async function getLaptopById(id) {
   try {
-    const db = await getDb();
-    const laptop = await db.get('SELECT * FROM laptops WHERE id = ?', [id]);
+    const laptop = await Laptop.findOne({ id }).lean();
     
     if (!laptop) {
       return null;
     }
     
-    // Transform to the expected structure
     return {
       id: laptop.id,
       brand: laptop.brand,
       series: laptop.series,
       processor: {
         name: laptop.processor_name,
-        generation: laptop.processor_generation
+        generation: laptop.processor_generation,
       },
       pricing: {
         basePrice: laptop.base_price,
-        discount: laptop.discount
+        discount: laptop.discount,
       },
       memory: {
         ram: laptop.ram,
         storage: {
           type: laptop.storage_type,
-          capacity: laptop.storage_capacity
-        }
+          capacity: laptop.storage_capacity,
+        },
       },
       displaysize: laptop.display_size,
       weight: laptop.weight,
       condition: laptop.condition,
       os: laptop.os,
-      image: laptop.image
+      image: laptop.image,
     };
   } catch (error) {
     console.error('Error getting laptop by id:', error);
@@ -1121,78 +1266,55 @@ export async function getLaptopById(id) {
 
 export async function addLaptop(laptopData) {
   try {
-    let Base_Price=(laptopData.basePrice*1.2)/(1-(laptopData.discount/100));
+    let Base_Price = (laptopData.basePrice * 1.2) / (1 - laptopData.discount / 100);
 
-      const db = await getDb();
-      const result = await db.run(
-          `INSERT INTO laptops (id, brand, series, processor_name, processor_generation, 
-                               base_price, discount, ram, storage_type, storage_capacity, 
-                               display_size, weight, condition, os, image) 
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-              laptopData.id,
-              laptopData.brand,
-              laptopData.series,
-              laptopData.processorName,
-              laptopData.processorGeneration,
-              Base_Price.toFixed(0),
-              laptopData.discount,
-              laptopData.ram,
-              laptopData.storage_type,
-              laptopData.storage_capacity,
-              laptopData.display_size,
-              laptopData.weight,
-              laptopData.condition,
-              laptopData.os,
-              laptopData.image
-          ]
-      );
-      console.log(' laptop added');
-      return { success: true, id: laptopData.id };
+    await Laptop.create({
+      id: laptopData.id,
+      brand: laptopData.brand,
+      series: laptopData.series,
+      processor_name: laptopData.processorName,
+      processor_generation: laptopData.processorGeneration,
+      base_price: Base_Price.toFixed(0),
+      discount: laptopData.discount,
+      ram: laptopData.ram,
+      storage_type: laptopData.storage_type,
+      storage_capacity: laptopData.storage_capacity,
+      display_size: laptopData.display_size,
+      weight: laptopData.weight,
+      condition: laptopData.condition,
+      os: laptopData.os,
+      image: laptopData.image,
+    });
+    console.log('Laptop added');
+    return { success: true, id: laptopData.id };
   } catch (error) {
-      console.error('Error adding laptop:', error);
-      return { success: false, message: error.message };
+    console.error('Error adding laptop:', error);
+    return { success: false, message: error.message };
   }
 }
 
 export async function updateLaptop(id, laptopData) {
   try {
-    const db = await getDb();
-    
-    await db.run(
-      `UPDATE laptops SET 
-        brand = ?, 
-        series = ?, 
-        processor_name = ?, 
-        processor_generation = ?, 
-        base_price = ?, 
-        discount = ?, 
-        ram = ?, 
-        storage_type = ?, 
-        storage_capacity = ?, 
-        display_size = ?, 
-        weight = ?, 
-        condition = ?, 
-        os = ?, 
-        image = ? 
-      WHERE id = ?`,
-      [
-        laptopData.brand,
-        laptopData.series,
-        laptopData.processor.name,
-        laptopData.processor.generation,
-        laptopData.pricing.basePrice,
-        laptopData.pricing.discount,
-        laptopData.memory.ram,
-        laptopData.memory.storage.type,
-        laptopData.memory.storage.capacity,
-        laptopData.displaysize,
-        laptopData.weight,
-        laptopData.condition,
-        laptopData.os,
-        laptopData.image,
-        id
-      ]
+    await Laptop.updateOne(
+      { id },
+      {
+        $set: {
+          brand: laptopData.brand,
+          series: laptopData.series,
+          processor_name: laptopData.processor.name,
+          processor_generation: laptopData.processor.generation,
+          base_price: laptopData.pricing.basePrice,
+          discount: laptopData.pricing.discount,
+          ram: laptopData.memory.ram,
+          storage_type: laptopData.memory.storage.type,
+          storage_capacity: laptopData.memory.storage.capacity,
+          display_size: laptopData.displaysize,
+          weight: laptopData.weight,
+          condition: laptopData.condition,
+          os: laptopData.os,
+          image: laptopData.image,
+        },
+      }
     );
     
     return { success: true };
@@ -1204,20 +1326,18 @@ export async function updateLaptop(id, laptopData) {
 
 export async function deleteLaptop(id) {
   try {
-    const db = await getDb();
-    await db.run('DELETE FROM laptops WHERE id = ?', [id]);
-    return { success: true };
+    const result = await Laptop.deleteOne({ id });
+    return { success: result.deletedCount > 0 };
   } catch (error) {
     console.error('Error deleting laptop:', error);
     return { success: false, message: error.message };
   }
 }
 
-// Phone data functions
+// Phone Data Functions
 export async function getAllPhones() {
   try {
-    const db = await getDb();
-    const phones = await db.all('SELECT * FROM phones');
+    const phones = await Phone.find().lean();
     
     return phones.map(phone => ({
       id: phone.id,
@@ -1232,15 +1352,15 @@ export async function getAllPhones() {
         camera: phone.camera,
         os: phone.os,
         network: phone.network,
-        weight: phone.weight
+        weight: phone.weight,
       },
       ram: phone.ram,
       rom: phone.rom,
       pricing: {
         basePrice: phone.base_price,
-        discount: phone.discount
+        discount: phone.discount,
       },
-      condition: phone.condition
+      condition: phone.condition,
     }));
   } catch (error) {
     console.error('Error getting phones:', error);
@@ -1250,8 +1370,7 @@ export async function getAllPhones() {
 
 export async function getPhoneById(id) {
   try {
-    const db = await getDb();
-    const phone = await db.get('SELECT * FROM phones WHERE id = ?', [id]);
+    const phone = await Phone.findOne({ id }).lean();
     
     if (!phone) {
       return null;
@@ -1270,15 +1389,15 @@ export async function getPhoneById(id) {
         camera: phone.camera,
         os: phone.os,
         network: phone.network,
-        weight: phone.weight
+        weight: phone.weight,
       },
       ram: phone.ram,
       rom: phone.rom,
       pricing: {
         basePrice: phone.base_price,
-        discount: phone.discount
+        discount: phone.discount,
       },
-      condition: phone.condition
+      condition: phone.condition,
     };
   } catch (error) {
     console.error('Error getting phone by id:', error);
@@ -1288,79 +1407,56 @@ export async function getPhoneById(id) {
 
 export async function addPhone(phoneData) {
   try {
-      const db = await getDb();
-      const result = await db.run(
-          `INSERT INTO phones (id, brand, model, color, image, processor, display, battery, camera, os, network, weight, ram, rom, base_price, discount, condition) 
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-              phoneData.id,
-              phoneData.brand,
-              phoneData.model,
-              phoneData.color,
-              phoneData.image,
-              phoneData.processor,
-              phoneData.display,
-              phoneData.battery,
-              phoneData.camera,
-              phoneData.os,
-              phoneData.network,
-              phoneData.weight,
-              phoneData.ram,
-              phoneData.rom,
-              phoneData.basePrice,
-              phoneData.discount,
-              phoneData.condition
-          ]
-      );
-      return { success: true, id: phoneData.id };
+    await Phone.create({
+      id: phoneData.id,
+      brand: phoneData.brand,
+      model: phoneData.model,
+      color: phoneData.color,
+      image: phoneData.image,
+      processor: phoneData.processor,
+      display: phoneData.display,
+      battery: phoneData.battery,
+      camera: phoneData.camera,
+      os: phoneData.os,
+      network: phoneData.network,
+      weight: phoneData.weight,
+      ram: phoneData.ram,
+      rom: phoneData.rom,
+      base_price: phoneData.basePrice,
+      discount: phoneData.discount,
+      condition: phoneData.condition,
+    });
+    return { success: true, id: phoneData.id };
   } catch (error) {
-      console.error('Error adding phone:', error);
-      return { success: false, message: error.message };
+    console.error('Error adding phone:', error);
+    return { success: false, message: error.message };
   }
 }
 
 export async function updatePhone(id, phoneData) {
   try {
-    const db = await getDb();
-    
-    await db.run(
-      `UPDATE phones SET 
-        brand = ?, 
-        model = ?, 
-        color = ?, 
-        image = ?, 
-        processor = ?, 
-        display = ?, 
-        battery = ?, 
-        camera = ?, 
-        os = ?, 
-        network = ?, 
-        weight = ?, 
-        ram = ?, 
-        rom = ?, 
-        base_price = ?, 
-        discount = ?, 
-        condition = ? 
-      WHERE id = ?`,
-      [
-        phoneData.brand,
-        phoneData.model,
-        phoneData.color,
-        phoneData.image,
-        phoneData.processor,
-        phoneData.display,
-        phoneData.battery,
-        phoneData.camera,
-        phoneData.os,
-        phoneData.network,
-        phoneData.weight,
-        phoneData.ram,
-        phoneData.rom,
-        phoneData.pricing.basePrice,
-        phoneData.pricing.discount,
-        phoneData.condition,
-        id
-      ]
+    await Phone.updateOne(
+      { id },
+      {
+        $set: {
+          brand: phoneData.brand,
+          model: phoneData.model,
+          color: phoneData.color,
+          image: phoneData.image,
+          processor: phoneData.processor,
+          display: phoneData.display,
+          battery: phoneData.battery,
+          camera: phoneData.camera,
+          os: phoneData.os,
+          network: phoneData.network,
+          weight: phoneData.weight,
+          ram: phoneData.ram,
+          rom: phoneData.rom,
+          base_price: phoneData.pricing.basePrice,
+          discount: phoneData.pricing.discount,
+          condition: phoneData.condition,
+        },
+      }
     );
     
     return { success: true };
@@ -1372,36 +1468,36 @@ export async function updatePhone(id, phoneData) {
 
 export async function deletePhone(id) {
   try {
-    const db = await getDb();
-    await db.run('DELETE FROM phones WHERE id = ?', [id]);
-    return { success: true };
+    const result = await Phone.deleteOne({ id });
+    return { success: result.deletedCount > 0 };
   } catch (error) {
     console.error('Error deleting phone:', error);
     return { success: false, message: error.message };
   }
 }
-// Customer authentication functions
+
+// Customer Authentication Functions
 export async function createCustomer(firstName, lastName, email, phone, password) {
   try {
-    const db = await getDb();
-    
-    // Check if user already exists
-    const existingUser = await db.get('SELECT * FROM customers WHERE email = ?', [email]);
+    const existingUser = await Customer.findOne({ email });
     if (existingUser) {
       return { success: false, message: 'Email already registered' };
     }
     
-    // Generate a unique user ID
     const userId = 'user_' + Date.now();
-    
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Insert the new customer
-    await db.run(
-      'INSERT INTO customers (user_id, first_name, last_name, email, phone, password, orders_count, items_sold_count, password_last_changed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [userId, firstName, lastName, email, phone, hashedPassword, 0, 0, new Date().toISOString()]
-    );
+    await Customer.create({
+      user_id: userId,
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      phone,
+      password: hashedPassword,
+      orders_count: 0,
+      items_sold_count: 0,
+      password_last_changed: new Date(),
+    });
     
     return { success: true, userId };
   } catch (error) {
@@ -1412,23 +1508,18 @@ export async function createCustomer(firstName, lastName, email, phone, password
 
 export async function authenticateCustomer(email, password) {
   try {
-    const db = await getDb();
-    
-    // Find the user by email
-    const user = await db.get('SELECT * FROM customers WHERE email = ?', [email]);
+    const user = await Customer.findOne({ email }).lean();
     
     if (!user) {
       return { success: false, message: 'User not found' };
     }
     
-    // Compare passwords
     const passwordMatch = await bcrypt.compare(password, user.password);
     
     if (!passwordMatch) {
       return { success: false, message: 'Invalid password' };
     }
     
-    // Return user data without the password
     const { password: _, ...userData } = user;
     return { success: true, user: userData };
   } catch (error) {
@@ -1436,53 +1527,45 @@ export async function authenticateCustomer(email, password) {
     return { success: false, message: 'Authentication error' };
   }
 }
+
 export async function createPhoneApplication(applicationData) {
   try {
-    const db = await getDb();
+    const application = await PhoneApplication.create({
+      user_id: applicationData.user_id || null,
+      brand: applicationData.brand,
+      model: applicationData.model,
+      ram: applicationData.ram,
+      rom: applicationData.rom,
+      processor: applicationData.processor,
+      network: applicationData.network,
+      size: applicationData.size || '',
+      weight: applicationData.weight || '',
+      device_age: applicationData.device_age,
+      switching_on: applicationData.switching_on,
+      phone_calls: applicationData.phone_calls,
+      cameras_working: applicationData.cameras_working,
+      battery_issues: applicationData.battery_issues,
+      physically_damaged: applicationData.physically_damaged,
+      sound_issues: applicationData.sound_issues,
+      location: applicationData.location,
+      email: applicationData.email,
+      phone: applicationData.phone,
+      battery: applicationData.battery,
+      camera: applicationData.camera,
+      os: applicationData.os,
+      image_path: applicationData.imagepath || '',
+    });
 
-    const result = await db.run(
-      `INSERT INTO phone_applications (
-        user_id, brand, model, ram, rom, processor, network, size, weight, 
-        device_age, switching_on, phone_calls, cameras_working, battery_issues, 
-        physically_damaged, sound_issues, location, email, phone, battery, camera, os, image_path
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        applicationData.userId || null,
-        applicationData.brand,
-        applicationData.model,
-        applicationData.ram,
-        applicationData.rom,
-        applicationData.processor,
-        applicationData.network,
-        applicationData.size || '',
-        applicationData.weight || '',
-        applicationData.deviceAge,
-        applicationData.switchingOn,
-        applicationData.phoneCalls,
-        applicationData.camerasWorking,
-        applicationData.batteryIssues,
-        applicationData.physicallyDamaged,
-        applicationData.soundIssues,
-        applicationData.location,
-        applicationData.email,
-        applicationData.phone,
-        applicationData.battery,        // New field
-        applicationData.camera,         // New field
-        applicationData.os,             // New field
-        applicationData.imagepath || '',
-      ]
-    );
-
-    return { success: true, id: result.lastID };
+    return { success: true, id: application._id };
   } catch (error) {
     console.error('Error creating phone application:', error);
     return { success: false, message: error.message };
   }
 }
+
 export async function getAllPhoneApplications() {
   try {
-    const db = await getDb();
-    const applications = await db.all('SELECT * FROM phone_applications ORDER BY created_at DESC');
+    const applications = await PhoneApplication.find().sort({ created_at: -1 }).lean();
     return applications;
   } catch (error) {
     console.error('Error getting phone applications:', error);
@@ -1492,11 +1575,9 @@ export async function getAllPhoneApplications() {
 
 export async function getPhoneApplicationsByUserId(userId) {
   try {
-    const db = await getDb();
-    const applications = await db.all(
-      'SELECT * FROM phone_applications WHERE user_id = ? ORDER BY created_at DESC',
-      [userId]
-    );
+    const applications = await PhoneApplication.find({ user_id: userId })
+      .sort({ created_at: -1 })
+      .lean();
     console.log(`Fetched ${applications.length} phone applications for user ${userId}`);
     return applications;
   } catch (error) {
@@ -1505,11 +1586,9 @@ export async function getPhoneApplicationsByUserId(userId) {
   }
 }
 
-
 export async function getPhoneApplicationById(id) {
   try {
-    const db = await getDb();
-    const application = await db.get('SELECT * FROM phone_applications WHERE id = ?', [id]);
+    const application = await PhoneApplication.findById(id).lean();
     return application;
   } catch (error) {
     console.error('Error getting phone application by id:', error);
@@ -1517,12 +1596,10 @@ export async function getPhoneApplicationById(id) {
   }
 }
 
-
 export async function deletePhoneApplication(id) {
   try {
-    const db = await getDb();
-    await db.run('DELETE FROM phone_applications WHERE id = ?', [id]);
-    return { success: true };
+    const result = await PhoneApplication.deleteOne({ _id: id });
+    return { success: result.deletedCount > 0 };
   } catch (error) {
     console.error('Error deleting phone application:', error);
     return { success: false, message: error.message };
@@ -1531,35 +1608,27 @@ export async function deletePhoneApplication(id) {
 
 export async function createLaptopApplication(applicationData) {
   try {
-    const db = await getDb();
+    const application = await LaptopApplication.create({
+      user_id: applicationData.user_id || null,
+      brand: applicationData.brand,
+      model: applicationData.model,
+      ram: applicationData.ram,
+      storage: applicationData.storage,
+      processor: applicationData.processor,
+      generation: applicationData.generation || '',
+      display_size: applicationData.display_size || '',
+      weight: applicationData.weight || '',
+      os: applicationData.os || '',
+      device_age: applicationData.device_age || '',
+      battery_issues: applicationData.battery_issues || '',
+      location: applicationData.location,
+      name: applicationData.name,
+      email: applicationData.email,
+      phone: applicationData.phone,
+      image_path: applicationData.image_path || '',
+    });
 
-    const result = await db.run(
-      `INSERT INTO laptop_applications (
-        user_id, brand, model, ram, storage, processor, generation, display_size, 
-        weight, os, device_age, battery_issues, location, name, email, phone, image_path
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        applicationData.userId || null,
-        applicationData.brand,
-        applicationData.model,
-        applicationData.ram,
-        applicationData.storage,
-        applicationData.processor,
-        applicationData.generation || '',
-        applicationData.displaySize || '',
-        applicationData.weight || '',
-        applicationData.os || '',
-        applicationData.deviceAge || '',
-        applicationData.batteryIssues || '',
-        applicationData.location,
-        applicationData.name,
-        applicationData.email,
-        applicationData.phone,
-        applicationData.imagepath || '', // Cloudinary URL
-      ]
-    );
-
-    return { success: true, id: result.lastID };
+    return { success: true, id: application._id };
   } catch (error) {
     console.error('Error creating laptop application:', error);
     return { success: false, message: error.message };
@@ -1568,8 +1637,7 @@ export async function createLaptopApplication(applicationData) {
 
 export async function getAllLaptopApplications() {
   try {
-    const db = await getDb();
-    const applications = await db.all('SELECT * FROM laptop_applications ORDER BY created_at DESC');
+    const applications = await LaptopApplication.find().sort({ created_at: -1 }).lean();
     return applications;
   } catch (error) {
     console.error('Error getting laptop applications:', error);
@@ -1579,11 +1647,9 @@ export async function getAllLaptopApplications() {
 
 export async function getLaptopApplicationsByUserId(userId) {
   try {
-    const db = await getDb();
-    const applications = await db.all(
-      'SELECT * FROM laptop_applications WHERE user_id = ? ORDER BY created_at DESC',
-      [userId]
-    );
+    const applications = await LaptopApplication.find({ user_id: userId })
+      .sort({ created_at: -1 })
+      .lean();
     console.log(`Fetched ${applications.length} laptop applications for user ${userId}`);
     return applications;
   } catch (error) {
@@ -1594,65 +1660,63 @@ export async function getLaptopApplicationsByUserId(userId) {
 
 export async function getLaptopApplicationById(id) {
   try {
-    const db = await getDb();
-    const application = await db.get('SELECT * FROM laptop_applications WHERE id = ?', [id]);
+    const application = await LaptopApplication.findById(id).lean();
     return application;
   } catch (error) {
     console.error('Error getting laptop application by id:', error);
     throw error;
   }
 }
+
 export async function updatePhoneApplicationStatus(id, status, rejectionReason = null, price = null) {
-  const db = await getDb();
   try {
-      const result = await db.run(
-          'UPDATE phone_applications SET status = ?, rejection_reason = ?, price = ? WHERE id = ?',
-          [status, rejectionReason, price, id]
-      );
-      console.log(`Updated phone application #${id} with price: ${price}`); // Debugging
-      return result.changes > 0 ? { success: true } : { success: false, message: 'Application not found' };
+    const result = await PhoneApplication.updateOne(
+      { _id: id },
+      { $set: { status, rejection_reason: rejectionReason, price } }
+    );
+    console.log(`Updated phone application #${id} with price: ${price}`);
+    return result.modifiedCount > 0
+      ? { success: true }
+      : { success: false, message: 'Application not found' };
   } catch (error) {
-      console.error('Error updating phone application status:', error);
-      return { success: false, message: 'Database error' };
+    console.error('Error updating phone application status:', error);
+    return { success: false, message: 'Database error' };
   }
 }
 
 export async function updateLaptopApplicationStatus(id, status, rejectionReason = null, price = null) {
-  const db = await getDb();
   try {
-      const result = await db.run(
-          'UPDATE laptop_applications SET status = ?, rejection_reason = ?, price = ? WHERE id = ?',
-          [status, rejectionReason, price, id]
-      );
-      console.log(`Updated laptop application #${id} with price: ${price}`); // Debugging
-      return result.changes > 0 ? { success: true } : { success: false, message: 'Application not found' };
+    const result = await LaptopApplication.updateOne(
+      { _id: id },
+      { $set: { status, rejection_reason: rejectionReason, price } }
+    );
+    console.log(`Updated laptop application #${id} with price: ${price}`);
+    return result.modifiedCount > 0
+      ? { success: true }
+      : { success: false, message: 'Application not found' };
   } catch (error) {
-      console.error('Error updating laptop application status:', error);
-      return { success: false, message: 'Database error' };
+    console.error('Error updating laptop application status:', error);
+    return { success: false, message: 'Database error' };
   }
 }
 
 export async function deleteLaptopApplication(id) {
   try {
-    const db = await getDb();
-    await db.run('DELETE FROM laptop_applications WHERE id = ?', [id]);
-    return { success: true };
+    const result = await LaptopApplication.deleteOne({ _id: id });
+    return { success: result.deletedCount > 0 };
   } catch (error) {
     console.error('Error deleting laptop application:', error);
     return { success: false, message: error.message };
   }
 }
 
-// In db.js
 export async function updateCustomer(userId, updates) {
   try {
-    const db = await getDb();
-    
     const { first_name, last_name, email, phone } = updates;
     
-    await db.run(
-      'UPDATE customers SET first_name = ?, last_name = ?, email = ?, phone = ? WHERE user_id = ?',
-      [first_name, last_name, email, phone, userId]
+    await Customer.updateOne(
+      { user_id: userId },
+      { $set: { first_name, last_name, email, phone } }
     );
     
     return { success: true };
@@ -1664,13 +1728,11 @@ export async function updateCustomer(userId, updates) {
 
 export async function updateCustomerPassword(userId, newPassword) {
   try {
-    const db = await getDb();
-    
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     
-    await db.run(
-      'UPDATE customers SET password = ?, password_last_changed = ? WHERE user_id = ?',
-      [hashedPassword, new Date().toISOString(), userId]
+    await Customer.updateOne(
+      { user_id: userId },
+      { $set: { password: hashedPassword, password_last_changed: new Date() } }
     );
     
     return { success: true };
@@ -1679,20 +1741,18 @@ export async function updateCustomerPassword(userId, newPassword) {
     return { success: false, message: error.message };
   }
 }
-// Function to get all earphones
-// Function to get all earphones
+
+// Earphone Functions
 export async function getAllEarphones() {
   try {
-    const db = await getDb();
-    const earphones = await db.all('SELECT * FROM earphones'); // Fetch all rows from the earphones table
-
-    // Transform the SQLite table data into an array of objects
+    const earphones = await Earphone.find().lean();
+    
     return earphones.map(earphone => ({
       id: earphone.id,
       title: earphone.title,
       image: earphone.image,
       brand: earphone.brand,
-      originalPrice: earphone.original_price, // Map SQL column names to JavaScript object keys
+      originalPrice: earphone.original_price,
       discount: earphone.discount,
       design: earphone.design,
       batteryLife: earphone.battery_life,
@@ -1703,16 +1763,14 @@ export async function getAllEarphones() {
   }
 }
 
-// Function to get earphones by ID
 export async function getEarphonesById(id) {
   try {
-    const db = await getDb();
-    const earphone = await db.get('SELECT * FROM earphones WHERE id = ?', [id]);
-
+    const earphone = await Earphone.findOne({ id }).lean();
+    
     if (!earphone) {
       return null;
     }
-
+    
     return {
       id: earphone.id,
       title: earphone.title,
@@ -1731,18 +1789,21 @@ export async function getEarphonesById(id) {
   }
 }
 
-// Function to add new earphones
 export async function addEarphones(earphonesData) {
   try {
-    const db = await getDb();
     const { id, title, image, brand, pricing, design, batteryLife } = earphonesData;
-
-    await db.run(
-      `INSERT INTO earphones (id, title, image, brand, original_price, discount, design, battery_life) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, title, image, brand, pricing.originalPrice, pricing.discount, design, batteryLife]
-    );
-
+    
+    await Earphone.create({
+      id,
+      title,
+      image,
+      brand,
+      original_price: pricing.originalPrice,
+      discount: pricing.discount,
+      design,
+      battery_life: batteryLife,
+    });
+    
     return { success: true, id };
   } catch (error) {
     console.error('Error adding earphones:', error);
@@ -1750,25 +1811,25 @@ export async function addEarphones(earphonesData) {
   }
 }
 
-// Function to update earphones
 export async function updateEarphones(id, earphonesData) {
   try {
-    const db = await getDb();
     const { title, image, brand, pricing, design, battery_life } = earphonesData;
-
-    await db.run(
-      `UPDATE earphones SET 
-        title = ?, 
-        image = ?, 
-        brand = ?, 
-        original_price = ?, 
-        discount = ?, 
-        design = ?, 
-        battery_life = ? 
-       WHERE id = ?`,
-      [title, image, brand, pricing.originalPrice, pricing.discount, design, battery_life, id]
+    
+    await Earphone.updateOne(
+      { id },
+      {
+        $set: {
+          title,
+          image,
+          brand,
+          original_price: pricing.originalPrice,
+          discount: pricing.discount,
+          design,
+          battery_life,
+        },
+      }
     );
-
+    
     return { success: true };
   } catch (error) {
     console.error('Error updating earphones:', error);
@@ -1776,24 +1837,21 @@ export async function updateEarphones(id, earphonesData) {
   }
 }
 
-// Function to delete earphones
 export async function deleteEarphones(id) {
   try {
-    const db = await getDb();
-    await db.run('DELETE FROM earphones WHERE id = ?', [id]);
-    return { success: true };
+    const result = await Earphone.deleteOne({ id });
+    return { success: result.deletedCount > 0 };
   } catch (error) {
     console.error('Error deleting earphones:', error);
     return { success: false, message: error.message };
   }
 }
 
+// Charger Functions
 export async function getAllChargers() {
   try {
-    const db = await getDb();
-    const chargers = await db.all('SELECT * FROM chargers'); // Fetch all rows from the chargers table
-
-    // Transform the SQLite table data into an array of objects
+    const chargers = await Charger.find().lean();
+    
     return chargers.map(charger => ({
       id: charger.id,
       title: charger.title,
@@ -1801,7 +1859,7 @@ export async function getAllChargers() {
       brand: charger.brand,
       wattage: charger.wattage,
       type: charger.type,
-      originalPrice: charger.originalPrice, // Map SQL column names to JavaScript object keys
+      originalPrice: charger.originalPrice,
       discount: charger.discount,
       outputCurrent: charger.outputCurrent,
     }));
@@ -1811,16 +1869,14 @@ export async function getAllChargers() {
   }
 }
 
-// Function to get a charger by ID
 export async function getChargerById(id) {
   try {
-    const db = await getDb();
-    const charger = await db.get('SELECT * FROM chargers WHERE id = ?', [id]);
-
+    const charger = await Charger.findOne({ id }).lean();
+    
     if (!charger) {
       return null;
     }
-
+    
     return {
       id: charger.id,
       title: charger.title,
@@ -1840,18 +1896,22 @@ export async function getChargerById(id) {
   }
 }
 
-// Function to add a new charger
 export async function addCharger(chargerData) {
   try {
-    const db = await getDb();
     const { id, title, image, brand, wattage, type, pricing, outputCurrent } = chargerData;
-
-    await db.run(
-      `INSERT INTO chargers (id, title, image, brand, wattage, type, originalPrice, discount, outputCurrent) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, title, image, brand, wattage, type, pricing.originalPrice, pricing.discount, outputCurrent]
-    );
-
+    
+    await Charger.create({
+      id,
+      title,
+      image,
+      brand,
+      wattage,
+      type,
+      originalPrice: pricing.originalPrice,
+      discount: pricing.discount,
+      outputCurrent,
+    });
+    
     return { success: true, id };
   } catch (error) {
     console.error('Error adding charger:', error);
@@ -1859,26 +1919,26 @@ export async function addCharger(chargerData) {
   }
 }
 
-// Function to update a charger
 export async function updateCharger(id, chargerData) {
   try {
-    const db = await getDb();
     const { title, image, brand, wattage, type, pricing, outputCurrent } = chargerData;
-
-    await db.run(
-      `UPDATE chargers SET 
-        title = ?, 
-        image = ?, 
-        brand = ?, 
-        wattage = ?, 
-        type = ?, 
-        originalPrice = ?, 
-        discount = ?, 
-        outputCurrent = ? 
-       WHERE id = ?`,
-      [title, image, brand, wattage, type, pricing.originalPrice, pricing.discount, outputCurrent, id]
+    
+    await Charger.updateOne(
+      { id },
+      {
+        $set: {
+          title,
+          image,
+          brand,
+          wattage,
+          type,
+          originalPrice: pricing.originalPrice,
+          discount: pricing.discount,
+          outputCurrent,
+        },
+      }
     );
-
+    
     return { success: true };
   } catch (error) {
     console.error('Error updating charger:', error);
@@ -1886,33 +1946,27 @@ export async function updateCharger(id, chargerData) {
   }
 }
 
-// Function to delete a charger
 export async function deleteCharger(id) {
   try {
-    const db = await getDb();
-    await db.run('DELETE FROM chargers WHERE id = ?', [id]);
-    return { success: true };
+    const result = await Charger.deleteOne({ id });
+    return { success: result.deletedCount > 0 };
   } catch (error) {
     console.error('Error deleting charger:', error);
     return { success: false, message: error.message };
   }
 }
 
-
-
-// Function to get all mouses
+// Mouse Functions
 export async function getAllMouses() {
   try {
-    const db = await getDb();
-    const mouses = await db.all('SELECT * FROM mouses'); // Fetch all rows from the mouses table
-
-    // Transform the SQLite table data into an array of objects
+    const mouses = await Mouse.find().lean();
+    
     return mouses.map(mouse => ({
       id: mouse.id,
       title: mouse.title,
       image: mouse.image,
       brand: mouse.brand,
-      originalPrice: mouse.original_price, // Map SQL column names to JavaScript object keys
+      originalPrice: mouse.original_price,
       discount: mouse.discount,
       type: mouse.type,
       connectivity: mouse.connectivity,
@@ -1924,16 +1978,14 @@ export async function getAllMouses() {
   }
 }
 
-// Function to get a mouse by ID
 export async function getMouseById(id) {
   try {
-    const db = await getDb();
-    const mouse = await db.get('SELECT * FROM mouses WHERE id = ?', [id]);
-
+    const mouse = await Mouse.findOne({ id }).lean();
+    
     if (!mouse) {
       return null;
     }
-
+    
     return {
       id: mouse.id,
       title: mouse.title,
@@ -1953,18 +2005,22 @@ export async function getMouseById(id) {
   }
 }
 
-// Function to add a new mouse
 export async function addMouse(mouseData) {
   try {
-    const db = await getDb();
     const { id, title, image, brand, pricing, type, connectivity, resolution } = mouseData;
-
-    await db.run(
-      `INSERT INTO mouses (id, title, image, brand, original_price, discount, type, connectivity, resolution) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, title, image, brand, pricing.originalPrice, pricing.discount, type, connectivity, resolution]
-    );
-
+    
+    await Mouse.create({
+      id,
+      title,
+      image,
+      brand,
+      original_price: pricing.originalPrice,
+      discount: pricing.discount,
+      type,
+      connectivity,
+      resolution,
+    });
+    
     return { success: true, id };
   } catch (error) {
     console.error('Error adding mouse:', error);
@@ -1972,26 +2028,26 @@ export async function addMouse(mouseData) {
   }
 }
 
-// Function to update a mouse
 export async function updateMouse(id, mouseData) {
   try {
-    const db = await getDb();
     const { title, image, brand, pricing, type, connectivity, resolution } = mouseData;
-
-    await db.run(
-      `UPDATE mouses SET 
-        title = ?, 
-        image = ?, 
-        brand = ?, 
-        original_price = ?, 
-        discount = ?, 
-        type = ?, 
-        connectivity = ?, 
-        resolution = ? 
-       WHERE id = ?`,
-      [title, image, brand, pricing.originalPrice, pricing.discount, type, connectivity, resolution, id]
+    
+    await Mouse.updateOne(
+      { id },
+      {
+        $set: {
+          title,
+          image,
+          brand,
+          original_price: pricing.originalPrice,
+          discount: pricing.discount,
+          type,
+          connectivity,
+          resolution,
+        },
+      }
     );
-
+    
     return { success: true };
   } catch (error) {
     console.error('Error updating mouse:', error);
@@ -1999,35 +2055,31 @@ export async function updateMouse(id, mouseData) {
   }
 }
 
-// Function to delete a mouse
 export async function deleteMouse(id) {
   try {
-    const db = await getDb();
-    await db.run('DELETE FROM mouses WHERE id = ?', [id]);
-    return { success: true };
+    const result = await Mouse.deleteOne({ id });
+    return { success: result.deletedCount > 0 };
   } catch (error) {
     console.error('Error deleting mouse:', error);
     return { success: false, message: error.message };
   }
 }
 
-// Function to get all smartwatches
+// Smartwatch Functions
 export async function getAllSmartwatches() {
   try {
-    const db = await getDb();
-    const smartwatches = await db.all('SELECT * FROM smartwatches'); // Fetch all rows from the smartwatches table
-
-    // Transform the SQLite table data into an array of objects
+    const smartwatches = await Smartwatch.find().lean();
+    
     return smartwatches.map(smartwatch => ({
       id: smartwatch.id,
       title: smartwatch.title,
       image: smartwatch.image,
       brand: smartwatch.brand,
-      originalPrice: smartwatch.original_price, // Map SQL column names to JavaScript object keys
+      originalPrice: smartwatch.original_price,
       discount: smartwatch.discount,
-      displaySize: smartwatch.display_size,
-      displayType: smartwatch.display_type,
-      batteryRuntime: smartwatch.battery_runtime,
+      display_size: smartwatch.display_size,
+      display_type: smartwatch.display_type,
+      battery_runtime: smartwatch.battery_runtime,
     }));
   } catch (error) {
     console.error('Error getting smartwatches:', error);
@@ -2035,16 +2087,14 @@ export async function getAllSmartwatches() {
   }
 }
 
-// Function to get a smartwatch by ID
 export async function getSmartwatchById(id) {
   try {
-    const db = await getDb();
-    const smartwatch = await db.get('SELECT * FROM smartwatches WHERE id = ?', [id]);
-
+    const smartwatch = await Smartwatch.findOne({ id }).lean();
+    
     if (!smartwatch) {
       return null;
     }
-
+    
     return {
       id: smartwatch.id,
       title: smartwatch.title,
@@ -2054,9 +2104,9 @@ export async function getSmartwatchById(id) {
         originalPrice: Number(smartwatch.original_price),
         discount: smartwatch.discount,
       },
-      displaySize: smartwatch.display_size,
-      displayType: smartwatch.display_type,
-      batteryRuntime: smartwatch.battery_runtime,
+      display_size: smartwatch.display_size,
+      display_type: smartwatch.display_type,
+      battery_runtime: smartwatch.battery_runtime,
     };
   } catch (error) {
     console.error('Error getting smartwatch by ID:', error);
@@ -2064,18 +2114,22 @@ export async function getSmartwatchById(id) {
   }
 }
 
-// Function to add a new smartwatch
 export async function addSmartwatch(smartwatchData) {
   try {
-    const db = await getDb();
-    const { id, title, image, brand, pricing, displaySize, displayType, batteryRuntime } = smartwatchData;
-
-    await db.run(
-      `INSERT INTO smartwatches (id, title, image, brand, original_price, discount, display_size, display_type, battery_runtime) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, title, image, brand, pricing.originalPrice, pricing.discount, displaySize, displayType, batteryRuntime]
-    );
-
+    const { id, title, image, brand, pricing, display_size, display_type, battery_runtime } = smartwatchData;
+    
+    await Smartwatch.create({
+      id,
+      title,
+      image,
+      brand,
+      original_price: pricing.originalPrice,
+      discount: pricing.discount,
+      display_size,
+      display_type,
+      battery_runtime,
+    });
+    
     return { success: true, id };
   } catch (error) {
     console.error('Error adding smartwatch:', error);
@@ -2083,193 +2137,236 @@ export async function addSmartwatch(smartwatchData) {
   }
 }
 
-// Function to update a smartwatch
-export async function updateSmartwatch(id, { brand, pricing, image, title, display_size, display_type, battery_runtime }) {
-  const db = await getDb();
-  const safeDisplaySize = display_size !== null && display_size !== undefined ? display_size : 'N/A';
-  const result = await db.run(
-      `UPDATE smartwatches SET brand = ?, original_price = ?, image = ?, title = ?, display_size = ?, display_type = ?, battery_runtime = ? WHERE id = ?`,
-      [brand, JSON.stringify(pricing), image, title, safeDisplaySize, display_type, battery_runtime, id]
-  );
-  return { success: result.changes > 0 };
+export async function updateSmartwatch(id, smartwatchData) {
+  try {
+    const { title, image, brand, pricing, display_size, display_type, battery_runtime } = smartwatchData;
+    
+    await Smartwatch.updateOne(
+      { id },
+      {
+        $set: {
+          title,
+          image,
+          brand,
+          original_price: pricing.originalPrice,
+          discount: pricing.discount,
+          display_size,
+          display_type,
+          battery_runtime,
+        },
+      }
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating smartwatch:', error);
+    return { success: false, message: error.message };
+  }
 }
 
-// Function to delete a smartwatch
 export async function deleteSmartwatch(id) {
   try {
-    const db = await getDb();
-    await db.run('DELETE FROM smartwatches WHERE id = ?', [id]);
-    return { success: true };
+    const result = await Smartwatch.deleteOne({ id });
+    return { success: result.deletedCount > 0 };
   } catch (error) {
     console.error('Error deleting smartwatch:', error);
     return { success: false, message: error.message };
   }
 }
 
-
-export async function createOrder(userId, orderData) {
+// Order Functions
+export async function createOrder(userId, totalAmount, paymentMethod, items) {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const db = await getDb();
-
-    // Start a transaction
-    await db.run('BEGIN TRANSACTION');
-
-    // Insert into orders table
-    const orderResult = await db.run(
-      `INSERT INTO orders (order_id, user_id, total_amount, payment_method) 
-       VALUES (?, ?, ?, ?)`,
-      [orderData.orderId, userId, orderData.totalAmount, orderData.paymentMethod]
+    const orderId = 'order_' + Date.now();
+    
+    await Order.create([{
+      order_id: orderId,
+      user_id: userId,
+      total_amount: totalAmount,
+      payment_method: paymentMethod,
+    }], { session });
+    
+    const orderItems = items.map(item => ({
+      order_id: orderId,
+      item_type: item.itemType,
+      item_id: item.itemId,
+      quantity: item.quantity,
+      amount: item.amount,
+      accessory: item.accessory,
+    }));
+    
+    await OrderItem.insertMany(orderItems, { session });
+    
+    await Customer.updateOne(
+      { user_id: userId },
+      { $inc: { orders_count: 1 } },
+      { session }
     );
-
-    // Insert each item into order_items and delete from inventory
-    for (const item of orderData.items) {
-      // Insert into order_items
-      await db.run(
-        `INSERT INTO order_items (order_id, item_type, item_id, quantity, amount, accessory) 
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [
-          orderData.orderId,
-          item.type,
-          item.id,
-          item.quantity,
-          item.amount,
-          JSON.stringify(item.accessory)
-        ]
-      );
-
-      // Delete the item from its respective inventory table based on type
-      let tableName;
-      switch (item.type.toLowerCase()) {
-        case 'product':
-          tableName = 'phones';
-          break;
-        case 'laptop':
-          tableName = 'laptops';
-          break;
-        case 'earphone':
-          tableName = 'earphones';
-          break;
-        case 'charger':
-          tableName = 'chargers';
-          break;
-        case 'mouse':
-          tableName = 'mouses';
-          break;
-        case 'smartwatch':
-          tableName = 'smartwatches';
-          break;
-        default:
-          throw new Error(`Unknown item type: ${item.type}`);
-      }
-
-      // Delete the item from the inventory
-      const deleteResult = await db.run(
-        `DELETE FROM ${tableName} WHERE id = ?`,
-        [item.id]
-      );
-
-      if (deleteResult.changes === 0) {
-        throw new Error(`Item with ID ${item.id} not found in ${tableName}`);
-      }
-    }
-
-    // Update customer's orders_count
-    await db.run(
-      'UPDATE customers SET orders_count = orders_count + 1 WHERE user_id = ?',
-      [userId]
-    );
-
-    // Commit the transaction
-    await db.run('COMMIT');
-    return { success: true, orderId: orderData.orderId };
+    
+    await session.commitTransaction();
+    return { success: true, orderId };
   } catch (error) {
-    // Rollback the transaction on error
-    await db.run('ROLLBACK');
+    await session.abortTransaction();
     console.error('Error creating order:', error);
     return { success: false, message: error.message };
+  } finally {
+    session.endSession();
   }
 }
 
 export async function getOrdersByUserId(userId) {
   try {
-    const db = await getDb();
-
-    // Get orders
-    const orders = await db.all(
-      'SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC',
-      [userId]
-    );
-
-    // For each order, get its items
-    for (let order of orders) {
-      const items = await db.all(
-        'SELECT * FROM order_items WHERE order_id = ?',
-        [order.order_id]
-      );
-      order.items = items.map(item => ({
-        type: item.item_type,
-        id: item.item_id,
-        quantity: item.quantity,
-        amount: item.amount,
-        accessory: JSON.parse(item.accessory)
-      }));
-      // Rename fields to match previous structure
-      order.orderId = order.order_id;
-      order.totalAmount = order.total_amount;
-      order.paymentMethod = order.payment_method;
-      order.timestamp = order.created_at;
-    }
-
-    return orders;
+    const orders = await Order.find({ user_id: userId })
+      .sort({ created_at: -1 })
+      .lean();
+    
+    const orderIds = orders.map(order => order.order_id);
+    const orderItems = await OrderItem.find({ order_id: { $in: orderIds } }).lean();
+    
+    return orders.map(order => ({
+      order_id: order.order_id,
+      user_id: order.user_id,
+      total_amount: order.total_amount,
+      payment_method: order.payment_method,
+      created_at: order.created_at,
+      items: orderItems
+        .filter(item => item.order_id === order.order_id)
+        .map(item => ({
+          item_type: item.item_type,
+          item_id: item.item_id,
+          quantity: item.quantity,
+          amount: item.amount,
+          accessory: item.accessory,
+        })),
+    }));
   } catch (error) {
     console.error('Error getting orders by user ID:', error);
     throw error;
   }
 }
 
-export async function getOrderById(orderId) {
+export async function getAllOrders() {
   try {
-    const db = await getDb();
-
-    const order = await db.get(
-      'SELECT * FROM orders WHERE order_id = ?',
-      [orderId]
-    );
-
-    if (!order) return null;
-
-    const items = await db.all(
-      'SELECT * FROM order_items WHERE order_id = ?',
-      [orderId]
-    );
-
-    order.items = items.map(item => ({
-      type: item.item_type,
-      id: item.item_id,
-      quantity: item.quantity,
-      amount: item.amount,
-      accessory: JSON.parse(item.accessory)
+    const orders = await Order.find().sort({ created_at: -1 }).lean();
+    
+    const orderIds = orders.map(order => order.order_id);
+    const orderItems = await OrderItem.find({ order_id: { $in: orderIds } }).lean();
+    
+    return orders.map(order => ({
+      order_id: order.order_id,
+      user_id: order.user_id,
+      total_amount: order.total_amount,
+      payment_method: order.payment_method,
+      created_at: order.created_at,
+      items: orderItems
+        .filter(item => item.order_id === order.order_id)
+        .map(item => ({
+          item_type: item.item_type,
+          item_id: item.item_id,
+          quantity: item.quantity,
+          amount: item.amount,
+          accessory: item.accessory,
+        })),
     }));
-    order.orderId = order.order_id;
-    order.totalAmount = order.total_amount;
-    order.paymentMethod = order.payment_method;
-    order.timestamp = order.created_at;
-
-    return order;
   } catch (error) {
-    console.error('Error getting order by ID:', error);
+    console.error('Error getting all orders:', error);
     throw error;
   }
 }
 
-//admin
+// Admin Functions
+export async function authenticateAdmin(adminId, password, securityToken) {
+  try {
+    const admin = await Admin.findOne({ admin_id: adminId }).lean();
+    
+    if (!admin) {
+      return { success: false, message: 'Invalid admin ID' };
+    }
+    
+    const passwordMatch = await bcrypt.compare(password, admin.password);
+    
+    if (!passwordMatch) {
+      return { success: false, message: 'Invalid password' };
+    }
+    
+    if (admin.security_token !== securityToken) {
+      return { success: false, message: 'Invalid security token' };
+    }
+    
+    const { password: _, ...adminData } = admin;
+    return { success: true, admin: adminData };
+  } catch (error) {
+    console.error('Admin authentication error:', error);
+    return { success: false, message: 'Authentication error' };
+  }
+}
+
+export async function updateAdmin(adminId, updates) {
+  try {
+    const { name, password, security_token } = updates;
+    const updateFields = { name, security_token };
+    
+    if (password) {
+      updateFields.password = await bcrypt.hash(password, 10);
+    }
+    
+    await Admin.updateOne(
+      { admin_id: adminId },
+      { $set: updateFields }
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating admin:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Supervisor Activity Functions
+export async function logSupervisorActivity(supervisorId, action) {
+  try {
+    await SupervisorActivity.create({
+      supervisor_id: supervisorId,
+      action,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error logging supervisor activity:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getSupervisorActivity(supervisorId) {
+  try {
+    const activities = await SupervisorActivity.find({ supervisor_id: supervisorId })
+      .sort({ timestamp: -1 })
+      .lean();
+    return activities;
+  } catch (error) {
+    console.error('Error getting supervisor activity:', error);
+    throw error;
+  }
+}
+export async function deleteSupervisor(userId) {
+  try {
+    const result = await Supervisor.deleteOne({ user_id: userId });
+    if (result.deletedCount === 0) {
+      return { success: false, message: 'Supervisor not found' };
+    }
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting supervisor:', error);
+    throw error; // Let the caller handle the error
+  }
+}
+
 export async function getAllSupervisors() {
   try {
-    const db = await getDb();
-    const supervisors = await db.all(`
-      SELECT user_id, first_name, last_name, email, phone, username, created_at 
-      FROM supervisors
-    `);
+    const supervisors = await Supervisor.find()
+      .lean()
+      .select('user_id first_name last_name email phone username created_at');
     return supervisors;
   } catch (error) {
     console.error('Error fetching supervisors:', error);
@@ -2277,57 +2374,53 @@ export async function getAllSupervisors() {
   }
 }
 
-export async function deleteSupervisor(userId) {
-  try {
-    const db = await getDb();
-    const result = await db.run('DELETE FROM supervisors WHERE user_id = ?', [userId]);
-    return { success: result.changes > 0 };
-  } catch (error) {
-    console.error('Error deleting supervisor:', error);
-    throw error;
-  }
-}
-
-// db.js
+// Get Latest Phones
 export async function getLatestPhones(limit = 5) {
   try {
-    const db = await getDb();
-    const phones = await db.all(
-      'SELECT * FROM phones ORDER BY created_at DESC LIMIT ?',
-      [limit]
-    );
-    return phones.map(phone => ({
-      id: phone.id,
-      brand: phone.brand,
-      model: phone.model,
-      image: phone.image,
-      basePrice: phone.base_price,
-      discount: phone.discount,
-      condition: phone.condition
-    }));
+    const phones = await Phone.find()
+      .sort({ created_at: -1 }) // Sort by newest first
+      .limit(limit)
+      .lean()
+      .select('id brand model base_price discount image');
+    return phones;
   } catch (error) {
     console.error('Error fetching latest phones:', error);
     throw error;
   }
 }
+
+// Get Latest Laptops
 export async function getLatestLaptops(limit = 5) {
   try {
-    const db = await getDb();
-    const laptops = await db.all(
-      'SELECT * FROM laptops ORDER BY created_at DESC LIMIT ?',
-      [limit]
-    );
-    return laptops.map(laptop => ({
-      id: laptop.id,
-      brand: laptop.brand,
-      series: laptop.series,
-      image: laptop.image,
-      basePrice: laptop.base_price,
-      discount: laptop.discount,
-      condition: laptop.condition
-    }));
+    const laptops = await Laptop.find()
+      .sort({ created_at: -1 }) // Sort by newest first
+      .limit(limit)
+      .lean()
+      .select('id brand series base_price discount image');
+    return laptops;
   } catch (error) {
     console.error('Error fetching latest laptops:', error);
+    throw error;
+  }
+}
+async function deleteCustomer(userId) {
+  try {
+    const result = await Customer.deleteOne({ user_id: userId });
+    if (result.deletedCount === 0) {
+      return { success: false, message: 'Customer not found' };
+    }
+    return { success: true };
+  } catch (error) {
+    throw new Error(`Failed to delete customer: ${error.message}`);
+  }
+}
+// Close Database Connection
+export async function closeDatabase() {
+  try {
+    await mongoose.connection.close();
+    console.log('MongoDB connection closed');
+  } catch (error) {
+    console.error('Error closing database:', error);
     throw error;
   }
 }

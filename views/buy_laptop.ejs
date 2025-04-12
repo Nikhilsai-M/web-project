@@ -120,12 +120,12 @@
 </div>
 
 <script>
-    async function fetchAndRenderLatestLaptops() {
+      async function fetchAndRenderLatestLaptops() {
         try {
             const response = await fetch('/api/latest-laptops');
             if (!response.ok) throw new Error('Failed to fetch latest laptops');
             const laptops = await response.json();
-
+   console.log(laptops);
             const grid = document.getElementById('latest-laptops-container');
             grid.innerHTML = ''; // Clear existing content
 
@@ -135,9 +135,9 @@
             }
 
             laptops.forEach(laptop => {
-                const finalPrice = laptop.basePrice - (laptop.basePrice * laptop.discount / 100);
-                const originalPrice = laptop.basePrice;
-
+                const finalPrice = calculateFinalPrice(laptop);
+                const originalPrice = laptop.base_price;
+                console.log(originalPrice);
                 const card = document.createElement('div');
                 card.className = 'laptop-card';
                 card.innerHTML = `
@@ -157,6 +157,12 @@
             const grid = document.getElementById('latest-laptops-container');
             grid.innerHTML = '<p>Error loading laptops. Please try again later.</p>';
         }
+    }
+    function calculateFinalPrice(product) {
+      const price = parseFloat(product.base_price || 0); // Updated field
+      const discount = parseFloat(product.discount || 0);
+      const finalPrice = Number((price - (price * discount / 100)).toFixed(2));
+      return finalPrice;
     }
 
     fetchAndRenderLatestLaptops();

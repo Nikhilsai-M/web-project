@@ -67,7 +67,17 @@ import {
   authenticateAdmin, 
   updateAdmin,       
   logSupervisorActivity, 
-  SupervisorActivity
+  SupervisorActivity,
+  Supervisor,
+  OrderItem,
+  Phone,
+  Laptop,
+  Charger,
+  Mouse,
+  Smartwatch,
+  Earphone,
+  Order,
+  Customer
 } from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -296,6 +306,8 @@ app.get('/api/supervisor/inventory', requireSupervisorAuth, async (req, res) => 
 
 app.post('/api/supervisor/inventory', requireSupervisorAuth, async (req, res) => {
   const { type, id, brand, pricing, image, ...specificData } = req.body;
+  console.log("route testing:" + specificData.Pin_type);
+
   try {
     let result;
     const typeLower = type.toLowerCase();
@@ -317,8 +329,8 @@ app.post('/api/supervisor/inventory', requireSupervisorAuth, async (req, res) =>
         pricing,
         image,
         wattage: specificData.wattage,
-        Pin_type: specificData.Pin_type,
-        output_current: specificData.output_current,
+        type: specificData.Pin_type,
+        outputCurrent: specificData.output_current,
       });
     } else if (typeLower === 'mouses') {
       result = await addMouse({
@@ -327,7 +339,7 @@ app.post('/api/supervisor/inventory', requireSupervisorAuth, async (req, res) =>
         brand,
         pricing,
         image,
-        wire_type: specificData.wire_type,
+        type: specificData.wire_type,
         connectivity: specificData.connectivity,
         resolution: specificData.resolution,
       });
@@ -2104,71 +2116,160 @@ app.get('/api/orders/:orderId', requireCustomerAuth, async (req, res) => {
 
 app.get('/api/admin/statistics', requireAdminAuth, async (req, res) => {
   try {
-    const salesCount = await OrderItem.countDocuments();
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    const listingsCount = await Promise.all([
-      PhoneApplication.countDocuments(),
-      LaptopApplication.countDocuments(),
-    ]).then(counts => counts.reduce((sum, count) => sum + count, 0));
+    // Helper function to calculate week-over-week trend
+    const calculateTrend = (current, previous) => {
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return ((current - previous) / previous * 100).toFixed(2);
+    };
 
-    const approvedListings = await Promise.all([
-      PhoneApplication.countDocuments({ status: { $in: ['approved', 'added_to_inventory'] } }),
-      LaptopApplication.countDocuments({ status: { $in: ['approved', 'added_to_inventory'] } }),
-    ]).then(counts => counts.reduce((sum, count) => sum + count, 0));
+    // Total Listings
+    const [totalListings, prevTotalListings] = await Promise.all([
+      Promise.all([
+        PhoneApplication.countDocuments(),
+        LaptopApplication.countDocuments(),
+      ]).then(counts => counts.reduce((sum, count) => sum + count, 0)),
+      Promise.all([
+        PhoneApplication.countDocuments({ created_at: { $lte: oneWeekAgo } }),
+        LaptopApplication.countDocuments({ created_at: { $lte: oneWeekAgo } }),
+      ]).then(counts => counts.reduce((sum, count) => sum + count, 0)),
+    ]);
 
-    const salesRevenue = await OrderItem.aggregate([
-      {
-        $group: {
-          _id: null,
-          total_sales_revenue: { $sum: { $multiply: ['$amount', '$quantity'] } },
-        },
-      },
-    ]).then(result => result[0]?.total_sales_revenue || 0);
+    // Approved Listings
+    const [approvedListings, prevApprovedListings] = await Promise.all([
+      Promise.all([
+        PhoneApplication.countDocuments({ status: 'approved' }),
+        LaptopApplication.countDocuments({ status: 'approved' }),
+      ]).then(counts => counts.reduce((sum, count) => sum + count, 0)),
+      Promise.all([
+        PhoneApplication.countDocuments({ status: 'approved', created_at: { $lte: oneWeekAgo } }),
+        LaptopApplication.countDocuments({ status: 'approved', created_at: { $lte: oneWeekAgo } }),
+      ]).then(counts => counts.reduce((sum, count) => sum + count, 0)),
+    ]);
 
-    const inventoryRevenue = await Promise.all([
-      Phone.aggregate([{ $group: { _id: null, total: { $sum: '$pricing.originalPrice' } } }]).then(
-        result => result[0]?.total || 0
-      ),
-      Laptop.aggregate([{ $group: { _id: null, total: { $sum: '$pricing.originalPrice' } } }]).then(
-        result => result[0]?.total || 0
-      ),
-      Charger.aggregate([{ $group: { _id: null, total: { $sum: '$pricing.originalPrice' } } }]).then(
-        result => result[0]?.total || 0
-      ),
-      Earphone.aggregate([{ $group: { _id: null, total: { $sum: '$pricing.originalPrice' } } }]).then(
-        result => result[0]?.total || 0
-      ),
-      Mouse.aggregate([{ $group: { _id: null, total: { $sum: '$pricing.originalPrice' } } }]).then(
-        result => result[0]?.total || 0
-      ),
-      Smartwatch.aggregate([      { $group: { _id: null, total: { $sum: '$pricing.originalPrice' } } }]).then(
-        result => result[0]?.total || 0
-      ),
-    ]).then(totals => totals.reduce((sum, total) => sum + total, 0));
+    // Total Sales (Inventory Items)
+    const [totalSales, prevTotalSales] = await Promise.all([
+      Promise.all([
+        Phone.countDocuments(),
+        Laptop.countDocuments(),
+        Charger.countDocuments(),
+        Earphone.countDocuments(),
+        Mouse.countDocuments(),
+        Smartwatch.countDocuments(),
+      ]).then(counts => counts.reduce((sum, count) => sum + count, 0)),
+      Promise.all([
+        Phone.countDocuments({ created_at: { $lte: oneWeekAgo } }),
+        Laptop.countDocuments({ created_at: { $lte: oneWeekAgo } }),
+        Charger.countDocuments({ created_at: { $lte: oneWeekAgo } }),
+        Earphone.countDocuments({ created_at: { $lte: oneWeekAgo } }),
+        Mouse.countDocuments({ created_at: { $lte: oneWeekAgo } }),
+        Smartwatch.countDocuments({ created_at: { $lte: oneWeekAgo } }),
+      ]).then(counts => counts.reduce((sum, count) => sum + count, 0)),
+    ]);
 
-    const recentOrders = await OrderItem.find()
-      .sort({ created_at: -1 })
-      .limit(5)
-      .lean()
-      .select('order_id amount created_at');
+    // Total Sales Revenue (From Orders)
+    const [orders, prevOrders] = await Promise.all([
+      Order.aggregate([
+        { $group: { _id: null, total: { $sum: '$total_amount' } } },
+      ]),
+      Order.aggregate([
+        { $match: { created_at: { $lte: oneWeekAgo } } },
+        { $group: { _id: null, total: { $sum: '$total_amount' } } },
+      ]),
+    ]);
+    const totalSalesRevenue = orders[0]?.total || 0;
+    const prevTotalSalesRevenue = prevOrders[0]?.total || 0;
+
+    // Inventory Revenue Potential
+    const [inventoryRevenue, prevInventoryRevenue] = await Promise.all([
+      Promise.all([
+        PhoneApplication.aggregate([
+          { $match: { status: 'approved', price: { $exists: true, $ne: null } } },
+          { $group: { _id: null, total: { $sum: '$price' } } },
+        ]),
+        LaptopApplication.aggregate([
+          { $match: { status: 'approved', price: { $exists: true, $ne: null } } },
+          { $group: { _id: null, total: { $sum: '$price' } } },
+        ]),
+      ]).then(results => results.reduce((sum, result) => sum + (result[0]?.total || 0), 0)),
+      Promise.all([
+        PhoneApplication.aggregate([
+          { $match: { status: 'approved', price: { $exists: true, $ne: null }, created_at: { $lte: oneWeekAgo } } },
+          { $group: { _id: null, total: { $sum: '$price' } } },
+        ]),
+        LaptopApplication.aggregate([
+          { $match: { status: 'approved', price: { $exists: true, $ne: null }, created_at: { $lte: oneWeekAgo } } },
+          { $group: { _id: null, total: { $sum: '$price' } } },
+        ]),
+      ]).then(results => results.reduce((sum, result) => sum + (result[0]?.total || 0), 0)),
+    ]);
+
+    // Sales by Category
+    const salesByCategory = await Promise.all([
+      Phone.countDocuments(),
+      Laptop.countDocuments(),
+      Charger.countDocuments(),
+      Earphone.countDocuments(),
+      Mouse.countDocuments(),
+      Smartwatch.countDocuments(),
+    ]).then(counts => ({
+      phones: counts[0],
+      laptops: counts[1],
+      chargers: counts[2],
+      earphones: counts[3],
+      mouses: counts[4],
+      smartwatches: counts[5],
+    }));
+
+    // Application Status Distribution
+    const applicationStatus = {
+      phone: await Promise.all([
+        PhoneApplication.countDocuments({ status: 'pending' }),
+        PhoneApplication.countDocuments({ status: 'approved' }),
+        PhoneApplication.countDocuments({ status: 'rejected' }),
+        PhoneApplication.countDocuments({ status: 'processing' }),
+      ]).then(counts => ({
+        pending: counts[0],
+        approved: counts[1],
+        rejected: counts[2],
+        processing: counts[3],
+      })),
+      laptop: await Promise.all([
+        LaptopApplication.countDocuments({ status: 'pending' }),
+        LaptopApplication.countDocuments({ status: 'approved' }),
+        LaptopApplication.countDocuments({ status: 'rejected' }),
+        LaptopApplication.countDocuments({ status: 'processing' }),
+      ]).then(counts => ({
+        pending: counts[0],
+        approved: counts[1],
+        rejected: counts[2],
+        processing: counts[3],
+      })),
+    };
 
     res.json({
       success: true,
       statistics: {
-        totalSales: salesCount,
-        totalListings: listingsCount,
-        approvedListings: approvedListings,
-        salesRevenue: salesRevenue,
-        inventoryRevenue: inventoryRevenue,
-        recentOrders: recentOrders.map(order => ({
-          orderId: order.order_id,
-          amount: order.amount,
-          date: new Date(order.created_at).toLocaleString(),
-        })),
+        totalSales,
+        totalListings,
+        approvedListings,
+        totalSalesRevenue,
+        totalInventoryRevenuePotential: inventoryRevenue,
+        salesByCategory,
+        applicationStatus,
+        trends: {
+          totalSales: calculateTrend(totalSales, prevTotalSales),
+          totalListings: calculateTrend(totalListings, prevTotalListings),
+          approvedListings: calculateTrend(approvedListings, prevApprovedListings),
+          totalSalesRevenue: calculateTrend(totalSalesRevenue, prevTotalSalesRevenue),
+          totalInventoryRevenuePotential: calculateTrend(inventoryRevenue, prevInventoryRevenue),
+        },
       },
     });
   } catch (error) {
-    console.error('Error fetching admin statistics:', error);
+    console.error('Error fetching statistics:', error);
     res.status(500).json({ success: false, message: 'Error fetching statistics' });
   }
 });

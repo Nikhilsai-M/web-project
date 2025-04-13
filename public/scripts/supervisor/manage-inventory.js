@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
         chargers: `
             <div class="form-group"><label>Title:</label><input type="text" name="title" required></div>
             <div class="form-group"><label>Wattage:</label><input type="text" name="wattage" required></div>
-            <div class="form-group"><label>Type:</label><input type="text" name="type" required></div>
+            <div class="form-group"><label>Type:</label><input type="text" name="Pin_type" required></div>
             <div class="form-group"><label>Output Current:</label><input type="text" name="output_current" required></div>
         `,
         mouses: `
@@ -258,7 +258,7 @@ document.addEventListener("DOMContentLoaded", function () {
             Object.assign(data, {
                 title: formData.get('title'),
                 wattage: formData.get('wattage'),
-                Pin_type: formData.get('type'),
+                Pin_type: formData.get('Pin_type'),
                 output_current: formData.get('output_current')
             });
         } else if (itemType === 'mouses') {

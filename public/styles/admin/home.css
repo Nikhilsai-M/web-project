@@ -30,7 +30,7 @@ body {
 
 /* Sidebar */
 .sidebar {
-    height: au;
+    height: auto;
     width: 250px;
     background-color: #0f172a;
     color: var(--light-text);

@@ -8,7 +8,17 @@ import { console } from 'inspector';
 export{
   PhoneApplication,
   LaptopApplication,
-  SupervisorActivity
+  SupervisorActivity,
+  Supervisor,
+  OrderItem,
+  Phone,
+  Laptop,
+  Charger,
+  Mouse,
+  Smartwatch,
+  Earphone,
+  Order,
+  Customer
 };
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -16,7 +26,7 @@ const __dirname = dirname(__filename);
 // MongoDB connection
 const connectToMongoDB = async () => {
   try {
-    await mongoose.connect('mongodb://localhost:27017/Smartxchange');
+    await mongoose.connect('mongodb://localhost:27017/Smartexchange_test2');
     console.log('Connected to MongoDB');
   } catch (error) {
     console.error('MongoDB connection error:', error);
@@ -1824,7 +1834,7 @@ export async function getEarphonesById(id) {
 
 export async function addEarphones(earphonesData) {
   try {
-    const { id, title, image, brand, pricing, design, batteryLife } = earphonesData;
+    const { id, title, image, brand, pricing, design, battery_life } = earphonesData;
     
     await Earphone.create({
       id,
@@ -1834,7 +1844,7 @@ export async function addEarphones(earphonesData) {
       original_price: pricing.originalPrice,
       discount: pricing.discount,
       design,
-      battery_life: batteryLife,
+      battery_life: battery_life,
     });
     
     return { success: true, id };

@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             const response = await fetch(`/api/supervisor/application/${app.type}/${app.id}`);
             const data = await response.json();
+            console.log(data);
             if (data.success) {
                 currentApplication = { type: data.type, id: data.application.id };
                 const statusClass = data.application.status === 'rejected' ? 'status-rejected' : '';
@@ -207,7 +208,8 @@ document.addEventListener("DOMContentLoaded", function () {
             alert('Discount must be between 0 and 100.');
             return;
         }
-    
+    console.log(discount);
+    console.log(condition);
         try {
             const response = await fetch(`/api/supervisor/add-to-inventory/${currentApplication.type}/${currentApplication.id}`, {
                 method: 'POST',
@@ -215,7 +217,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 body: JSON.stringify({ discount: discount || 0, condition })
             });
             const data = await response.json();
-    
             if (data.success) {
                 alert('Item added to inventory successfully!');
                 modal.style.display = 'none';

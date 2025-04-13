@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 ${itemsHtml}
                 <p><strong>Total Amount Paid:</strong> ₹${(order.totalAmount || 0).toLocaleString('en-IN')}</p>
                 <p><strong>Payment Method:</strong> ${order.paymentMethod ? order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1) : 'N/A'}</p>
-                <p><strong>Date:</strong> ${new Date(order.timestamp).toLocaleString()}</p>
+                <p><strong>Date:</strong> ${order.timestamp ? new Date(order.timestamp).toLocaleString() : new Date().toLocaleString()}</p>
             `;
             ordersList.appendChild(orderElement);
         });

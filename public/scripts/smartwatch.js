@@ -11,11 +11,6 @@ async function fetchSmartWatchData() {
         return []; // Return an empty array in case of error
     }
 }
-
-
-
-  
-
 // Function to calculate discounted price
 function calculateDiscountedPrice(price, discount) {
     return price - (price * discount / 100);
@@ -57,9 +52,9 @@ function displayWatches(filteredWatches) {
                     <span class="discount">${smartwatch.discount} Off</span>
                     <ul>
                         <li>Brand: ${smartwatch.brand}</li>
-                        <li>Display Type: ${smartwatch.displayType}</li>
-                        <li>Display Size: ${smartwatch.displaySize}mm</li>
-                        <li>Battery Runtime: ${smartwatch.batteryRuntime} days</li>
+                        <li>Display Type: ${smartwatch.display_type}</li>
+                        <li>Display Size: ${smartwatch.display_size}mm</li>
+                        <li>Battery Runtime: ${smartwatch.battery_runtime} days</li>
                     </ul>
                     </a>
                     <button class="add-to-cart-btn" style="background-color:green; color:white; padding:10px 10px 10px 10px; border:none; width:20%; border-radius:5px; margin-top:5px">Add to Cart</button>
@@ -128,9 +123,9 @@ function addToCart(smartwatch) {
             id: smartwatch.id,
             title: smartwatch.title,
             brand: smartwatch.brand,
-            displayType: smartwatch.displayType,
-            displaySize: smartwatch.displaySize,
-            batteryRuntime: smartwatch.batteryRuntime,
+            displayType: smartwatch.display_type,
+            displaySize: smartwatch.display_size,
+            batteryRuntime: smartwatch.battery_runtime,
             image: smartwatch.image,
             price: smartwatch.originalPrice,
             discount: parseFloat(smartwatch.discount), // Convert to number to avoid NaN issues
@@ -168,11 +163,11 @@ function filterWatches(smartwatches) {
             }
         }
 
-        const matchedbattery = parseInt(smartwatch.batteryRuntime);
+        const matchedbattery = parseInt(smartwatch.battery_runtime);
         const matchesres = checkedres.length === 0 || checkedres.some(e => matchedbattery >= e);
-        const matchedSize = parseInt(smartwatch.displaySize);
+        const matchedSize = parseInt(smartwatch.display_size);
         const matchesSize = checkedtype.length === 0 || checkedtype.some(f => matchedSize >= f);
-        const matchescon = checkedcon.length === 0 || checkedcon.includes(smartwatch.displayType);
+        const matchescon = checkedcon.length === 0 || checkedcon.includes(smartwatch.display_type);
         const discountValue = parseInt(smartwatch.discount);
         const matchesDiscount = checkedDiscounts.length === 0 || checkedDiscounts.some(d => discountValue >= d);
         

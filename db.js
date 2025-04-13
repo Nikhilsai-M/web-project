@@ -2217,105 +2217,98 @@ export async function deleteSmartwatch(id) {
   }
 }
 
-// Order Functions
 export async function createOrder(userId, totalAmount, paymentMethod, items) {
-  const session = await mongoose.startSession();
-  session.startTransaction();
   try {
     const orderId = 'order_' + Date.now();
     
-    await Order.create([{
+    // Create order
+    await Order.create({
       order_id: orderId,
       user_id: userId,
       total_amount: totalAmount,
       payment_method: paymentMethod,
-    }], { session });
+    });
     
+    // Insert order items
     const orderItems = items.map(item => ({
       order_id: orderId,
-      item_type: item.itemType,
-      item_id: item.itemId,
+      item_type: item.type,
+      item_id: item.id,
       quantity: item.quantity,
       amount: item.amount,
       accessory: item.accessory,
     }));
+    await OrderItem.insertMany(orderItems);
     
-    await OrderItem.insertMany(orderItems, { session });
-    
+    // Update customer
     await Customer.updateOne(
       { user_id: userId },
-      { $inc: { orders_count: 1 } },
-      { session }
+      { $inc: { orders_count: 1 } }
     );
     
-    await session.commitTransaction();
     return { success: true, orderId };
   } catch (error) {
-    await session.abortTransaction();
     console.error('Error creating order:', error);
     return { success: false, message: error.message };
-  } finally {
-    session.endSession();
   }
 }
-
 export async function getOrdersByUserId(userId) {
   try {
     const orders = await Order.find({ user_id: userId })
-      .sort({ created_at: -1 })
+      .sort({ createdAt: -1 }) // Use createdAt (Mongoose default)
       .lean();
     
     const orderIds = orders.map(order => order.order_id);
     const orderItems = await OrderItem.find({ order_id: { $in: orderIds } }).lean();
     
     return orders.map(order => ({
-      order_id: order.order_id,
-      user_id: order.user_id,
-      total_amount: order.total_amount,
-      payment_method: order.payment_method,
-      created_at: order.created_at,
+      orderId: order.order_id,          // Rename to orderId
+      totalAmount: order.total_amount,  // Rename to totalAmount
+      paymentMethod: order.payment_method, // Rename to paymentMethod
+      timestamp: order.createdAt,       // Rename createdAt to timestamp
       items: orderItems
         .filter(item => item.order_id === order.order_id)
         .map(item => ({
-          item_type: item.item_type,
-          item_id: item.item_id,
+          type: item.item_type,           // Rename to type
+          id: item.item_id,               // Rename to id
           quantity: item.quantity,
           amount: item.amount,
-          accessory: item.accessory,
-        })),
+          accessory: item.accessory
+        }))
     }));
   } catch (error) {
     console.error('Error getting orders by user ID:', error);
-    throw error;
+    return []; // Return empty array instead of throwing
   }
 }
 
 export async function getAllOrders() {
   try {
-    const orders = await Order.find().sort({ created_at: -1 }).lean();
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .lean();
     
     const orderIds = orders.map(order => order.order_id);
     const orderItems = await OrderItem.find({ order_id: { $in: orderIds } }).lean();
     
     return orders.map(order => ({
-      order_id: order.order_id,
-      user_id: order.user_id,
-      total_amount: order.total_amount,
-      payment_method: order.payment_method,
-      created_at: order.created_at,
+      orderId: order.order_id,
+      totalAmount: order.total_amount,
+      paymentMethod: order.payment_method,
+      timestamp: order.createdAt,
       items: orderItems
         .filter(item => item.order_id === order.order_id)
         .map(item => ({
-          item_type: item.item_type,
-          item_id: item.item_id,
+          type: item.item_type,
+          id: item.item_id,
           quantity: item.quantity,
           amount: item.amount,
-          accessory: item.accessory,
-        })),
+          accessory: item.accessory
+        }))
     }));
   } catch (error) {
     console.error('Error getting all orders:', error);
-    throw error;
+    return [];
   }
 }
 

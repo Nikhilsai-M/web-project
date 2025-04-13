@@ -32,6 +32,8 @@ import {
   addEarphones,
   updateEarphones,
   deleteEarphones,
+  PhoneApplication,
+  LaptopApplication,
   createPhoneApplication,
   getAllPhoneApplications,
   getPhoneApplicationsByUserId,
@@ -62,9 +64,10 @@ import {
   deleteSupervisor,
   getLatestPhones,
   getLatestLaptops,
-  authenticateAdmin, // Added for admin login
-  updateAdmin,       // Added for admin profile updates
-  logSupervisorActivity, // Added for activity logging
+  authenticateAdmin, 
+  updateAdmin,       
+  logSupervisorActivity, 
+  SupervisorActivity
 } from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -895,6 +898,7 @@ app.get('/supervisor/phone-applications', requireSupervisorAuth, (req, res) => {
 app.get('/api/supervisor/phone-applications', requireSupervisorAuth, async (req, res) => {
   try {
     const applications = await getAllPhoneApplications();
+    console.log(applications);
     res.json({ success: true, applications });
   } catch (error) {
     console.error('Error fetching phone applications:', error);
@@ -1627,14 +1631,15 @@ app.get('/supervisor/verify-listings', requireSupervisorAuth, (req, res) => {
   res.render('supervisor/verify-listings', { supervisor: req.session.user });
 });
 
-app.get('/api/supervisor/verify-applications', requireSupervisorAuth, async (req, res) => {
+app.get('/api/supervisor/verify-applications', async (req, res) => {
   try {
     const phoneApps = await getAllPhoneApplications();
     const laptopApps = await getAllLaptopApplications();
+
     const applications = [
       ...phoneApps.map(app => ({
         type: 'phone',
-        id: app.id,
+        id: app.id, // Use numeric id
         brand: app.brand,
         model: app.model,
         status: app.status,
@@ -1643,7 +1648,7 @@ app.get('/api/supervisor/verify-applications', requireSupervisorAuth, async (req
       })),
       ...laptopApps.map(app => ({
         type: 'laptop',
-        id: app.id,
+        id: app.id, // Use numeric id
         brand: app.brand,
         model: app.model,
         status: app.status,
@@ -1651,72 +1656,84 @@ app.get('/api/supervisor/verify-applications', requireSupervisorAuth, async (req
         price: app.price,
       })),
     ];
+
     res.json({ success: true, applications });
   } catch (error) {
     console.error('Error fetching applications:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch applications' });
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 
 app.get('/api/supervisor/application/:type/:id', requireSupervisorAuth, async (req, res) => {
   try {
-    const { type, id } = req.params;
-    let application;
-    if (type === 'phone') {
-      application = await getPhoneApplicationById(id);
-    } else if (type === 'laptop') {
-      application = await getLaptopApplicationById(id);
-    } else {
-      return res.status(400).json({ success: false, message: 'Invalid application type' });
-    }
+      const { type, id } = req.params;
+      let application;
+      if (type === 'phone') {
+          application = await getPhoneApplicationById(id);
+      } else if (type === 'laptop') {
+          application = await getLaptopApplicationById(id);
+      } else {
+          return res.status(400).json({ success: false, message: 'Invalid application type' });
+      }
 
-    if (!application) {
-      return res.status(404).json({ success: false, message: 'Application not found' });
-    }
-
-    res.json({ success: true, application, type });
+      if (!application) {
+          return res.status(404).json({ success: false, message: 'Application not found' });
+      }
+      res.json({ success: true, application, type });
   } catch (error) {
-    console.error('Error fetching application details:', error);
-    res.status(500).json({ success: false, message: 'Error fetching application details' });
+      console.error('Error fetching application details:', error);
+      res.status(500).json({ success: false, message: 'Error fetching application details' });
   }
 });
-
 app.put('/api/supervisor/application/:type/:id/status', requireSupervisorAuth, async (req, res) => {
   try {
     const { type, id } = req.params;
     const { status, rejectionReason, price } = req.body;
 
+    // Validate inputs
     if (!status || !['pending', 'approved', 'rejected', 'processing'].includes(status)) {
       return res.status(400).json({ success: false, message: 'Invalid status' });
     }
-
     if (status === 'approved' && (!price || price <= 0)) {
       return res.status(400).json({ success: false, message: 'Valid price is required for approval' });
     }
-
-    let result;
-    if (type === 'phone') {
-      result = await updatePhoneApplicationStatus(id, status, rejectionReason, price);
-    } else if (type === 'laptop') {
-      result = await updateLaptopApplicationStatus(id, status, rejectionReason, price);
-    } else {
+    if (status === 'rejected' && !rejectionReason) {
+      return res.status(400).json({ success: false, message: 'Rejection reason is required for rejected status' });
+    }
+    if (!['phone', 'laptop'].includes(type)) {
       return res.status(400).json({ success: false, message: 'Invalid application type' });
     }
 
-    if (result.success) {
-      await logSupervisorActivity(
-        req.session.user.userId,
-        `Updated ${type} application #${id} to ${status}${status === 'rejected' && rejectionReason ? `: ${rejectionReason}` : ''}${status === 'approved' ? ` with price ₹${price}` : ''}`
-      );
-      res.json({ success: true, message: 'Status updated successfully' });
+    // Update application status
+    let result;
+    if (type === 'phone') {
+      result = await updatePhoneApplicationStatus(id, status, rejectionReason, price);
     } else {
-      res.status(500).json({ success: false, message: result.message || 'Error updating status' });
+      result = await updateLaptopApplicationStatus(id, status, rejectionReason, price);
     }
+
+    if (!result.success) {
+      return res.status(404).json({ success: false, message: result.message || 'Application not found' });
+    }
+
+    // Log supervisor activity
+    const logMessage = `Updated ${type} application #${id} to ${status}${
+      status === 'rejected' ? `: ${rejectionReason}` : 
+      status === 'approved' ? ` with price ₹${price}` : ''
+    }`;
+    const logResult = await logSupervisorActivity(req.session.user.userId, logMessage);
+    if (!logResult.success) {
+      console.error(`Failed to log supervisor activity: ${logResult.message}`);
+      // Continue to avoid blocking the response, but log the issue
+    }
+
+    res.json({ success: true, message: 'Status updated successfully' });
   } catch (error) {
     console.error('Error updating application status:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
+
 
 app.get('/api/supervisor/approved-listings', requireSupervisorAuth, async (req, res) => {
   try {
@@ -1763,7 +1780,7 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
     }
 
     if (type === 'phone') {
-      const price = (application.price * 1.5).toFixed(0);
+      
       const phoneData = {
         id: Date.now().toString(),
         brand: application.brand,
@@ -1780,15 +1797,17 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
         ram: application.ram,
         rom: application.rom,
         pricing: {
-          originalPrice: price,
-          discount: discount || 0,
+          originalPrice: parseFloat(application.price),
+          discount: parseFloat(application.discount)|| 0,
         },
         condition: condition,
       };
-      await addPhone(phoneData);
+      const result = await addPhone(phoneData);
+      if (!result.success) {
+        return res.status(500).json({ success: false, message: result.message });
+      }
       await updatePhoneApplicationStatus(id, 'added_to_inventory');
     } else if (type === 'laptop') {
-      const price = (application.price * 1.5).toFixed(0);
       const laptopData = {
         id: Date.now().toString(),
         brand: application.brand,
@@ -1798,8 +1817,8 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
           generation: application.generation || 'N/A',
         },
         pricing: {
-          originalPrice: price,
-          discount: discount || 0,
+          originalPrice: parseFloat(application.price),
+          discount: parseFloat(discount) || 0,
         },
         memory: {
           ram: application.ram,
@@ -1814,7 +1833,12 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
         os: application.os || 'N/A',
         image: application.image_path,
       };
-      await addLaptop(laptopData);
+      console.log("testing");
+      console.log(laptopData);
+      const result = await addLaptop(laptopData);
+      if (!result.success) {
+        return res.status(500).json({ success: false, message: result.message });
+      }
       await updateLaptopApplicationStatus(id, 'added_to_inventory');
     }
 
@@ -1822,7 +1846,6 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
       req.session.user.userId,
       `Added ${type} #${id} to inventory with price ₹${application.price}, condition ${condition}, and ${discount || 0}% discount`
     );
-
     res.json({ success: true, message: 'Added to inventory successfully' });
   } catch (error) {
     console.error('Error adding to inventory:', error);
@@ -1850,14 +1873,14 @@ app.get('/buy/:type/:id', requireCustomerAuth, async (req, res) => {
     }
     const fetchFunction = fetchFunctions[accessoryType];
     const accessory = await fetchFunction(accessoryId);
-
     if (!accessory) {
       return res.status(404).render('404', { message: `${accessoryType} not found` });
     }
 
+    const base_price=accessory.pricing.originalPrice||accessory.pricing.basePrice;
     const finalPrice =
-      parseFloat(accessory.pricing.originalPrice) -
-      parseFloat(accessory.pricing.originalPrice) * (parseFloat(accessory.pricing.discount) / 100);
+      parseFloat(base_price) -
+      parseFloat(base_price) * (parseFloat(accessory.pricing.discount) / 100);
 
     res.render('dummy-payment', {
       price: finalPrice,

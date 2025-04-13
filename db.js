@@ -5,13 +5,18 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { console } from 'inspector';
 
+export{
+  PhoneApplication,
+  LaptopApplication,
+  SupervisorActivity
+};
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // MongoDB connection
 const connectToMongoDB = async () => {
   try {
-    await mongoose.connect('mongodb://localhost:27017/electronics_store');
+    await mongoose.connect('mongodb://localhost:27017/Smartxchange');
     console.log('Connected to MongoDB');
   } catch (error) {
     console.error('MongoDB connection error:', error);
@@ -98,6 +103,7 @@ const phoneSchema = new mongoose.Schema({
 });
 
 const phoneApplicationSchema = new mongoose.Schema({
+  id: { type: Number, unique: true, required: true },
   user_id: { type: String },
   brand: { type: String, required: true },
   model: { type: String, required: true },
@@ -128,6 +134,7 @@ const phoneApplicationSchema = new mongoose.Schema({
 });
 
 const laptopApplicationSchema = new mongoose.Schema({
+  id: { type: Number, unique: true, required: true },
   user_id: { type: String },
   brand: { type: String, required: true },
   model: { type: String, required: true },
@@ -219,7 +226,13 @@ const orderItemSchema = new mongoose.Schema({
   accessory: { type: Object, required: true },
 });
 
+const counterSchema = new mongoose.Schema({
+  _id: { type: String, required: true },
+  seq: { type: Number, default: 0 }
+});
+
 // Create Mongoose Models
+const Counter = mongoose.model('Counter', counterSchema);
 const Supervisor = mongoose.model('Supervisor', supervisorSchema);
 const SupervisorActivity = mongoose.model('SupervisorActivity', supervisorActivitySchema);
 const Admin = mongoose.model('Admin', adminSchema);
@@ -309,7 +322,7 @@ export async function initializeDatabase() {
     const phoneAppCount = await PhoneApplication.countDocuments();
     if (phoneAppCount === 0) {
       await PhoneApplication.insertMany([
-        {
+        {id: await getNextSequence('phone_application_id'),
           user_id: 'user_123',
           brand: 'Samsung',
           model: 'Galaxy S20',
@@ -336,7 +349,7 @@ export async function initializeDatabase() {
           status: 'pending',
           created_at: new Date('2025-03-20T10:00:00Z'),
         },
-        {
+        {id: await getNextSequence('phone_application_id'),
           user_id: 'user_124',
           brand: 'Apple',
           model: 'iPhone 12',
@@ -371,7 +384,7 @@ export async function initializeDatabase() {
     const laptopAppCount = await LaptopApplication.countDocuments();
     if (laptopAppCount === 0) {
       await LaptopApplication.insertMany([
-        {
+        {id: await getNextSequence('laptop_application_id'),
           user_id: 'user_123',
           brand: 'Dell',
           model: 'XPS 13',
@@ -392,7 +405,7 @@ export async function initializeDatabase() {
           status: 'pending',
           created_at: new Date('2025-03-22T09:00:00Z'),
         },
-        {
+        {id: await getNextSequence('laptop_application_id'),
           user_id: 'user_124',
           brand: 'Apple',
           model: 'MacBook Air',
@@ -1266,19 +1279,19 @@ export async function getLaptopById(id) {
 
 export async function addLaptop(laptopData) {
   try {
-    let Base_Price = (laptopData.basePrice * 1.2) / (1 - laptopData.discount / 100);
+    let Base_Price = (laptopData.pricing.originalPrice * 1.2) / (1 - laptopData.pricing.discount / 100);
 
     await Laptop.create({
       id: laptopData.id,
       brand: laptopData.brand,
       series: laptopData.series,
-      processor_name: laptopData.processorName,
-      processor_generation: laptopData.processorGeneration,
+      processor_name: laptopData.processor.name,
+      processor_generation: laptopData.processor.generation,
       base_price: Base_Price.toFixed(0),
-      discount: laptopData.discount,
-      ram: laptopData.ram,
-      storage_type: laptopData.storage_type,
-      storage_capacity: laptopData.storage_capacity,
+      discount: laptopData.pricing.discount,
+      ram: laptopData.memory.ram,
+      storage_type: laptopData.memory.storage.type,
+      storage_capacity: laptopData.memory.storage.capacity,
       display_size: laptopData.display_size,
       weight: laptopData.weight,
       condition: laptopData.condition,
@@ -1407,6 +1420,7 @@ export async function getPhoneById(id) {
 
 export async function addPhone(phoneData) {
   try {
+    let Base_Price = (phoneData.pricing.originalPrice * 1.2) / (1 - phoneData.pricing.discount / 100);
     await Phone.create({
       id: phoneData.id,
       brand: phoneData.brand,
@@ -1422,8 +1436,8 @@ export async function addPhone(phoneData) {
       weight: phoneData.weight,
       ram: phoneData.ram,
       rom: phoneData.rom,
-      base_price: phoneData.basePrice,
-      discount: phoneData.discount,
+      base_price: Base_Price,
+      discount: phoneData.pricing.discount,
       condition: phoneData.condition,
     });
     return { success: true, id: phoneData.id };
@@ -1527,10 +1541,20 @@ export async function authenticateCustomer(email, password) {
     return { success: false, message: 'Authentication error' };
   }
 }
+async function getNextSequence(name) {
+  const counter = await Counter.findOneAndUpdate(
+    { _id: name },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+  return counter.seq;
+}
 
 export async function createPhoneApplication(applicationData) {
   try {
+    const id = await getNextSequence('phone_application_id');
     const application = await PhoneApplication.create({
+      id,
       user_id: applicationData.user_id || null,
       brand: applicationData.brand,
       model: applicationData.model,
@@ -1566,6 +1590,7 @@ export async function createPhoneApplication(applicationData) {
 export async function getAllPhoneApplications() {
   try {
     const applications = await PhoneApplication.find().sort({ created_at: -1 }).lean();
+    // console.log()
     return applications;
   } catch (error) {
     console.error('Error getting phone applications:', error);
@@ -1586,15 +1611,7 @@ export async function getPhoneApplicationsByUserId(userId) {
   }
 }
 
-export async function getPhoneApplicationById(id) {
-  try {
-    const application = await PhoneApplication.findById(id).lean();
-    return application;
-  } catch (error) {
-    console.error('Error getting phone application by id:', error);
-    throw error;
-  }
-}
+
 
 export async function deletePhoneApplication(id) {
   try {
@@ -1608,7 +1625,9 @@ export async function deletePhoneApplication(id) {
 
 export async function createLaptopApplication(applicationData) {
   try {
+    const id = await getNextSequence('laptop_application_id');
     const application = await LaptopApplication.create({
+      id,
       user_id: applicationData.user_id || null,
       brand: applicationData.brand,
       model: applicationData.model,
@@ -1658,9 +1677,21 @@ export async function getLaptopApplicationsByUserId(userId) {
   }
 }
 
+export async function getPhoneApplicationById(id) {
+  try {
+    const numericId = parseInt(id); // Convert to number
+    const application = await PhoneApplication.findOne({ id: numericId }).lean();
+    return application;
+  } catch (error) {
+    console.error('Error getting phone application by id:', error);
+    throw error;
+  }
+}
+
 export async function getLaptopApplicationById(id) {
   try {
-    const application = await LaptopApplication.findById(id).lean();
+    const numericId = parseInt(id); // Convert to number
+    const application = await LaptopApplication.findOne({ id: numericId }).lean();
     return application;
   } catch (error) {
     console.error('Error getting laptop application by id:', error);
@@ -1670,11 +1701,12 @@ export async function getLaptopApplicationById(id) {
 
 export async function updatePhoneApplicationStatus(id, status, rejectionReason = null, price = null) {
   try {
+    const numericId = parseInt(id);
     const result = await PhoneApplication.updateOne(
-      { _id: id },
+      { id: numericId },
       { $set: { status, rejection_reason: rejectionReason, price } }
     );
-    console.log(`Updated phone application #${id} with price: ${price}`);
+    console.log(`Updated phone application #${numericId} with price: ${price}`);
     return result.modifiedCount > 0
       ? { success: true }
       : { success: false, message: 'Application not found' };
@@ -1686,11 +1718,12 @@ export async function updatePhoneApplicationStatus(id, status, rejectionReason =
 
 export async function updateLaptopApplicationStatus(id, status, rejectionReason = null, price = null) {
   try {
+    const numericId = parseInt(id);
     const result = await LaptopApplication.updateOne(
-      { _id: id },
+      { id: numericId },
       { $set: { status, rejection_reason: rejectionReason, price } }
     );
-    console.log(`Updated laptop application #${id} with price: ${price}`);
+    console.log(`Updated laptop application #${numericId} with price: ${price}`);
     return result.modifiedCount > 0
       ? { success: true }
       : { success: false, message: 'Application not found' };

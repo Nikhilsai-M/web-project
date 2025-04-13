@@ -18,7 +18,8 @@ export{
   Smartwatch,
   Earphone,
   Order,
-  Customer
+  Customer,
+  createOrder
 };
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -2217,39 +2218,132 @@ export async function deleteSmartwatch(id) {
   }
 }
 
-export async function createOrder(userId, totalAmount, paymentMethod, items) {
+// db.js
+async function createOrder(userId, totalAmount, paymentMethod, items) {
   try {
-    const orderId = 'order_' + Date.now();
-    
-    // Create order
-    await Order.create({
+    // Validate inputs
+    if (!userId || !totalAmount || !paymentMethod || !items || !Array.isArray(items)) {
+      console.error('Invalid order data:', { userId, totalAmount, paymentMethod, items });
+      return { success: false, message: 'Invalid order data' };
+    }
+
+    // Generate order ID
+    const counter = await Counter.findOneAndUpdate(
+      { _id: 'order_id' },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+    const orderId = `order_${counter.seq}`;
+
+    // Create order items
+    const orderItems = [];
+    for (const item of items) {
+      if (!item.type || !item.id || !item.quantity || !item.amount) {
+        console.error('Invalid item data:', item);
+        return { success: false, message: 'Invalid item data' };
+      }
+
+      // Normalize ID to string
+      const itemId = String(item.id);
+
+      // Verify item exists in inventory
+      let product;
+      switch (item.type.toLowerCase()) {
+        case 'phone':
+          product = await Phone.findOne({ id: itemId });
+          break;
+        case 'laptop':
+          product = await Laptop.findOne({ id: itemId });
+          break;
+        case 'charger':
+          product = await Charger.findOne({ id: itemId });
+          break;
+        case 'earphone':
+          product = await Earphone.findOne({ id: itemId });
+          break;
+        case 'mouse':
+          product = await Mouse.findOne({ id: itemId });
+          break;
+        case 'smartwatch':
+          product = await Smartwatch.findOne({ id: itemId });
+          break;
+        default:
+          console.error('Invalid item type:', item.type);
+          return { success: false, message: `Invalid item type: ${item.type}` };
+      }
+
+      if (!product) {
+        console.error(`Item not found: type=${item.type}, id=${itemId}`);
+        return { success: false, message: `${item.type} with ID ${itemId} not found` };
+      }
+
+      orderItems.push({
+        order_id: orderId,
+        item_type: item.type,
+        item_id: itemId,
+        quantity: item.quantity,
+        amount: item.amount,
+        accessory: item.accessory,
+      });
+    }
+
+    // Save order
+    const order = new Order({
       order_id: orderId,
       user_id: userId,
       total_amount: totalAmount,
       payment_method: paymentMethod,
+      status: 'pending',
+      created_at: new Date(),
     });
-    
-    // Insert order items
-    const orderItems = items.map(item => ({
-      order_id: orderId,
-      item_type: item.type,
-      item_id: item.id,
-      quantity: item.quantity,
-      amount: item.amount,
-      accessory: item.accessory,
-    }));
+    await order.save();
+    console.log(`Order saved: ${orderId}`);
+
+    // Save order items
     await OrderItem.insertMany(orderItems);
-    
-    // Update customer
+    console.log(`Order items saved for order: ${orderId}`);
+
+    // Delete items from inventory
+    for (const item of items) {
+      const itemId = String(item.id);
+      console.log(`Attempting to delete item: type=${item.type}, id=${itemId}`);
+      let deleteResult;
+      switch (item.type.toLowerCase()) {
+        case 'phone':
+          deleteResult = await Phone.deleteOne({ id: itemId });
+          break;
+        case 'laptop':
+          deleteResult = await Laptop.deleteOne({ id: itemId });
+          break;
+        case 'charger':
+          deleteResult = await Charger.deleteOne({ id: itemId });
+          break;
+        case 'earphone':
+          deleteResult = await Earphone.deleteOne({ id: itemId });
+          break;
+        case 'mouse':
+          deleteResult = await Mouse.deleteOne({ id: itemId });
+          break;
+        case 'smartwatch':
+          deleteResult = await Smartwatch.deleteOne({ id: itemId });
+          break;
+      }
+      console.log(`Deletion result for ${item.type} id=${itemId}:`, deleteResult);
+      if (deleteResult.deletedCount === 0) {
+        console.warn(`No item deleted: type=${item.type}, id=${itemId}`);
+      }
+    }
+
+    // Update customer's order count
     await Customer.updateOne(
       { user_id: userId },
       { $inc: { orders_count: 1 } }
     );
-    
+
     return { success: true, orderId };
   } catch (error) {
     console.error('Error creating order:', error);
-    return { success: false, message: error.message };
+    return { success: false, message: 'Failed to create order: ' + error.message };
   }
 }
 export async function getOrdersByUserId(userId) {

@@ -77,7 +77,7 @@ import {
   Smartwatch,
   Earphone,
   Order,
-  Customer
+  Customer,
 } from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -742,6 +742,71 @@ app.get('/api/latest-phones', async (req, res) => {
   } catch (error) {
     console.error('Error in /api/latest-phones:', error);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+app.get('/api/latest-accessories', async (req, res) => {
+  try {
+    const types = ['charger', 'earphone', 'mouse', 'smartwatch'];
+    const accessories = [];
+
+    for (const type of types) {
+      let collection;
+      switch (type) {
+        case 'charger':
+          collection = Charger;
+          break;
+        case 'earphone':
+          collection = Earphone;
+          break;
+        case 'mouse':
+          collection = Mouse;
+          break;
+        case 'smartwatch':
+          collection = Smartwatch;
+          break;
+      }
+
+      // Fetch up to 2 newest items, sorted by created_at (or _id as fallback)
+      const items = await collection
+        .find()
+        .sort({ created_at: -1, _id: -1 })
+        .limit(2)
+        .lean();
+
+      items.forEach(item => {
+        accessories.push({
+          type,
+          id: item.id,
+          brand: item.brand,
+          title: item.title || item.model || item.series || 'Unknown',
+          base_price: item.original_price || item.originalPrice || 0,
+          discount: item.discount || 0,
+          image: item.image || '/images/placeholder.jpg',
+          condition: item.condition || 'N/A',
+          // Add type-specific fields
+          specs: {
+            wattage: item.wattage, // Charger
+            battery_life: item.battery_life, // Earphone, Smartwatch
+            display_size: item.display_size, // Smartwatch
+            connectivity: item.connectivity, // Mouse
+            resolution: item.resolution, // Mouse
+          },
+        });
+      });
+    }
+
+    // Ensure at least one item (shuffle if needed to diversify)
+    if (accessories.length === 0) {
+      return res.json([]); // Handle empty state
+    }
+
+    // Sort by recency across all items (optional, since per-type sorting is done)
+    accessories.sort((a, b) => new Date(b.created_at || b._id) - new Date(a.created_at || a._id));
+
+    res.json(accessories);
+  } catch (error) {
+    console.error('Error fetching latest accessories:', error);
+    res.status(500).json({ error: 'Failed to fetch accessories' });
   }
 });
 
@@ -1865,6 +1930,7 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
   }
 });
 
+// app.js
 app.get('/buy/:type/:id', requireCustomerAuth, async (req, res) => {
   try {
     const accessoryType = req.params.type.toLowerCase();
@@ -1889,10 +1955,8 @@ app.get('/buy/:type/:id', requireCustomerAuth, async (req, res) => {
       return res.status(404).render('404', { message: `${accessoryType} not found` });
     }
 
-    const base_price=accessory.pricing.originalPrice||accessory.pricing.basePrice;
-    const finalPrice =
-      parseFloat(base_price) -
-      parseFloat(base_price) * (parseFloat(accessory.pricing.discount) / 100);
+    const basePrice = accessory.pricing.originalPrice || accessory.pricing.basePrice;
+    const finalPrice = parseFloat(basePrice) - parseFloat(basePrice) * (parseFloat(accessory.pricing.discount) / 100);
 
     res.render('dummy-payment', {
       price: finalPrice,
@@ -2083,15 +2147,27 @@ app.post('/api/orders', requireCustomerAuth, async (req, res) => {
     const userId = req.session.user.userId;
     const { totalAmount, paymentMethod, items } = req.body;
 
+    // Validate input
+    if (!totalAmount || !paymentMethod || !items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, message: 'Invalid order data' });
+    }
+
+    // Validate each item
+    for (const item of items) {
+      if (!item.type || !item.id || !item.quantity || !item.amount || !item.accessory) {
+        return res.status(400).json({ success: false, message: 'Invalid item data' });
+      }
+    }
+
     const result = await createOrder(userId, totalAmount, paymentMethod, items);
     if (!result.success) {
       return res.status(500).json({ success: false, message: result.message });
     }
 
-    res.json({ success: true, orderId: result.orderId });
+    return res.status(201).json({ success: true, orderId: result.orderId });
   } catch (error) {
-    console.error('Error in /api/orders:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error('Error processing order:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 

@@ -1,3 +1,4 @@
+/* public/styles/accessories.css */
 .carousel-container {
     width: 93%; 
     margin: auto;
@@ -18,7 +19,7 @@
     top: 50%; /* Align vertically */
     transform: translateY(-50%);
     margin-right: 5px;
-    margin-left: 5px;;
+    margin-left: 5px;
 }
 
 .carousel-control-prev:hover,
@@ -32,9 +33,7 @@
 }
 body {  
     font-family: Arial, sans-serif;  
- 
     margin: 0;  
-     
 }  
 
 .container {  
@@ -55,23 +54,22 @@ body {
     justify-content: center;
 }  
 
-
- a {
+a {
     color:black;
     text-underline-offset: none;
     display:block;
     justify-content: center;
     text-decoration: none;
- }
- a:hover {
+}
+a:hover {
     color:#40BFFF;
- }
- .category-image {
+}
+.category-image {
     align-items: center;
     margin-bottom:5px;
- } 
+} 
 
- .bg-best {
+.bg-best {
     font-family: Arial, sans-serif;
     margin: 1vw;
     padding: 0;
@@ -95,44 +93,59 @@ body {
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    
     min-width: 250px;
+    max-width: 250px; /* Fixed width to prevent stretching */
+    height: auto; /* Allow dynamic height based on content */
+    overflow: hidden; /* Contain overflow */
+    display: flex;
+    flex-direction: column;
 }
 .card img {
-    width: 100%;
-    height: 32vh;
+    height: 150px; 
     object-fit: cover;
     border-radius: 8px;
+    margin-bottom: 10px;
 }
 .price {
     color: #333;
     font-size: 18px;
     font-weight: bold;
+    margin: 5px 0;
 }
 .old-price {
     text-decoration: line-through;
     color: gray;
     font-size: 14px;
+    margin-left: 5px;
 }
 .discount {
     color: green;
     font-weight: bold;
+    margin: 5px 0;
 }
-.best_in_value_heading{
+.best_in_value_heading {
     margin-left: 3vw;
     margin-top: 2vh;
-    
 }
-.best_in_value_phone_name{
+.best_in_value_phone_name {
     font-weight: bold;
+    margin: 5px 0;
+    font-size: 1.1rem;
+    line-height: 1.2;
+    word-wrap: break-word; 
 }
-.width{
+.width {
     width: 95vw;
-   
 }
-.height{
+.height {
     height: 40vh;
 }
-.accessories-homepage-div-bold{
- font-weight: bold;
+.accessories-homepage-div-bold {
+    font-weight: bold;
+}
+p {
+    margin: 2px 0; /* Consistent spacing for all paragraphs */
+    font-size: 0.9rem;
+    line-height: 1.2;
+    word-wrap: break-word; /* Wrap long text */
 }

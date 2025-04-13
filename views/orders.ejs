@@ -11,47 +11,60 @@
     <div class="container">
         <h1>Order Confirmation</h1>
         <div class="order-container">
-            <div class="order-header">
-                <i class="fas fa-check-circle"></i>
-                <h2>Thank You for Your Purchase!</h2>
-            </div>
-            <div class="order-details">
-                <h3>Order Details</h3>
-                <p><strong>Order ID:</strong> <span id="order-id">Generating...</span></p>
-                <% 
-                    // Normalize order to always have an items array
-                    let items = [];
-                    if (order && order.items && order.items.length > 0) {
-                        items = order.items;
-                    } else if (order && order.id && order.type) {
-                        // Handle single-item "Buy Now" case
-                        items = [{
-                            type: order.type,
-                            id: order.id,
-                            accessory: order.accessory || { brand: 'Unknown', title: 'Item' },
-                            quantity: order.quantity || 1,
-                            amount: order.totalAmount || order.price || 0
-                        }];
-                    }
-                %>
-                <% if (items.length > 0) { %>
-                    <% items.forEach(item => { %>
-                        <div class="order-item">
-                            <p><strong>Item:</strong> <%= item.accessory.brand %> <%= item.accessory.title || item.accessory.model || item.accessory.series || 'Item' %></p>
-                            <p><strong>Quantity:</strong> <%= item.quantity %></p>
-                            <p><strong>Amount:</strong> ₹<%= item.amount.toLocaleString('en-IN') %></p>
-                        </div>
-                    <% }); %>
-                    <p><strong>Total Amount:</strong> ₹<%= (order.totalAmount || items.reduce((sum, item) => sum + item.amount, 0)).toLocaleString('en-IN') %></p>
-                    <p><strong>Payment Method:</strong> <%= order.paymentMethod || 'Not specified' %></p>
-                <% } else { %>
-                    <p>No additional order details available.</p>
-                <% } %>
-            </div>
+            <% if (order) { %>
+                <div class="order-header">
+                    <i class="fas fa-check-circle"></i>
+                    <h2>Thank You for Your Purchase!</h2>
+                </div>
+                <div class="order-details">
+                    <h3>Order Details</h3>
+                    <p><strong>Order ID:</strong> <span id="order-id"><%= order.orderId || 'Generating...' %></span></p>
+                    <% if (order.items && order.items.length > 0) { %>
+                        <% order.items.forEach(item => { %>
+                            <div class="order-item">
+                                <p><strong>Item:</strong> <%= item.accessory.brand || '' %> <%= item.accessory.title || item.accessory.model || item.accessory.series || 'Item' %></p>
+                                <p><strong>Quantity:</strong> <%= item.quantity || 1 %></p>
+                                <p><strong>Amount:</strong> ₹<%= (item.amount || 0).toLocaleString('en-IN') %></p>
+                            </div>
+                        <% }); %>
+                        <p><strong>Total Amount:</strong> ₹<%= (order.totalAmount || 0).toLocaleString('en-IN') %></p>
+                        <p><strong>Payment Method:</strong> <%= order.paymentMethod ? order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1) : 'Not specified' %></p>
+                        <p><strong>Date:</strong> <%= order.timestamp ? new Date(order.timestamp).toLocaleString() : 'N/A' %></p>
+                    <% } else { %>
+                        <p>No items in this order.</p>
+                    <% } %>
+                </div>
+            <% } else if (orders && orders.length > 0) { %>
+                <h2>Your Orders</h2>
+                <% orders.forEach((o, index) => { %>
+                    <div class="order-details">
+                        <h3>Order #<%= index + 1 %></h3>
+                        <p><strong>Order ID:</strong> <%= o.orderId %></p>
+                        <% if (o.items && o.items.length > 0) { %>
+                            <% o.items.forEach(item => { %>
+                                <div class="order-item">
+                                    <p><strong>Item:</strong> <%= item.accessory.brand || '' %> <%= item.accessory.title || item.accessory.model || item.accessory.series || 'Item' %></p>
+                                    <p><strong>Quantity:</strong> <%= item.quantity || 1 %></p>
+                                    <p><strong>Amount:</strong> ₹<%= (item.amount || 0).toLocaleString('en-IN') %></p>
+                                </div>
+                            <% }); %>
+                            <p><strong>Total Amount:</strong> ₹<%= (o.totalAmount || 0).toLocaleString('en-IN') %></p>
+                            <p><strong>Payment Method:</strong> <%= o.paymentMethod ? o.paymentMethod.charAt(0).toUpperCase() + o.paymentMethod.slice(1) : 'Not specified' %></p>
+                            <p><strong>Date:</strong> <%= o.timestamp ? new Date(o.timestamp).toLocaleString() : new Date().toLocaleString() %></p>
+                        <% } else { %>
+                            <p>No items in this order.</p>
+                        <% } %>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p>No orders found. <a href="/">Start shopping</a>.</p>
+            <% } %>
             <div class="order-actions">
                 <a href="/" class="btn btn-primary">Continue Shopping</a>
                 <a href="/myorders" class="btn btn-secondary">View All Orders</a>
-                <button id="download-receipt" class="btn btn-secondary">Download Receipt</button>
+                <% if (order) { %>
+                    <button id="download-receipt" class="btn btn-secondary">Download Receipt</button>
+                <% } %>
             </div>
         </div>
     </div>

@@ -1896,21 +1896,34 @@ app.get('/buy/:type/:id', requireCustomerAuth, async (req, res) => {
 });
 
 app.get('/orders', requireCustomerAuth, async (req, res) => {
-  let order = {};
   try {
+    const userId = req.session.user.userId;
+    let order = null;
+    let orders = [];
+
     if (req.query.order) {
       order = JSON.parse(req.query.order);
+      order = {
+        orderId: order.orderId || order.order_id,
+        totalAmount: order.totalAmount || order.total_amount,
+        paymentMethod: order.paymentMethod || order.payment_method,
+        timestamp: order.timestamp || order.createdAt || new Date(),
+        items: order.items || []
+      };
     } else if (req.query.orderId) {
-      const orders = await getAllOrders();
-      order = orders.find(o => o.order_id === req.query.orderId);
-      if (!order || order.user_id !== req.session.user.userId) {
-        return res.status(404).render('404', { message: 'Order not found or unauthorized' });
+      const userOrders = await getOrdersByUserId(userId);
+      order = userOrders.find(o => o.orderId === req.query.orderId);
+      if (!order) {
+        return res.status(404).render('404', { message: 'Order not found' });
       }
+    } else {
+      orders = await getOrdersByUserId(userId);
     }
-    res.render('orders', { order });
+
+    res.render('orders', { order, orders });
   } catch (error) {
     console.error('Error in /orders route:', error);
-    res.status(500).render('error', { message: 'Failed to load order confirmation' });
+    res.status(500).render('error', { message: 'Failed to load orders' });
   }
 });
 
@@ -2083,18 +2096,13 @@ app.get('/api/myorders', requireCustomerAuth, async (req, res) => {
 
 app.get('/api/orders/:orderId', requireCustomerAuth, async (req, res) => {
   try {
+    const userId = req.session.user.userId;
     const orderId = req.params.orderId;
-    const orders = await getAllOrders();
-    const order = orders.find(o => o.order_id === orderId);
-
+    const orders = await getOrdersByUserId(userId);
+    const order = orders.find(o => o.orderId === orderId);
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
-
-    if (order.user_id !== req.session.user.userId) {
-      return res.status(403).json({ success: false, message: 'Unauthorized access to order' });
-    }
-
     res.json({ success: true, order });
   } catch (error) {
     console.error('Error in /api/orders/:orderId:', error);

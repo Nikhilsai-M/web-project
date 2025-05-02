@@ -619,9 +619,11 @@ app.post('/api/supervisor/password', requireSupervisorAuth, async (req, res) => 
   }
 });
 
+
+
 app.post('/api/signup', async (req, res) => {
   try {
-    const { firstName, lastName, email, phone, password } = req.body;
+    const { firstName, lastName, email, phone, address, password } = req.body;
 
     const errors = {};
     if (!firstName || firstName.length < 2) {
@@ -637,6 +639,27 @@ app.post('/api/signup', async (req, res) => {
     if (!phone || phone.length < 10) {
       errors.phone = 'Please enter a valid phone number';
     }
+    if (!address) {
+      errors.address = 'Address is required';
+    } else {
+      if (!address.street) {
+        errors.street = 'Street is required';
+      }
+      if (!address.city) {
+        errors.city = 'City is required';
+      }
+      if (!address.state) {
+        errors.state = 'State is required';
+      }
+      if (!address.postal_code) {
+        errors.postalCode = 'Postal code is required';
+      } else if (!/^\d{5,10}$/.test(address.postal_code)) {
+        errors.postalCode = 'Postal code must be 5-10 digits';
+      }
+      if (!address.country) {
+        errors.country = 'Country is required';
+      }
+    }
     if (!password || password.length < 6) {
       errors.password = 'Password must be at least 6 characters';
     }
@@ -645,7 +668,7 @@ app.post('/api/signup', async (req, res) => {
       return res.status(400).json({ success: false, errors });
     }
 
-    const result = await createCustomer(firstName, lastName, email, phone, password);
+    const result = await createCustomer(firstName, lastName, email, phone, address, password);
     if (result.success) {
       req.session.user = {
         userId: result.userId,
@@ -679,7 +702,6 @@ app.post('/api/signup', async (req, res) => {
     });
   }
 });
-
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -1398,7 +1420,7 @@ app.get('/profile', requireCustomerAuth, async (req, res) => {
     const userId = req.session.user.userId;
     const user = await Customer.findOne({ user_id: userId })
       .lean()
-      .select('first_name last_name email phone orders_count');
+      .select('first_name last_name email phone address orders_count created_at');
 
     if (!user) {
       return res.status(404).render('404', { message: 'User not found' });
@@ -1415,6 +1437,7 @@ app.get('/profile', requireCustomerAuth, async (req, res) => {
         lastName: user.last_name,
         email: user.email,
         phone: user.phone,
+        address: user.address || { street: '', city: '', state: '', postal_code: '', country: '' }
       },
       ordersCount: user.orders_count || 0,
       itemsSoldCount: itemsSoldCount,
@@ -1422,6 +1445,105 @@ app.get('/profile', requireCustomerAuth, async (req, res) => {
   } catch (error) {
     console.error('Error rendering profile:', error);
     res.status(500).render('error', { message: 'Failed to load profile' });
+  }
+});
+
+app.put('/api/customer/profile', requireCustomerAuth, async (req, res) => {
+  try {
+    const userId = req.session.user.userId;
+    const { firstName, lastName, email, phone, address } = req.body;
+
+    console.log('Profile update request data:', req.body); // Debug log
+
+    // Validate required fields
+    const errors = {};
+    if (!firstName || firstName.length < 2) {
+      errors.firstName = 'First name must be at least 2 characters';
+    }
+    if (!lastName || lastName.length < 2) {
+      errors.lastName = 'Last name must be at least 2 characters';
+    }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!email || !emailRegex.test(email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    if (!phone || phone.length < 10) {
+      errors.phone = 'Please enter a valid phone number';
+    }
+    if (!address) {
+      errors.address = 'Address is required';
+    } else {
+      if (!address.street) {
+        errors.street = 'Street is required';
+      }
+      if (!address.city) {
+        errors.city = 'City is required';
+      }
+      if (!address.state) {
+        errors.state = 'State is required';
+      }
+      if (!address.postal_code) {
+        errors.postalCode = 'Postal code is required';
+      } else if (!/^\d{5,10}$/.test(address.postal_code)) {
+        errors.postalCode = 'Postal code must be 5-10 digits';
+      }
+      if (!address.country) {
+        errors.country = 'Country is required';
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({ success: false, errors });
+    }
+
+    // Update the customer document
+    const updatedCustomer = await Customer.findOneAndUpdate(
+      { user_id: userId },
+      {
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        phone: phone,
+        address: {
+          street: address.street,
+          city: address.city,
+          state: address.state,
+          postal_code: address.postal_code,
+          country: address.country
+        }
+      },
+      { new: true, runValidators: true }
+    ).lean();
+
+    if (!updatedCustomer) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      user: {
+        first_name: updatedCustomer.first_name,
+        last_name: updatedCustomer.last_name,
+        email: updatedCustomer.email,
+        phone: updatedCustomer.phone,
+        address: updatedCustomer.address,
+        orders_count: updatedCustomer.orders_count,
+        items_sold_count: updatedCustomer.items_sold_count,
+        password_last_changed: updatedCustomer.password_last_changed,
+        created_at: updatedCustomer.created_at
+      }
+    });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    if (error.name === 'ValidationError') {
+      const errors = {};
+      for (const field in error.errors) {
+        const fieldName = field.startsWith('address.') ? field.split('.')[1] : field;
+        errors[fieldName] = error.errors[field].message;
+      }
+      return res.status(400).json({ success: false, message: 'Validation failed', errors });
+    }
+    res.status(500).json({ success: false, message: 'Error updating profile' });
   }
 });
 

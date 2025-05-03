@@ -1031,7 +1031,7 @@ app.get('/api/customer/profile', requireCustomerAuth, async (req, res) => {
 
     const user = await Customer.findOne({ user_id: userId })
       .lean()
-      .select('first_name last_name email phone password_last_changed orders_count');
+      .select('first_name last_name email phone address password_last_changed orders_count');
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -1049,6 +1049,7 @@ app.get('/api/customer/profile', requireCustomerAuth, async (req, res) => {
         last_name: user.last_name,
         email: user.email,
         phone: user.phone,
+        address: user.address || {},
         password_last_changed: user.password_last_changed || null,
         orders_count: user.orders_count || 0,
         items_sold_count: itemsSoldCount,
@@ -1077,46 +1078,81 @@ app.delete('/api/customer/profile', requireCustomerAuth, async (req, res) => {
 
 app.put('/api/customer/profile', requireCustomerAuth, async (req, res) => {
   try {
-    const userId = req.session.user.userId;
-    const { firstName, lastName, email, phone } = req.body;
+      const userId = req.session.user.userId;
+      const { firstName, lastName, email, phone, address } = req.body;
 
-    const errors = {};
-    if (!firstName || firstName.length < 2) {
-      errors.firstName = 'First name must be at least 2 characters';
-    }
-    if (!lastName || lastName.length < 2) {
-      errors.lastName = 'Last name must be at least 2 characters';
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-      errors.email = 'Please enter a valid email address';
-    }
-    if (!phone || phone.length < 10) {
-      errors.phone = 'Please enter a valid phone number';
-    }
+      // Validation
+      const errors = {};
+      if (!firstName || firstName.length < 2) {
+          errors.firstName = 'First name must be at least 2 characters';
+      }
+      if (!lastName || lastName.length < 2) {
+          errors.lastName = 'Last name must be at least 2 characters';
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+          errors.email = 'Please enter a valid email address';
+      }
+      if (!phone || phone.length < 10) {
+          errors.phone = 'Please enter a valid phone number';
+      }
+      // Validate address fields
+      if (!address || typeof address !== 'object') {
+          errors.address = 'Address is required';
+      } else {
+          if (!address.street || address.street.length < 1) {
+              errors.street = 'Street is required';
+          }
+          if (!address.city || address.city.length < 1) {
+              errors.city = 'City is required';
+          }
+          if (!address.state || address.state.length < 1) {
+              errors.state = 'State is required';
+          }
+          if (!address.postal_code || !/^\d{5,10}$/.test(address.postal_code)) {
+              errors.postal_code = 'Postal code must be 5-10 digits';
+          }
+          if (!address.country || address.country.length < 1) {
+              errors.country = 'Country is required';
+          }
+      }
 
-    if (Object.keys(errors).length > 0) {
-      return res.status(400).json({ success: false, errors });
-    }
+      if (Object.keys(errors).length > 0) {
+          return res.status(400).json({ success: false, errors });
+      }
 
-    const result = await updateCustomer(userId, {
-      first_name: firstName,
-      last_name: lastName,
-      email,
-      phone,
-    });
+      const result = await updateCustomer(userId, {
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          phone,
+          address: {
+              street: address.street,
+              city: address.city,
+              state: address.state,
+              postal_code: address.postal_code,
+              country: address.country,
+          },
+      });
 
-    if (result.success) {
-      req.session.user.firstName = firstName;
-      req.session.user.lastName = lastName;
-      req.session.user.email = email;
-      return res.json({ success: true, message: 'Profile updated successfully' });
-    } else {
-      return res.status(500).json({ success: false, message: result.message || 'Error updating profile' });
-    }
+      if (result.success) {
+          req.session.user.firstName = firstName;
+          req.session.user.lastName = lastName;
+          req.session.user.email = email;
+          req.session.user.address = {
+              street: address.street,
+              city: address.city,
+              state: address.state,
+              postal_code: address.postal_code,
+              country: address.country,
+          };
+          return res.json({ success: true, message: 'Profile updated successfully' });
+      } else {
+          return res.status(500).json({ success: false, message: result.message || 'Error updating profile' });
+      }
   } catch (error) {
-    console.error('Error updating user profile:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+      console.error('Error updating user profile:', error);
+      res.status(500).json({ success: false, message: 'Server error' });
   }
 });
 

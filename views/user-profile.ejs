@@ -48,37 +48,24 @@
                     </div>
                     <div class="info-grid" id="personalInfoDisplay">
                         <div class="info-item">
-                            <div class="info-label">Full Name</div>
+                            <div class="info-label" style="font-weight: bold;">Full Name</div>
                             <p id="fullName"><%= user.firstName %> <%= user.lastName %></p>
                         </div>
                         <div class="info-item">
-                            <div class="info-label">Email</div>
+                            <div class="info-label" style="font-weight: bold;">Email</div>
                             <p id="email"><%= user.email %></p>
                         </div>
                         <div class="info-item">
-                            <div class="info-label">Phone</div>
+                            <div class="info-label" style="font-weight: bold;">Phone</div>
                             <p id="phone"><%= user.phone || 'Not provided' %></p>
                         </div>
                         <div class="info-item">
-                            <div class="info-label">Address</div>
+                            <div class="info-label" style="font-weight: bold;">Address :</div>
                             <div id="addressDisplay">
                                 <div style="display: grid; grid-template-columns: 24px 1fr; gap: 0.5rem; align-items: center;">
-                                    <% if (user.address.street) { %>
-                                      <span>📍</span>
-                                      <span><%= user.address.street %></span>
-                                    <% } %>
-                                    <% if (user.address.city) { %>
-                                      <span>🏙️</span>
-                                      <span><%= user.address.city %></span>
-                                    <% } %>
-                                    <% if (user.address.state || user.address.postal_code) { %>
-                                      <span>🗺️</span>
-                                      <span><%= [user.address.state, user.address.postal_code].filter(Boolean).join(' ') %></span>
-                                    <% } %>
-                                    <% if (user.address.country) { %>
-                                      <span>🌎</span>
+                                      <span><%= user.address.street,user.address.city  %></span>
+                                      <span><%= [user.address.state, user.address.postal_code].filter(Boolean).join(' ') %></span>                            
                                       <span><%= user.address.country %></span>
-                                    <% } %>
                                   </div>
                             </div>
                         </div>

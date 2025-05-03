@@ -32,8 +32,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let pieChart = null;
 
-    // Helper function to format address display
-    // /*
     function updateAddressDisplay(address) {
         if (!address) {
             addressDisplay.innerHTML = '<p class="no-address">Not provided</p>';
@@ -63,26 +61,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 const user = data.user;
                 const fullNameStr = `${user.first_name} ${user.last_name}`;
                 
-                // Update profile card
                 profileName.textContent = fullNameStr;
                 profileEmail.textContent = user.email;
                 ordersCount.textContent = user.orders_count || 0;
                 itemsSoldCount.textContent = user.items_sold_count || 0;
                 
-                // Update personal information
                 fullName.textContent = fullNameStr;
                 email.textContent = user.email;
                 phone.textContent = user.phone || 'Not provided';
                 
-                // Update address display
+              
                 updateAddressDisplay(user.address);
                 
-                // Update password last changed
                 passwordLastChanged.textContent = user.password_last_changed 
                     ? new Date(user.password_last_changed).toLocaleDateString() 
                     : 'N/A';
 
-                // Render pie chart
                 renderPieChart(user.orders_count || 0, user.items_sold_count || 0);
             } else {
                 handleProfileError(data.message);
@@ -107,7 +101,6 @@ document.addEventListener('DOMContentLoaded', function () {
         renderPieChart(0, 0);
     }
 
-    // Render pie chart
     function renderPieChart(orders, itemsSold) {
         const ctx = document.getElementById('ordersPieChart').getContext('2d');
         
@@ -179,8 +172,8 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
         
         const updatedData = {
-            first_name: editFirstName.value,
-            last_name: editLastName.value,
+            firstName: editFirstName.value,
+            lastName: editLastName.value,
             email: editEmail.value,
             phone: editPhone.value,
             address: {
@@ -202,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             
             const data = await response.json();
-            
+            console.log(data);
             if (data.success) {
                 // Update UI immediately
                 const fullNameStr = `${updatedData.first_name} ${updatedData.last_name}`;

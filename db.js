@@ -1781,20 +1781,31 @@ export async function deleteLaptopApplication(id) {
 
 export async function updateCustomer(userId, updates) {
   try {
-    const { first_name, last_name, email, phone } = updates;
-    
-    await Customer.updateOne(
-      { user_id: userId },
-      { $set: { first_name, last_name, email, phone } }
-    );
-    
-    return { success: true };
+      const { first_name, last_name, email, phone, address } = updates;
+
+      await Customer.updateOne(
+          { user_id: userId },
+          {
+              $set: {
+                  first_name,
+                  last_name,
+                  email,
+                  phone,
+                  'address.street': address.street,
+                  'address.city': address.city,
+                  'address.state': address.state,
+                  'address.postal_code': address.postal_code,
+                  'address.country': address.country,
+              },
+          }
+      );
+
+      return { success: true };
   } catch (error) {
-    console.error('Error updating customer:', error);
-    return { success: false, message: error.message };
+      console.error('Error updating customer:', error);
+      return { success: false, message: error.message };
   }
 }
-
 export async function updateCustomerPassword(userId, newPassword) {
   try {
     const hashedPassword = await bcrypt.hash(newPassword, 10);

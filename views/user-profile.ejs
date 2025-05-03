@@ -19,7 +19,7 @@
                 <div class="profile-card">
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            <img src="/images/profile-icon.jpg" alt="Profile Avatar">
+                            <img src="/images/profile-icon.jpg" alt="Profile Avatar" width="80" height="80">
                         </div>
                         <h2 class="profile-name" id="profileName"><%= user.firstName %> <%= user.lastName %></h2>
                         <p class="profile-email" id="profileEmail"><%= user.email %></p>
@@ -44,44 +44,73 @@
                 <div class="profile-section">
                     <div class="section-header">
                         <h3>Personal Information</h3>
-                        <button class="btn-link" id="editPersonalInfoBtn">Edit</button>
+                        <button class="btn-link" id="editPersonalInfoBtn" aria-label="Edit personal information">Edit</button>
                     </div>
-                    
                     <div class="info-grid" id="personalInfoDisplay">
                         <div class="info-item">
-                            <label>Full Name</label>
+                            <div class="info-label" style="font-weight: bold;">Full Name</div>
                             <p id="fullName"><%= user.firstName %> <%= user.lastName %></p>
                         </div>
                         <div class="info-item">
-                            <label>Email</label>
+                            <div class="info-label" style="font-weight: bold;">Email</div>
                             <p id="email"><%= user.email %></p>
                         </div>
                         <div class="info-item">
-                            <label>Phone</label>
-                            <p id="phone"><%= user.phone %></p>
+                            <div class="info-label" style="font-weight: bold;">Phone</div>
+                            <p id="phone"><%= user.phone || 'Not provided' %></p>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label" style="font-weight: bold;">Address :</div>
+                            <div id="addressDisplay">
+                                <div style="display: grid; grid-template-columns: 24px 1fr; gap: 0.5rem; align-items: center;">
+                                      <span><%= user.address.street,user.address.city  %></span>
+                                      <span><%= [user.address.state, user.address.postal_code].filter(Boolean).join(' ') %></span>                            
+                                      <span><%= user.address.country %></span>
+                                  </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Edit Form (hidden by default) -->
                     <form id="personalInfoForm" class="info-grid" style="display: none;">
                         <div class="info-item">
-                            <label>First Name</label>
-                            <input type="text" id="editFirstName" value="<%= user.firstName %>" required>
+                            <label for="editFirstName">First Name</label>
+                            <input type="text" id="editFirstName" value="<%= user.firstName || '' %>" required>
                         </div>
                         <div class="info-item">
-                            <label>Last Name</label>
-                            <input type="text" id="editLastName" value="<%= user.lastName %>" required>
+                            <label for="editLastName">Last Name</label>
+                            <input type="text" id="editLastName" value="<%= user.lastName || '' %>" required>
                         </div>
                         <div class="info-item">
-                            <label>Email</label>
-                            <input type="email" id="editEmail" value="<%= user.email %>" required>
+                            <label for="editEmail">Email</label>
+                            <input type="email" id="editEmail" value="<%= user.email || '' %>" required>
                         </div>
                         <div class="info-item">
-                            <label>Phone</label>
-                            <input type="text" id="editPhone" value="<%= user.phone %>" required>
+                            <label for="editPhone">Phone</label>
+                            <input type="tel" id="editPhone" value="<%= user.phone || '' %>" pattern="[0-9\-\+\s\(\)]{10,15}">
                         </div>
                         <div class="info-item">
-                            <button type="submit" class="btn-primary">Save</button>
+                            <label for="editStreet">Street Address</label>
+                            <input type="text" id="editStreet" value="<%= user.address?.street || '' %>" required>
+                        </div>
+                        <div class="info-item">
+                            <label for="editCity">City</label>
+                            <input type="text" id="editCity" value="<%= user.address?.city || '' %>" required>
+                        </div>
+                        <div class="info-item">
+                            <label for="editState">State/Province</label>
+                            <input type="text" id="editState" value="<%= user.address?.state || '' %>" required>
+                        </div>
+                        <div class="info-item">
+                            <label for="editPostalCode">Postal Code</label>
+                            <input type="text" id="editPostalCode" value="<%= user.address?.postal_code || '' %>" required>
+                        </div>
+                        <div class="info-item">
+                            <label for="editCountry">Country</label>
+                            <input type="text" id="editCountry" value="<%= user.address?.country || '' %>" required>
+                        </div>
+                        <div class="info-item">
+                            <button type="submit" class="btn-primary">Save Changes</button>
                             <button type="button" class="btn-secondary" id="cancelEditPersonalInfo">Cancel</button>
                         </div>
                     </form>
@@ -97,24 +126,30 @@
                         <div class="security-item">
                             <div class="security-info">
                                 <h4>Password</h4>
-                                <p>Last changed: <span id="passwordLastChanged">N/A</span></p>
+                                <p>Last changed: <span id="passwordLastChanged">
+                                    <%= user.passwordLastChanged ? new Date(user.passwordLastChanged).toLocaleDateString() : 'N/A' %>
+                                </span></p>
                             </div>
-                            <button class="btn-primary" id="changePasswordBtn">Change Password</button>
+                            <button class="btn-primary" id="changePasswordBtn" aria-label="Change password">Change Password</button>
                         </div>
                     </div>
 
                     <!-- Change Password Form (hidden by default) -->
                     <form id="changePasswordForm" style="display: none;">
                         <div class="info-item">
-                            <label>Current Password</label>
-                            <input type="password" id="currentPassword" required>
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" required aria-describedby="currentPasswordHelp">
+                            <small id="currentPasswordHelp">Enter your current password</small>
                         </div>
                         <div class="info-item">
-                            <label>New Password</label>
-                            <input type="password" id="newPassword" required>
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" required 
+                                  aria-describedby="passwordRequirements"
+                                  pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$">
+                            <small id="passwordRequirements">Minimum 8 characters with at least 1 letter, 1 number, and 1 special character</small>
                         </div>
                         <div class="info-item">
-                            <button type="submit" class="btn-primary">Save</button>
+                            <button type="submit" class="btn-primary">Update Password</button>
                             <button type="button" class="btn-secondary" id="cancelChangePassword">Cancel</button>
                         </div>
                     </form>
@@ -125,7 +160,7 @@
                     <div class="section-header">
                         <h3>Statistics</h3>
                     </div>
-                    <div class="stats-container">
+                    <div class="stats-container" role="img" aria-label="Order statistics chart">
                         <canvas id="ordersPieChart" width="300" height="300"></canvas>
                     </div>
                 </div>

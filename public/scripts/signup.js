@@ -13,13 +13,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const lastName = document.getElementById('lastName').value.trim();
         const email = document.getElementById('email').value.trim();
         const phone = document.getElementById('phone').value.trim();
+        const street = document.getElementById('street').value.trim();
+        const city = document.getElementById('city').value.trim();
+        const state = document.getElementById('state').value.trim();
+        const postalCode = document.getElementById('postalCode').value.trim();
+        const country = document.getElementById('country').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
         
         // Validation flags
         let isValid = true;
         
-        // First Name validation (unchanged)
+        // First Name validation
         if (!firstName) {
             showError('firstName', 'First name is required');
             isValid = false;
@@ -31,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
-        // Last Name validation (unchanged)
+        // Last Name validation
         if (!lastName) {
             showError('lastName', 'Last name is required');
             isValid = false;
@@ -43,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
-        // Updated Email validation
+        // Email validation
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!email) {
             showError('email', 'Email is required');
@@ -53,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
-        // Phone validation (unchanged)
+        // Phone validation
         const phoneRegex = /^\d{10,12}$/;
         if (!phone) {
             showError('phone', 'Phone number is required');
@@ -63,7 +68,32 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
-        // Password validation (unchanged)
+        // Address validations
+        if (!street) {
+            showError('street', 'Street is required');
+            isValid = false;
+        }
+        if (!city) {
+            showError('city', 'City is required');
+            isValid = false;
+        }
+        if (!state) {
+            showError('state', 'State is required');
+            isValid = false;
+        }
+        if (!postalCode) {
+            showError('postalCode', 'Postal code is required');
+            isValid = false;
+        } else if (!/^\d{5,10}$/.test(postalCode)) {
+            showError('postalCode', 'Postal code must be 5-10 digits');
+            isValid = false;
+        }
+        if (!country) {
+            showError('country', 'Country is required');
+            isValid = false;
+        }
+        
+        // Password validation
         if (!password) {
             showError('password', 'Password is required');
             isValid = false;
@@ -75,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
-        // Confirm Password validation (unchanged)
+        // Confirm Password validation
         if (!confirmPassword) {
             showError('confirmPassword', 'Please confirm your password');
             isValid = false;
@@ -86,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!isValid) return;
         
-        // Form submission (unchanged)
+        // Form submission
         const submitButton = signupForm.querySelector('button[type="submit"]');
         const originalButtonText = submitButton.textContent;
         submitButton.disabled = true;
@@ -103,16 +133,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     lastName,
                     email,
                     phone,
+                    address: {
+                        street,
+                        city,
+                        state,
+                        postal_code: postalCode,
+                        country
+                    },
                     password
                 })
             });
             
             const data = await response.json();
+            console.log('Signup response:', data); // Debug log
             
             if (!response.ok) {
                 if (data.errors) {
                     Object.entries(data.errors).forEach(([field, message]) => {
-                        showError(field, message);
+                        // Handle nested address field errors
+                        const fieldId = field.startsWith('address.') ? field.split('.')[1] : field;
+                        showError(fieldId, message);
                     });
                 } else {
                     showNotification(data.message || 'An error occurred', 'error');

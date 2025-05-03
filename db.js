@@ -67,6 +67,13 @@ const customerSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
   password: { type: String, required: true },
+  address: {
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    postal_code: { type: String, required: true },
+    country: { type: String, required: true }
+  },
   orders_count: { type: Number, default: 0 },
   items_sold_count: { type: Number, default: 0 },
   password_last_changed: { type: Date, default: Date.now },
@@ -1502,8 +1509,9 @@ export async function deletePhone(id) {
 }
 
 // Customer Authentication Functions
-export async function createCustomer(firstName, lastName, email, phone, password) {
+export async function createCustomer(firstName, lastName, email, phone, address, password) {
   try {
+    // Check if user already exists
     const existingUser = await Customer.findOne({ email });
     if (existingUser) {
       return { success: false, message: 'Email already registered' };
@@ -1518,15 +1526,32 @@ export async function createCustomer(firstName, lastName, email, phone, password
       last_name: lastName,
       email,
       phone,
+      address: {
+        street: address.street,
+        city: address.city,
+        state: address.state,
+        postal_code: address.postal_code,
+        country: address.country
+      },
       password: hashedPassword,
       orders_count: 0,
       items_sold_count: 0,
       password_last_changed: new Date(),
+      created_at: new Date()
     });
     
     return { success: true, userId };
   } catch (error) {
     console.error('Error creating customer:', error);
+    if (error.name === 'ValidationError') {
+      const errors = {};
+      for (const field in error.errors) {
+        // Map nested address fields (e.g., 'address.street' to 'street')
+        const fieldName = field.startsWith('address.') ? field.split('.')[1] : field;
+        errors[fieldName] = error.errors[field].message;
+      }
+      return { success: false, message: 'Validation failed', errors };
+    }
     return { success: false, message: 'Database error' };
   }
 }
@@ -1756,20 +1781,31 @@ export async function deleteLaptopApplication(id) {
 
 export async function updateCustomer(userId, updates) {
   try {
-    const { first_name, last_name, email, phone } = updates;
-    
-    await Customer.updateOne(
-      { user_id: userId },
-      { $set: { first_name, last_name, email, phone } }
-    );
-    
-    return { success: true };
+      const { first_name, last_name, email, phone, address } = updates;
+
+      await Customer.updateOne(
+          { user_id: userId },
+          {
+              $set: {
+                  first_name,
+                  last_name,
+                  email,
+                  phone,
+                  'address.street': address.street,
+                  'address.city': address.city,
+                  'address.state': address.state,
+                  'address.postal_code': address.postal_code,
+                  'address.country': address.country,
+              },
+          }
+      );
+
+      return { success: true };
   } catch (error) {
-    console.error('Error updating customer:', error);
-    return { success: false, message: error.message };
+      console.error('Error updating customer:', error);
+      return { success: false, message: error.message };
   }
 }
-
 export async function updateCustomerPassword(userId, newPassword) {
   try {
     const hashedPassword = await bcrypt.hash(newPassword, 10);

@@ -788,7 +788,6 @@ app.get('/api/latest-accessories', async (req, res) => {
           break;
       }
 
-      // Fetch up to 2 newest items, sorted by created_at (or _id as fallback)
       const items = await collection
         .find()
         .sort({ created_at: -1, _id: -1 })
@@ -805,7 +804,6 @@ app.get('/api/latest-accessories', async (req, res) => {
           discount: item.discount || 0,
           image: item.image || '/images/placeholder.jpg',
           condition: item.condition || 'N/A',
-          // Add type-specific fields
           specs: {
             wattage: item.wattage, // Charger
             battery_life: item.battery_life, // Earphone, Smartwatch
@@ -817,14 +815,10 @@ app.get('/api/latest-accessories', async (req, res) => {
       });
     }
 
-    // Ensure at least one item (shuffle if needed to diversify)
     if (accessories.length === 0) {
-      return res.json([]); // Handle empty state
+      return res.json([]); 
     }
-
-    // Sort by recency across all items (optional, since per-type sorting is done)
     accessories.sort((a, b) => new Date(b.created_at || b._id) - new Date(a.created_at || a._id));
-
     res.json(accessories);
   } catch (error) {
     console.error('Error fetching latest accessories:', error);
@@ -848,7 +842,7 @@ app.post('/api/sell-phone', upload.single('device-image'), async (req, res) => {
       network: req.body.network,
       size: req.body.size,
       weight: req.body.weight,
-      device_age: req.body.deviceAge, // Map camelCase to snake_case
+      device_age: req.body.deviceAge, 
       switching_on: req.body.switchingOn,
       phone_calls: req.body.phoneCalls,
       cameras_working: req.body.camerasWorking,
@@ -864,7 +858,7 @@ app.post('/api/sell-phone', upload.single('device-image'), async (req, res) => {
       imagepath: req.file ? `/uploads/${req.file.filename}` : '',
     };
 
-    // Basic validation
+
     const requiredFields = [
       'brand', 'model', 'ram', 'rom', 'processor', 'network',
       'device_age', 'switching_on', 'phone_calls', 'cameras_working',
@@ -1874,7 +1868,7 @@ app.get('/api/supervisor/verify-applications', async (req, res) => {
     const applications = [
       ...phoneApps.map(app => ({
         type: 'phone',
-        id: app.id, // Use numeric id
+        id: app.id, 
         brand: app.brand,
         model: app.model,
         status: app.status,
@@ -1883,7 +1877,7 @@ app.get('/api/supervisor/verify-applications', async (req, res) => {
       })),
       ...laptopApps.map(app => ({
         type: 'laptop',
-        id: app.id, // Use numeric id
+        id: app.id, 
         brand: app.brand,
         model: app.model,
         status: app.status,

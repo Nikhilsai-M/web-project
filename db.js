@@ -294,7 +294,6 @@ export async function initializeDatabase() {
     const adminCount = await Admin.countDocuments();
     if (adminCount === 0) {
       const adminPassword1 = await bcrypt.hash('Admin@123', 10);
-      const adminPassword2 = await bcrypt.hash('Admin@456', 10);
       await Admin.insertMany([
         {
           admin_id: 'ADMIN001',

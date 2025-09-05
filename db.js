@@ -275,7 +275,6 @@ export async function initializeDatabase() {
     const supervisorCount = await Supervisor.countDocuments();
     if (supervisorCount === 0) {
       const password1 = await bcrypt.hash('Supervisor@123', 10);
-      const password2 = await bcrypt.hash('Supervisor@456', 10);
       await Supervisor.insertMany([
         {
           user_id: 'supervisor_1',
@@ -295,20 +294,13 @@ export async function initializeDatabase() {
     const adminCount = await Admin.countDocuments();
     if (adminCount === 0) {
       const adminPassword1 = await bcrypt.hash('Admin@123', 10);
-      const adminPassword2 = await bcrypt.hash('Admin@456', 10);
       await Admin.insertMany([
         {
           admin_id: 'ADMIN001',
           password: adminPassword1,
           security_token: 'TOKEN001',
           name: 'admin1',
-        },
-        {
-          admin_id: 'ADMIN002',
-          password: adminPassword2,
-          security_token: 'TOKEN002',
-          name: 'admin2',
-        },
+        }
       ]);
       console.log('Test admins added to database');
     }
@@ -2515,6 +2507,7 @@ export async function getSupervisorActivity(supervisorId) {
     throw error;
   }
 }
+
 export async function deleteSupervisor(userId) {
   try {
     const result = await Supervisor.deleteOne({ user_id: userId });
@@ -2524,7 +2517,7 @@ export async function deleteSupervisor(userId) {
     return { success: true };
   } catch (error) {
     console.error('Error deleting supervisor:', error);
-    throw error; // Let the caller handle the error
+    throw error; 
   }
 }
 
@@ -2547,7 +2540,7 @@ export async function getLatestPhones(limit = 5) {
       .sort({ created_at: -1 }) // Sort by newest first
       .limit(limit)
       .lean()
-      .select('id brand model base_price discount image');
+      .select('id brand model base_price condition discount image');
     return phones;
   } catch (error) {
     console.error('Error fetching latest phones:', error);

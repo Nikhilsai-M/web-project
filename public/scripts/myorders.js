@@ -43,6 +43,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <p><strong>Date:</strong> ${order.timestamp ? new Date(order.timestamp).toLocaleString() : new Date().toLocaleString()}</p>
             `;
             ordersList.appendChild(orderElement);
+            console.log('Rendered order:', order.orderId);
         });
     } catch (error) {
         console.error('Error fetching orders:', error);

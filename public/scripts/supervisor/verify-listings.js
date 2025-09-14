@@ -144,9 +144,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             <input type="number" id="discountInput" min="0" max="100" step="1" value="0">
                             <label for="conditionSelect">Condition:</label>
                             <select id="conditionSelect" required>
-                                <option value="Used">Good</option>
-                                <option value="Like New">Vry Good</option>
-                                <option value="Refurbished">Superb</option>
+                                <option value="Good">Good</option>
+                                <option value="Very Good">Vry Good</option>
+                                <option value="Superb">Superb</option>
                             </select>
                             <button id="addToInventoryBtn" class="btn approve"><i class="fas fa-plus"></i> Add to Inventory</button>
                         </div>

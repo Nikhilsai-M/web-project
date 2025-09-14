@@ -2555,7 +2555,7 @@ export async function getLatestLaptops(limit = 5) {
       .sort({ created_at: -1 }) // Sort by newest first
       .limit(limit)
       .lean()
-      .select('id brand series base_price discount image');
+      .select('id brand series base_price discount image condition');
     return laptops;
   } catch (error) {
     console.error('Error fetching latest laptops:', error);

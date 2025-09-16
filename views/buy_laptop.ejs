@@ -21,10 +21,7 @@
           <img src="/images/buy_laptop/buy-laptop-page-curosal.webp" class="d-block w-100 height">
         </div>
         <div class="carousel-item">
-          <img src="/images/buy_laptop/img1.jpeg" class="d-block w-100 height">
-        </div>
-        <div class="carousel-item">
-          <img src="/images/buy_laptop/img1.jpeg" class="d-block w-100 height">
+          <img src="/images/carousal/home/pic-1.jpeg" class="d-block w-100 height">
         </div>
       </div>
       <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
@@ -36,7 +33,6 @@
         <span class="visually-hidden">Next</span>
       </button>
     </div> 
-  </div>
   </div>
 
   <h2 class="top_brands_heading">Top Brands</h2>
@@ -79,68 +75,21 @@
 </div>
 </div>
 
-<div class=" text-center" >
+<div class="text-center">
     <img src="/images/buy_laptop/buy-laptop-page.webp" class="width">
 </div>
 
-<h2 class="best_in_value_heading">Trending</h2>
+<h2 class="best_in_value_heading">Newly Added Laptops</h2>
 <div class="fltr-link">
     <a href="/filter-buy-laptop" class="filter-buylaptop-link">View All</a>
 </div>
-<div class="bg-best">
-<div class="container">
-    <div class="grid">
-        <div class="card">
-            <img src="/images/buy_laptop/dell-xps13.webp" alt="Dell XPS 13">
-            <p class="best_in_value_laptop_name">Dell XPS 13 Refurbished</p>
-            <p class="price">₹64,999 <span class="old-price">₹92,900</span></p>
-            <p class="discount">30% off</p>
-            <p>Grade : Good</p>
-            <p>FREE 6 Months Warranty</p>
-        </div>
-        <div class="card">
-            <img src="/images/buy_laptop/mac-air-m1.webp" alt="MacBook Air" class="best_in_value_img">
-            <p class="best_in_value_laptop_name">Apple MacBook Air <br>M1 Refurbished</p>
-            <p class="price">₹68,499 <span class="old-price">₹92,900</span></p>
-            <p class="discount">26% off</p>
-            <p>Grade : Good</p>
-            <p>FREE 6 Months Warranty</p>
-        </div>
-        <div class="card">
-            <img src="/images/buy_laptop/hp-pavilion15.webp" alt="HP Pavilion">
-            <p class="best_in_value_laptop_name">HP Pavilion 15 Refurbished</p>
-            <p class="price">₹39,899 <span class="old-price">₹59,999</span></p>
-            <p class="discount">33% off</p>
-            <p>Grade : Very good</p>
-            <p>FREE 6 Months Warranty</p>
-        </div>
-        
-        <div class="card">
-            <img src="/images/buy_laptop/lenovo-thinkpad.webp" alt="Lenovo ThinkPad">
-            <p class="best_in_value_laptop_name">Lenovo ThinkPad X1 Refurbished</p>
-            <p class="price">₹53,999 <span class="old-price">₹89,999</span></p>
-            <p class="discount">40% off</p>
-            <p>Grade : Superb</p>
-            <p>FREE 6 Months Warranty</p>
-        </div>
-        <div class="card">
-            <img src="/images/buy_laptop/asus-zenbook.webp" alt="Asus ZenBook">
-            <p class="best_in_value_laptop_name">Asus ZenBook 14 <br>Refurbished</p>
-            <p class="price">₹48,299 <span class="old-price">₹79,999</span></p>
-            <p class="discount">40% off</p>
-            <p>Grade : Superb</p>
-            <p>FREE 6 Months Warranty</p>
-        </div>
-        <div class="card">
-            <img src="/images/buy_laptop/acer-swift3.webp" alt="Acer Swift">
-            <p class="best_in_value_laptop_name">Acer Swift 3 <br>Refurbished</p>
-            <p class="price">₹41,749 <span class="old-price">₹64,990</span></p>
-            <p class="discount">36% off</p>
-            <p>Grade : Good</p>
-            <p>FREE 6 Months Warranty</p>
-        </div>
+
+<div class="laptop-bg-best">
+    <div class="laptop-container">
+      <div class="laptop-grid" id="latest-laptops-container">
+        <!-- Populated by JS -->
+      </div>
     </div>
-</div>
 </div>
 
 <div class="container1">  
@@ -171,6 +120,54 @@
 </div>
 
 <script>
+      async function fetchAndRenderLatestLaptops() {
+        try {
+            const response = await fetch('/api/latest-laptops');
+            if (!response.ok) throw new Error('Failed to fetch latest laptops');
+            const laptops = await response.json();
+   console.log(laptops);
+            const grid = document.getElementById('latest-laptops-container');
+            grid.innerHTML = ''; // Clear existing content
+
+            if (laptops.length === 0) {
+                grid.innerHTML = '<p>No new laptops available.</p>';
+                return;
+            }
+
+            laptops.forEach(laptop => {
+                const finalPrice = calculateFinalPrice(laptop);
+                const originalPrice = laptop.base_price;
+                console.log(originalPrice);
+                const card = document.createElement('div');
+                card.className = 'laptop-card';
+                card.innerHTML = `
+                    <a href="/laptop/${laptop.id}" style="text-decoration: none; color: #000;">
+                        <img src="${laptop.image}" alt="${laptop.brand} ${laptop.series}">
+                        <p class="best_in_value_phone_name">${laptop.brand} ${laptop.series}</p>
+                        <p class="price">₹${finalPrice.toLocaleString('en-IN')} <span class="old-price">₹${originalPrice.toLocaleString('en-IN')}</span></p>
+                        <p class="discount">${laptop.discount}% off</p>
+                        <p>Grade: ${laptop.condition}</p>
+                        <p>FREE 6 Months Warranty</p>
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        } catch (error) {
+            console.error('Error fetching latest laptops:', error);
+            const grid = document.getElementById('latest-laptops-container');
+            grid.innerHTML = '<p>Error loading laptops. Please try again later.</p>';
+        }
+    }
+    function calculateFinalPrice(product) {
+      const price = parseFloat(product.base_price || 0); // Updated field
+      const discount = parseFloat(product.discount || 0);
+      const finalPrice = Number((price - (price * discount / 100)).toFixed(2));
+      return finalPrice;
+    }
+
+    fetchAndRenderLatestLaptops();
+    setInterval(fetchAndRenderLatestLaptops, 30000);
+
     function redirectToFilterPage(brand) {
         window.location.href = `/filter-buy-laptop?brand=${brand}`;
     }
@@ -183,4 +180,3 @@
 </body>
 <footer><%- include('partials/footer') %> </footer>
 </html>
-```

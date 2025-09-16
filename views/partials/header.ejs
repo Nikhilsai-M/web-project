@@ -21,7 +21,7 @@
         </div>
 
         <div class="header-middle-section">
-            <div class="search-container">
+            <div class="search-container" style="display: none;">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
                 <input class="search-bar" type="text" placeholder="Search for mobiles,laptops & More">
             </div>
@@ -37,12 +37,13 @@
             <!-- User Section -->
             <div id="user-section" class="user-profile-container">
                 <a id="profile-link" href="/login">
-                    <img class="icons" src="/images/header/profile-icon.png" alt="Profile">
-                    <span id="login-link">Sign in</span>
+                    <img class="icons profile-icon" src="/images/header/profile-icon.png" alt="Profile">
+                    <span id="login-link"></span>
                 </a>
                 <div id="user-dropdown" class="user-dropdown">
                     <a href="/profile">User Profile</a>
-                    <a href="/orders">My Orders</a>
+                    <a href="/myorders">My Orders</a>
+                    <a href="/listings">My Listings</a>
                     <a href="/cart">Cart</a>
                     <a id="logout-button">Logout</a>
                 </div>
@@ -64,35 +65,14 @@
             <div class="dropdown">
                 <a class="all-dropdown" href="/sell-phone">Sell phone</a>
                 <a class="all-dropdown" href="/sell-laptop">Sell laptop</a>
-                <a class="all-dropdown">Buy phone</a>
-                <a class="all-dropdown">Buy laptop</a>
+                <a class="all-dropdown" href="/buy-phone">Buy phone</a>
+                <a class="all-dropdown" href="/buy-laptop">Buy laptop </a>
                 <a class="all-dropdown" href="/Accessories">Accessories</a>
             </div>
         </div>
         <div class="nav-item"><a href="/sell-phone" class="text-decoration">Sell Phone</a>
-            <div class="dropdown">
-                <a  class="dropdown-heading">Top Selling brands</a>
-                <a class="top-sell-phone-dropdown">Apple</a>
-                <a class="top-sell-phone-dropdown">Samsung</a>
-                <a class="top-sell-phone-dropdown">Xiaomi</a>
-                <a class="top-sell-phone-dropdown">OnePlus</a>
-                <a class="top-sell-phone-dropdown">Realme</a>
-                <a class="top-sell-phone-dropdown">Motorola</a>
-                <a class="top-sell-phone-dropdown">Google</a>
-            </div>
         </div>
         <div class="nav-item"><a href="/sell-laptop" class="text-decoration">Sell Laptops</a>
-            <div class="dropdown">
-                <a  class="dropdown-heading">Top Selling brands</a>
-                <a class="top-sell-laptop-dropdown">Apple</a>
-                <a class="top-sell-laptop-dropdown">Dell</a>
-                <a class="top-sell-laptop-dropdown">HP</a>
-                <a class="top-sell-laptop-dropdown">Asus</a>
-                <a class="top-sell-laptop-dropdown">Acer</a>
-                <a class="top-sell-laptop-dropdown">Microsoft</a>
-                <a class="top-sell-laptop-dropdown">MSI</a>
-                <a class="top-sell-laptop-dropdown">Lenovo</a>
-            </div>
         </div>
         <div class="nav-item"><a href="/buy-phone" class="text-decoration">Buy Phones</a>
             <div class="dropdown">
@@ -132,7 +112,7 @@
     </div>
 </div>
 
-    <script src="scripts/index.js"></script>
+    <script src="/scripts/index.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const hamburger = document.querySelector(".hamburger");
@@ -140,8 +120,6 @@
         
             hamburger.addEventListener("click", () => {
                 navMenu.classList.toggle("active");
-                
-                // Hamburger animation
                 hamburger.classList.toggle("active");
             });
         

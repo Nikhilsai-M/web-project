@@ -66,8 +66,8 @@ function addToCart(earphoneId) {
                     design: earphone.design,
                     batteryLife: earphone.batteryLife,
                     image: earphone.image,
-                    price: earphone.originalPrice,
-                    discount: parseFloat(earphone.discount),
+                    price: earphone.pricing.originalPrice,
+                    discount: parseFloat(earphone.pricing.discount),
                     quantity: 1
 });
                 }
@@ -95,21 +95,14 @@ function addToCart(earphoneId) {
 
 // Function to buy now
 function buyNow(earphoneId) {
-    // Check if user is logged in
     const session = JSON.parse(localStorage.getItem("currentSession"));
-    
     if (!session || !session.loggedIn) {
-        // Redirect to login page if not logged in
         window.location.href = "/login";
         return;
     }
-
-    // Add earphone to cart first
-    addToCart(earphoneId);
-    
-    // Then redirect to checkout page
     setTimeout(() => {
-        window.location.href = "/orders";
+        window.location.href = `/buy/earphone/${earphoneId}`; // For earphones
+        // or `/buy/charger/${accessoryId}` for chargers
     }, 500);
 }
 

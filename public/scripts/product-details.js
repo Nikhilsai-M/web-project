@@ -56,8 +56,8 @@ function addToCart(productId) {
                         rom: product.rom,
                         condition: product.condition,
                         image: product.image,
-                        price: product.price,
-                        discount: product.discount,
+                        price: product.pricing.basePrice,
+                        discount:parseFloat( product.pricing.discount),
                         quantity: 1
                     });
                 }
@@ -79,18 +79,14 @@ function addToCart(productId) {
 
 // Function to buy now
 function buyNow(productId) {
-    // Check if user is logged in
     const session = JSON.parse(localStorage.getItem("currentSession"));
-    
     if (!session || !session.loggedIn) {
-        // Redirect to login page if not logged in
         window.location.href = "/login";
         return;
     }
-
-    
     setTimeout(() => {
-        window.location.href = "/orders";
+        window.location.href = `/buy/product/${productId}`; // For earphones
+        // or `/buy/charger/${accessoryId}` for chargers
     }, 500);
 }
 

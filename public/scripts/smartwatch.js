@@ -1,10 +1,16 @@
-import { accessoriesData } from './accessories-data.js';  
-
-const productList = document.getElementById('product-list');  
-
-// Access the smartwatches array from the imported object  
-const smartwatches = accessoriesData.smartwatches;  
-
+async function fetchSmartWatchData() {
+    try {
+        const response = await fetch('/api/smartwatches'); // Replace with your API endpoint
+        if (!response.ok) {
+            throw new Error('Failed to fetch smartwatch data');
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching smartwatch data:', error);
+        return []; // Return an empty array in case of error
+    }
+}
 // Function to calculate discounted price
 function calculateDiscountedPrice(price, discount) {
     return price - (price * discount / 100);
@@ -12,6 +18,7 @@ function calculateDiscountedPrice(price, discount) {
 
 // Function to display smartwatches  
 function displayWatches(filteredWatches) {  
+    const productList = document.getElementById('product-list');  
     productList.innerHTML = ''; // Clear the product list 
     
     if (filteredWatches.length === 0) {
@@ -45,9 +52,9 @@ function displayWatches(filteredWatches) {
                     <span class="discount">${smartwatch.discount} Off</span>
                     <ul>
                         <li>Brand: ${smartwatch.brand}</li>
-                        <li>Display Type: ${smartwatch.displayType}</li>
-                        <li>Display Size: ${smartwatch.displaySize}mm</li>
-                        <li>Battery Runtime: ${smartwatch.batteryRuntime} days</li>
+                        <li>Display Type: ${smartwatch.display_type}</li>
+                        <li>Display Size: ${smartwatch.display_size}mm</li>
+                        <li>Battery Runtime: ${smartwatch.battery_runtime} days</li>
                     </ul>
                     </a>
                     <button class="add-to-cart-btn" style="background-color:green; color:white; padding:10px 10px 10px 10px; border:none; width:20%; border-radius:5px; margin-top:5px">Add to Cart</button>
@@ -116,9 +123,9 @@ function addToCart(smartwatch) {
             id: smartwatch.id,
             title: smartwatch.title,
             brand: smartwatch.brand,
-            displayType: smartwatch.displayType,
-            displaySize: smartwatch.displaySize,
-            batteryRuntime: smartwatch.batteryRuntime,
+            displayType: smartwatch.display_type,
+            displaySize: smartwatch.display_size,
+            batteryRuntime: smartwatch.battery_runtime,
             image: smartwatch.image,
             price: smartwatch.originalPrice,
             discount: parseFloat(smartwatch.discount), // Convert to number to avoid NaN issues
@@ -131,23 +138,36 @@ function addToCart(smartwatch) {
     showAddedToCartMessage(smartwatch.title);
 }
 
-// Function to filter smartwatches
-function filterWatches() {
+function filterWatches(smartwatches) {
     const checkedBrands = Array.from(document.querySelectorAll('.brand-filter:checked')).map(checkbox => checkbox.value);
     const checkedres = Array.from(document.querySelectorAll('.battery-filter:checked')).map(checkbox => parseInt(checkbox.value));
     const checkedtype = Array.from(document.querySelectorAll('.displaysize-filter:checked')).map(checkbox => parseInt(checkbox.value));
     const checkedcon = Array.from(document.querySelectorAll('.displaytype-filter:checked')).map(checkbox => checkbox.value);
     const checkedDiscounts = Array.from(document.querySelectorAll('.discount-filter:checked')).map(checkbox => parseInt(checkbox.value));
     
+    // Predefined list of main brands (excluding "Others")
+    const mainBrands = ["Apple", "Samsung", "Garmin", "Fitbit", "Xiaomi"]; // Adjust based on your actual smartwatch brands
+
     const filteredWatches = smartwatches.filter(smartwatch => {
-        const matchesBrand = checkedBrands.length === 0 || checkedBrands.includes(smartwatch.brand);
-        const matchedbattery = parseInt(smartwatch.batteryRuntime);
+        // Brand filter with corrected "Others" handling
+        let matchesBrand = true;
+        if (checkedBrands.length > 0) {
+            const includesOthers = checkedBrands.includes("Others");
+            const includesSpecificBrand = checkedBrands.includes(smartwatch.brand);
+            const isOtherBrand = !mainBrands.includes(smartwatch.brand);
+
+            if (!includesOthers) {
+                matchesBrand = includesSpecificBrand;
+            } else {
+                matchesBrand = includesSpecificBrand || isOtherBrand;
+            }
+        }
+
+        const matchedbattery = parseInt(smartwatch.battery_runtime);
         const matchesres = checkedres.length === 0 || checkedres.some(e => matchedbattery >= e);
-        
-        const matchedSize = parseInt(smartwatch.displaySize);
+        const matchedSize = parseInt(smartwatch.display_size);
         const matchesSize = checkedtype.length === 0 || checkedtype.some(f => matchedSize >= f);
-        
-        const matchescon = checkedcon.length === 0 || checkedcon.includes(smartwatch.displayType);
+        const matchescon = checkedcon.length === 0 || checkedcon.includes(smartwatch.display_type);
         const discountValue = parseInt(smartwatch.discount);
         const matchesDiscount = checkedDiscounts.length === 0 || checkedDiscounts.some(d => discountValue >= d);
         
@@ -179,8 +199,9 @@ function updateCartCount(cart) {
 }
 
 // Initial setup when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async() => {
     // Check if user is logged in
+    const smartwatches=await fetchSmartWatchData();
     const session = JSON.parse(localStorage.getItem("currentSession"));
     
     // Initialize cart count on page load
@@ -196,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add event listeners for filters
     document.querySelectorAll('.brand-filter, .battery-filter, .displaysize-filter, .displaytype-filter, .discount-filter').forEach(checkbox => {
-        checkbox.addEventListener('change', filterWatches);
+        checkbox.addEventListener('change', ()=> filterWatches(smartwatches));
     });
     
     // Add event listener for clear filters button if it exists

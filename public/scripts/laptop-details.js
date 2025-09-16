@@ -1,124 +1,126 @@
 // public/scripts/laptop-details.js
 document.addEventListener("DOMContentLoaded", function() {
-
-    // Add to Cart button event listener
     const addToCartBtn = document.getElementById("add-to-cart");
     if (addToCartBtn) {
-        addToCartBtn.addEventListener("click", function() {
-            const laptopId = this.dataset.id;
-            addToCart(laptopId);
-        });
+      addToCartBtn.addEventListener("click", function() {
+        const laptopId = this.dataset.id;
+        addToCart(laptopId);
+      });
     }
-
-    // Buy Now button event listener
+  
     const buyNowBtn = document.getElementById("buy-now");
     if (buyNowBtn) {
-        buyNowBtn.addEventListener("click", function() {
-            const laptopId = this.dataset.id;
-            buyNow(laptopId);
-        });
+      buyNowBtn.addEventListener("click", function() {
+        const laptopId = this.dataset.id;
+        buyNow(laptopId);
+      });
     }
-});
-
-// Function to add laptop to cart
-function addToCart(laptopId) {
-    // Check if user is logged in
+  });
+  
+  function addToCart(laptopId) {
     const session = JSON.parse(localStorage.getItem("currentSession"));
-    
     if (!session || !session.loggedIn) {
-        // Redirect to login page if not logged in
-        window.location.href = "/login";
-        return;
+      window.location.href = "/login";
+      return;
     }
-
-    // Get laptop details from the server
-    fetch(`/api/laptop/${laptopId}`)
-        .then(response => response.json())
-        .then(laptop => {
-            if (laptop) {
-                let userId = session.userId;
-                let userCartKey = `cart_${userId}`;
-                let cart = JSON.parse(localStorage.getItem(userCartKey)) || [];
-                
-                // Check if laptop already exists in cart
-                const existingProductIndex = cart.findIndex(item => item.id === laptop.id);
-                
-                if (existingProductIndex !== -1) {
-                    cart[existingProductIndex].quantity += 1;
-                } else {
-                    // Add new laptop to cart with the correct structure
-                    cart.push({
-                        id: laptop.id,
-                        brand: laptop.brand,
-                        series: laptop.series,
-                        processor: `${laptop.processor.name} ${laptop.processor.generation}`,
-                        memory: `${laptop.memory.ram}, ${laptop.memory.storage.type} ${laptop.memory.storage.capacity}`,
-                        displaysize: laptop.displaysize,
-                        os: laptop.os,
-                        condition: laptop.condition,
-                        image: laptop.image,
-                        price: laptop.pricing.basePrice,
-                        discount: laptop.pricing.discount,
-                        quantity: 1,
-                        weight: laptop.weight
-                    });
-                }
-                
-                // Save updated cart to localStorage
-                localStorage.setItem(userCartKey, JSON.stringify(cart));
-       
-                // Show success message
-                showAddedToCartMessage(`${laptop.brand} ${laptop.series}`);
-            }
-        })
-        .catch(error => {
-            console.error("Error fetching laptop details:", error);
-            // Fallback: Get laptop details from the page
-            const laptopTitle = document.querySelector(".product-title").textContent;
-                   
-            showAddedToCartMessage(laptopTitle);
-        });
-}
-
-// Function to buy now
-function buyNow(laptopId) {
-    // Check if user is logged in
+  
+    fetch(`/api/laptops/${laptopId}`)
+      .then(response => response.json())
+      .then(laptop => {
+        if (laptop) {
+          let userId = session.userId;
+          let userCartKey = `cart_${userId}`;
+          let cart = JSON.parse(localStorage.getItem(userCartKey)) || [];
+          const existingProductIndex = cart.findIndex(item => item.id === laptop.id);
+  
+          if (existingProductIndex !== -1) {
+            cart[existingProductIndex].quantity += 1;
+          } else {
+            cart.push({
+              id: laptop.id,
+              brand: laptop.brand,
+              series: laptop.series,
+              processor: `${laptop.processor.name} ${laptop.processor.generation}`,
+              memory: `${laptop.memory.ram}, ${laptop.memory.storage.type} ${laptop.memory.storage.capacity}`,
+              displaysize: laptop.displaysize,
+              os: laptop.os,
+              condition: laptop.condition,
+              image: laptop.image,
+              price: laptop.pricing.basePrice,
+              discount: laptop.pricing.discount,
+              quantity: 1,
+              weight: laptop.weight,
+              type: 'laptop' // Add type for order creation
+            });
+          }
+  
+          localStorage.setItem(userCartKey, JSON.stringify(cart));
+          showAddedToCartMessage(`${laptop.brand} ${laptop.series}`);
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching laptop details:", error);
+        const laptopTitle = document.querySelector(".product-title").textContent;
+        showAddedToCartMessage(laptopTitle);
+      });
+  }
+  
+  function buyNow(laptopId) {
     const session = JSON.parse(localStorage.getItem("currentSession"));
-    
     if (!session || !session.loggedIn) {
-        // Redirect to login page if not logged in
-        window.location.href = "/login";
-        return;
+      window.location.href = "/login";
+      return;
     }
-
-    setTimeout(() => {
-        window.location.href = "/checkout";
-    }, 500);
-}
-
-
-// Function to show "Added to Cart" message
-function showAddedToCartMessage(productName) {
-    // Remove any existing message
+  
+    // Fetch laptop details to get price and accessory info
+    fetch(`/api/laptops/${laptopId}`)
+      .then(response => response.json())
+      .then(laptop => {
+        if (laptop) {
+          const finalPrice = laptop.pricing.basePrice - (laptop.pricing.basePrice * laptop.pricing.discount / 100);
+          const orderData = {
+            totalAmount: finalPrice,
+            paymentMethod: 'card', // Adjust based on your payment page logic
+            items: [
+              {
+                type: 'laptop',
+                id: laptop.id,
+                quantity: 1,
+                amount: finalPrice,
+                accessory: `${laptop.brand} ${laptop.series}`
+              }
+            ]
+          };
+  
+          // Redirect to payment page with order data
+          window.location.href = `/buy/laptop/${laptopId}?order=${encodeURIComponent(JSON.stringify(orderData))}`;
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching laptop details:", error);
+        window.location.href = "/cart";
+      });
+  }
+  
+  function showAddedToCartMessage(productName) {
     const existingMessage = document.querySelector(".cart-message");
     if (existingMessage) {
-        document.body.removeChild(existingMessage);
+      document.body.removeChild(existingMessage);
     }
-    
+  
     const messageDiv = document.createElement("div");
     messageDiv.className = "cart-message";
     messageDiv.innerHTML = `
-        <p>${productName} added to cart! <a href="/cart">View Cart</a></p>
+      <p>${productName} added to cart! <a href="/cart">View Cart</a></p>
     `;
     document.body.appendChild(messageDiv);
-    
-    // Remove the message after 3 seconds
+  
     setTimeout(() => {
-        messageDiv.classList.add("fade-out");
-        setTimeout(() => {
-            if (document.body.contains(messageDiv)) {
-                document.body.removeChild(messageDiv);
-            }
-        }, 500);
+      messageDiv.classList.add("fade-out");
+      setTimeout(() => {
+        if (document.body.contains(messageDiv)) {
+          document.body.removeChild(messageDiv);
+        }
+      }, 500);
     }, 3000);
-}
+  }

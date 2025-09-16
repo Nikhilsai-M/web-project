@@ -66,10 +66,6 @@ body {
     transform: translateX(4px);
 }
 
-.cart-item:last-child {
-    border-bottom: none;
-}
-
 .cart-item img {
     width: 90px;
     height: 90px;

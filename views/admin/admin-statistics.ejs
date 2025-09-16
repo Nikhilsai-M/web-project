@@ -1,0 +1,319 @@
+<!-- views/admin/admin-statistics.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Exchange Admin Dashboard - Analytics</title>
+    <link rel="stylesheet" href="/styles/admin/home.css">
+    <link rel="stylesheet" href="/styles/admin-statistics.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .chart-section {
+            max-width: 100%; /* Override max-width to fit grid */
+        }
+        .chart-container {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .chart-container canvas {
+            max-height: 300px;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                flex-direction: column;
+            }
+        }
+
+        .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+.stats-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+              <a href="/admin/home"><img  src="/images/header/logo1.png" alt="Logo"></a>  
+            </div>
+            
+            <div class="nav-items">
+                <div class="nav-item ">
+                    <i class="fa-solid fa-house"></i>
+                    <a href="/admin/home"  style="text-decoration: none;color: white;"">Dashboard</a>
+                </div>
+                <div class="nav-item ">
+                    <i class="fa-solid fa-box"></i>
+                    <a href="/admin/manage-supervisors" style="text-decoration: none;color: white;">Manage supervisors</a>
+                </div>
+                <div class="nav-item active">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <a href="/admin/statistics" style="text-decoration: none;color: white;" >Analytics</a>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-solid fa-gear"></i>
+                    <span id="logout-button" style="cursor: pointer; text-decoration: none; color: white;">Logout</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="user-actions">
+                    <div class="avatar"></div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stats-card">
+                    <div class="card-title">INVENTORY ITEMS COUNT</div>
+                    <div class="card-value" id="total-sales">Loading...</div>
+                    <div class="card-indicator" id="sales-indicator">
+                        <i class="fa-solid"></i>
+                        <span id="sales-trend">Calculating...</span>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="card-title">TOTAL LISTINGS</div>
+                    <div class="card-value" id="total-listings">Loading...</div>
+                    <div class="card-indicator" id="listings-indicator">
+                        <i class="fa-solid"></i>
+                        <span id="listings-trend">Calculating...</span>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="card-title">APPROVED LISTINGS</div>
+                    <div class="card-value" id="approved-listings">Loading...</div>
+                    <div class="card-indicator" id="approved-indicator">
+                        <i class="fa-solid"></i>
+                        <span id="approved-trend">Calculating...</span>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="card-title">SALES REVENUE</div>
+                    <div class="card-value" id="sales-revenue">₹ Loading...</div>
+                    <div class="card-indicator" id="revenue-indicator">
+                        <i class="fa-solid"></i>
+                        <span id="revenue-trend">Calculating...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="section-title">Analytics Overview</div>
+                <div class="chart-container">
+                    <div style="flex: 1; min-width: 300px;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    <div style="flex: 1; min-width: 300px;">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="refresh-section">
+                <button class="btn btn-primary" id="refresh-btn">Refresh Statistics</button>
+                <p>Last updated: <span id="last-updated">Never</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script>
+        let categoryChart, statusChart;
+
+        function updateTrendIndicator(elementId, trend) {
+            const indicator = document.getElementById(elementId);
+            const trendSpan = document.getElementById(elementId.replace('indicator', 'trend'));
+            const icon = indicator.querySelector('i');
+            indicator.classList.remove('positive', 'negative');
+            icon.classList.remove('fa-arrow-up', 'fa-arrow-down');
+            if (trend > 0) {
+                indicator.classList.add('positive');
+                icon.classList.add('fa-arrow-up');
+                trendSpan.textContent = `+${trend}% (Last Week)`;
+            } else if (trend < 0) {
+                indicator.classList.add('negative');
+                icon.classList.add('fa-arrow-down');
+                trendSpan.textContent = `${trend}% (Last Week)`;
+            } else {
+                trendSpan.textContent = 'No Change';
+            }
+        }
+
+        function fetchStatistics() {
+            fetch('/api/admin/statistics', {
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const stats = data.statistics || {};
+
+                        // Update card values
+                        document.getElementById('total-sales').textContent = stats.totalSales?.toLocaleString('en-IN') ?? '0';
+                        document.getElementById('total-listings').textContent = stats.totalListings?.toLocaleString('en-IN') ?? '0';
+                        document.getElementById('approved-listings').textContent = stats.approvedListings?.toLocaleString('en-IN') ?? '0';
+                        document.getElementById('sales-revenue').textContent = `₹ ${Number(stats.totalSalesRevenue || 0).toLocaleString('en-IN')}`;
+
+                        // Update trends
+                        updateTrendIndicator('sales-indicator', stats.trends?.totalSales ?? 0);
+                        updateTrendIndicator('listings-indicator', stats.trends?.totalListings ?? 0);
+                        updateTrendIndicator('approved-indicator', stats.trends?.approvedListings ?? 0);
+                        updateTrendIndicator('revenue-indicator', stats.trends?.totalSalesRevenue ?? 0);
+
+                        document.getElementById('last-updated').textContent = new Date().toLocaleString();
+
+                        // Sales by Category Chart
+                        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+                        const categoryData = stats.salesByCategory || {};
+                        if (categoryChart) categoryChart.destroy();
+                        categoryChart = new Chart(categoryCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['Phones', 'Laptops', 'Chargers', 'Earphones', 'Mouses', 'Smartwatches'],
+                                datasets: [{
+                                    label: 'Inventory Count',
+                                    data: [
+                                        categoryData.phones || 0,
+                                        categoryData.laptops || 0,
+                                        categoryData.chargers || 0,
+                                        categoryData.earphones || 0,
+                                        categoryData.mouses || 0,
+                                        categoryData.smartwatches || 0,
+                                    ],
+                                    backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                                    borderColor: 'rgba(16, 185, 129, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        title: { display: true, text: 'Count' },
+                                        ticks: { stepSize: 1 }
+                                    },
+                                    x: { title: { display: true, text: 'Category' } }
+                                },
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: ctx => `${ctx.label}: ${ctx.parsed.y.toLocaleString('en-IN')}`
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        // Application Status Chart
+                        const statusCtx = document.getElementById('statusChart').getContext('2d');
+                        const statusData = stats.applicationStatus || { phone: {}, laptop: {} };
+                        if (statusChart) statusChart.destroy();
+                        statusChart = new Chart(statusCtx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['Phone Pending', 'Phone Approved', 'Phone Rejected', 'Laptop Pending', 'Laptop Approved', 'Laptop Rejected'],
+                                datasets: [{
+                                    data: [
+                                        statusData.phone.pending || 0,
+                                        statusData.phone.approved || 0,
+                                        statusData.phone.rejected || 0,
+                                        statusData.laptop.pending || 0,
+                                        statusData.laptop.approved || 0,
+                                        statusData.laptop.rejected || 0,
+                                    ],
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.6)',
+                                        'rgba(54, 162, 235, 0.6)',
+                                        'rgba(255, 206, 86, 0.6)',
+                                        'rgba(75, 192, 192, 0.6)',
+                                        'rgba(153, 102, 255, 0.6)',
+                                        'rgba(255, 159, 64, 0.6)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { position: 'right' },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: ctx => `${ctx.label}: ${ctx.parsed.toLocaleString('en-IN')}`
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        throw new Error(data.message || 'Unknown server error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching statistics:', error);
+                    document.querySelectorAll('.card-value').forEach(el => el.textContent = 'Error');
+                    document.getElementById('last-updated').textContent = 'Failed to update';
+                    alert(`Failed to load statistics: ${error.message}`);
+                });
+        }
+
+        // Initial fetch
+        fetchStatistics();
+
+        // Refresh button
+        document.getElementById('refresh-btn').addEventListener('click', fetchStatistics);
+
+        // Logout
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchStatistics();
+            document.getElementById('logout-button').addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/api/admin/logout', {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include'
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        window.location.href = '/admin/login';
+                    } else {
+                        alert('Failed to log out: ' + (data.message || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    alert('Error during logout');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

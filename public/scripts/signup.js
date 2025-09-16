@@ -1,118 +1,231 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Setup password toggle
     setupPasswordToggles();
-    
-    // Get form element
     const signupForm = document.getElementById('signupForm');
     
-    // Add form submit event listener
-    signupForm.addEventListener('submit', function(e) {
+    signupForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        // Reset all error messages
-        const errorElements = document.querySelectorAll('.error-message');
-        errorElements.forEach(element => {
-            element.textContent = '';
-        });
+        // Clear existing error messages
+        clearErrors();
         
         // Get form values
         const firstName = document.getElementById('firstName').value.trim();
         const lastName = document.getElementById('lastName').value.trim();
         const email = document.getElementById('email').value.trim();
         const phone = document.getElementById('phone').value.trim();
+        const street = document.getElementById('street').value.trim();
+        const city = document.getElementById('city').value.trim();
+        const state = document.getElementById('state').value.trim();
+        const postalCode = document.getElementById('postalCode').value.trim();
+        const country = document.getElementById('country').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
-        const agreeTerms = document.getElementById('terms').checked;
         
-        // Validate form inputs
+        // Validation flags
         let isValid = true;
         
-        // Validate name fields
-        if (firstName.length < 2) {
-            document.getElementById('firstName-error').textContent = 'First name must be at least 2 characters';
+        // First Name validation
+        if (!firstName) {
+            showError('firstName', 'First name is required');
+            isValid = false;
+        } else if (firstName.length < 2) {
+            showError('firstName', 'First name must be at least 2 characters');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s-]+$/.test(firstName)) {
+            showError('firstName', 'First name can only contain letters, spaces, and hyphens');
             isValid = false;
         }
         
-        if (lastName.length < 2) {
-            document.getElementById('lastName-error').textContent = 'Last name must be at least 2 characters';
+        // Last Name validation
+        if (!lastName) {
+            showError('lastName', 'Last name is required');
+            isValid = false;
+        } else if (lastName.length < 2) {
+            showError('lastName', 'Last name must be at least 2 characters');
+            isValid = false;
+        } else if (!/^[a-zA-Z\s-]+$/.test(lastName)) {
+            showError('lastName', 'Last name can only contain letters, spaces, and hyphens');
             isValid = false;
         }
         
-        // Validate email
-        if (!isValidEmail(email)) {
-            document.getElementById('email-error').textContent = 'Please enter a valid email address';
+        // Email validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!email) {
+            showError('email', 'Email is required');
             isValid = false;
-        } else if (userExists(email)) {
-            document.getElementById('email-error').textContent = 'This email is already registered';
-            isValid = false;
-        }
-        
-        // Validate phone number
-        if (!isValidPhone(phone)) {
-            document.getElementById('phone-error').textContent = 'Please enter a valid 10-digit mobile number';
+        } else if (!emailRegex.test(email)) {
+            showError('email', 'Please enter a valid email address (e.g., user@example.com)');
             isValid = false;
         }
         
-        // Validate password strength
-        if (!isValidPassword(password)) {
-            document.getElementById('password-error').textContent = 
-                'Password must be at least 8 characters with uppercase, lowercase, and number';
+        // Phone validation
+        const phoneRegex = /^\d{10,12}$/;
+        if (!phone) {
+            showError('phone', 'Phone number is required');
+            isValid = false;
+        } else if (!phoneRegex.test(phone)) {
+            showError('phone', 'Phone number must be 10-12 digits');
             isValid = false;
         }
         
-        // Check if passwords match
-        if (password !== confirmPassword) {
-            document.getElementById('confirmPassword-error').textContent = 'Passwords do not match';
+        // Address validations
+        if (!street) {
+            showError('street', 'Street is required');
+            isValid = false;
+        }
+        if (!city) {
+            showError('city', 'City is required');
+            isValid = false;
+        }
+        if (!state) {
+            showError('state', 'State is required');
+            isValid = false;
+        }
+        if (!postalCode) {
+            showError('postalCode', 'Postal code is required');
+            isValid = false;
+        } else if (!/^\d{5,10}$/.test(postalCode)) {
+            showError('postalCode', 'Postal code must be 5-10 digits');
+            isValid = false;
+        }
+        if (!country) {
+            showError('country', 'Country is required');
             isValid = false;
         }
         
-        // Check terms agreement
-        if (!agreeTerms) {
-            document.getElementById('terms-error').textContent = 'You must agree to the Terms of Service';
+        // Password validation
+        if (!password) {
+            showError('password', 'Password is required');
+            isValid = false;
+        } else if (password.length < 6) {
+            showError('password', 'Password must be at least 6 characters');
+            isValid = false;
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+            showError('password', 'Password must contain at least one uppercase letter, one lowercase letter, and one number');
             isValid = false;
         }
         
-        // If form is not valid, stop here
+        // Confirm Password validation
+        if (!confirmPassword) {
+            showError('confirmPassword', 'Please confirm your password');
+            isValid = false;
+        } else if (password !== confirmPassword) {
+            showError('confirmPassword', 'Passwords do not match');
+            isValid = false;
+        }
+        
         if (!isValid) return;
         
-        // Form is valid, create new user
-        const users = JSON.parse(localStorage.getItem('users')) || [];
+        // Form submission
+        const submitButton = signupForm.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.textContent = 'Creating account...';
         
-        // Generate a unique ID
-        const userId = 'user_' + Date.now();
-        
-        // Create user object
-        const newUser = {
-            id: userId,
-            firstName,
-            lastName,
-            email,
-            phone,
-            password, // Note: In a real app, you should hash passwords
-            createdAt: new Date().toISOString()
-        };
-        
-        // Add user to users array
-        users.push(newUser);
-        
-        // Save to localStorage
-        localStorage.setItem('users', JSON.stringify(users));
-        
-        // Show success message
-        showNotification('Account created successfully! Redirecting to login page...', 'success');
-        
-        // Redirect to login page after short delay
-        setTimeout(() => {
-            window.location.href = '/login';
-        }, 2000);
-    });
-    
-    // Handle social signup buttons (placeholders)
-    const socialButtons = document.querySelectorAll('.social-button');
-    socialButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const platform = this.classList.contains('google') ? 'Google' : 'Facebook';
-            showNotification(`${platform} signup is not implemented in this demo`, 'info');
-        });
+        try {
+            const response = await fetch('/api/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    address: {
+                        street,
+                        city,
+                        state,
+                        postal_code: postalCode,
+                        country
+                    },
+                    password
+                })
+            });
+            
+            const data = await response.json();
+            console.log('Signup response:', data); // Debug log
+            
+            if (!response.ok) {
+                if (data.errors) {
+                    Object.entries(data.errors).forEach(([field, message]) => {
+                        // Handle nested address field errors
+                        const fieldId = field.startsWith('address.') ? field.split('.')[1] : field;
+                        showError(fieldId, message);
+                    });
+                } else {
+                    showNotification(data.message || 'An error occurred', 'error');
+                }
+            } else {
+                showNotification('Account created successfully! Redirecting to login...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            showNotification('Network error. Please try again.', 'error');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        }
     });
 });
+
+// Helper functions (unchanged)
+function showError(fieldId, message) {
+    const errorElement = document.getElementById(`${fieldId}-error`);
+    if (errorElement) {
+        errorElement.textContent = message;
+    }
+}
+
+function clearErrors() {
+    document.querySelectorAll('.error-message').forEach(element => {
+        element.textContent = '';
+    });
+}
+
+function showNotification(message, type) {
+    const notification = document.getElementById('notification');
+    const notificationMessage = notification.querySelector('.notification-message');
+    const notificationIcon = notification.querySelector('.notification-icon');
+    const notificationClose = notification.querySelector('.notification-close');
+    
+    notificationMessage.textContent = message;
+    notification.className = 'notification ' + type;
+    notificationIcon.className = 'notification-icon fas ' + 
+        (type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle');
+    
+    notification.style.display = 'flex';
+    
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+    
+    notificationClose.onclick = () => {
+        notification.style.display = 'none';
+    };
+}
+
+function setupPasswordToggles() {
+    const togglePassword = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const passwordField = document.getElementById('password');
+    const confirmPasswordField = document.getElementById('confirmPassword');
+    
+    togglePassword.addEventListener('click', function() {
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+    
+    toggleConfirmPassword.addEventListener('click', function() {
+        const type = confirmPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPasswordField.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+}

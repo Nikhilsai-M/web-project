@@ -1,8 +1,16 @@
-import { accessoriesData } from './accessories-data.js';
-
-const productList = document.getElementById('product-list');
-// Access the chargers array from the imported object
-const chargers = accessoriesData.chargers;
+async function fetchChargerData() {
+    try {
+        const response = await fetch('/api/chargers'); // Replace with your API endpoint
+        if (!response.ok) {
+            throw new Error('Failed to fetch charger data');
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching charger data:', error);
+        return []; // Return an empty array in case of error
+    }
+}
 
 // Function to calculate discounted price
 function calculateDiscountedPrice(price, discount) {
@@ -11,6 +19,7 @@ function calculateDiscountedPrice(price, discount) {
 
 // Function to display chargers
 function displayChargers(filteredChargers) {
+    const productList = document.getElementById('product-list');
     productList.innerHTML = ''; // Clear the product list
     
     if (filteredChargers.length === 0) {
@@ -30,7 +39,7 @@ function displayChargers(filteredChargers) {
     }
     
     filteredChargers.forEach(charger => {
-        const discountPrice = (charger.originalPrice - (charger.originalPrice * parseFloat(charger.discount) / 100)).toFixed(2);
+        const discountPrice = calculateDiscountedPrice(charger.originalPrice, parseFloat(charger.discount)).toFixed(2);
         const productHTML = `
             <a href="/charger/${charger.id}" class="product-link"> 
             <div class="product" data-id="${charger.id}">
@@ -58,7 +67,7 @@ function displayChargers(filteredChargers) {
         button.addEventListener("click", function(e) {
             const productDiv = e.target.closest(".product");
             const productId = productDiv.dataset.id;
-            const charger = filteredChargers.find(p => p.id == productId);
+            const charger = filteredChargers.find(p => p.id === productId);
             
             if (charger) {
                 addToCart(charger);
@@ -125,15 +134,35 @@ function addToCart(charger) {
     showAddedToCartMessage(charger.title);
 }
 
-// Function to filter chargers
-function filterChargers() {
-    const checkedBrands = Array.from(document.querySelectorAll('.brand-filter:checked')).map(checkbox => checkbox.value);
+function filterChargers(chargers) {
+    const checkedBrands = Array.from(document.querySelectorAll('.brand-filter:checked')).map(checkbox => checkbox.value.toLowerCase()); // Normalize to lowercase
+    console.log("Checked Brands:", checkedBrands);
+
     const checkedWattages = Array.from(document.querySelectorAll('.wattage-filter:checked')).map(checkbox => checkbox.value);
     const checkedTypes = Array.from(document.querySelectorAll('.type-filter:checked')).map(checkbox => checkbox.value);
     const checkedDiscounts = Array.from(document.querySelectorAll('.discount-filter:checked')).map(checkbox => parseInt(checkbox.value));
     
+    // Predefined list of main brands (lowercase for consistency)
+    const mainBrands = ["apple", "samsung", "anker", "belkin", "xiaomi"]; // Adjust this list, ensure lowercase
+    console.log("Main Brands:", mainBrands);
+
     const filteredChargers = chargers.filter(charger => {
-        const matchesBrand = checkedBrands.length === 0 || checkedBrands.includes(charger.brand);
+        const chargerBrand = charger.brand.toLowerCase(); // Normalize to lowercase
+        let matchesBrand = false;
+
+        if (checkedBrands.length === 0) {
+            matchesBrand = true; // No filters, include all
+            console.log(`Brand: ${chargerBrand}, No filters, Matches: ${matchesBrand}`);
+        } else if (checkedBrands.includes("others") && checkedBrands.length === 1) {
+            // Only "Others" checked: exclude main brands
+            matchesBrand = !mainBrands.includes(chargerBrand);
+            console.log(`Brand: ${chargerBrand}, Only Others, Is Main: ${mainBrands.includes(chargerBrand)}, Matches: ${matchesBrand}`);
+        } else {
+            // Specific brands or "Others" with others
+            matchesBrand = checkedBrands.includes(chargerBrand) || (checkedBrands.includes("others") && !mainBrands.includes(chargerBrand));
+            console.log(`Brand: ${chargerBrand}, Specific or Others, Checked: ${checkedBrands.includes(chargerBrand)}, Is Other: ${!mainBrands.includes(chargerBrand)}, Matches: ${matchesBrand}`);
+        }
+
         const matchesWattage = checkedWattages.length === 0 || checkedWattages.includes(charger.wattage);
         const matchesType = checkedTypes.length === 0 || checkedTypes.includes(charger.type);
         const discountValue = parseInt(charger.discount);
@@ -142,7 +171,7 @@ function filterChargers() {
         return matchesBrand && matchesWattage && matchesType && matchesDiscount;
     });
     
-    // Update the displayed chargers
+    console.log("Filtered Chargers:", filteredChargers.map(c => c.brand));
     displayChargers(filteredChargers);
 }
 
@@ -167,7 +196,11 @@ function updateCartCount(cart) {
 }
 
 // Initial setup when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async() => {
+    // Fetch charger data
+    const chargers = await fetchChargerData();
+    console.log("Chargers data:", chargers); // Log the data
+    
     // Check if user is logged in
     const session = JSON.parse(localStorage.getItem("currentSession"));
     
@@ -184,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add event listeners for filters
     document.querySelectorAll('.brand-filter, .wattage-filter, .type-filter, .discount-filter').forEach(checkbox => {
-        checkbox.addEventListener('change', filterChargers);
+        checkbox.addEventListener('change', () => filterChargers(chargers)); // Pass chargers to filter function
     });
     
     // Add event listener for clear filters button if it exists

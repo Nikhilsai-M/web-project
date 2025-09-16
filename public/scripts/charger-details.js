@@ -66,8 +66,8 @@ function addToCart(chargerId) {
                         type: charger.type,
                         outputCurrent: charger.outputCurrent,
                         image: charger.image,
-                        price: charger.originalPrice,
-                        discount: parseFloat(charger.discount),
+                        price: charger.pricing.originalPrice,
+                        discount: parseFloat(charger.pricing.discount),
                         quantity: 1,
                     });
                 }
@@ -97,23 +97,17 @@ function addToCart(chargerId) {
 
 // Function to buy now
 function buyNow(chargerId) {
-    // Check if user is logged in
     const session = JSON.parse(localStorage.getItem("currentSession"));
-
     if (!session || !session.loggedIn) {
-        // Redirect to login page if not logged in
         window.location.href = "/login";
         return;
     }
-
-    // Add charger to cart first
-    addToCart(chargerId);
-
-    // Then redirect to checkout page
     setTimeout(() => {
-        window.location.href = "/orders";
+        window.location.href = `/buy/charger/${chargerId}`; // For earphones
+        // or `/buy/charger/${accessoryId}` for chargers
     }, 500);
 }
+
 
 // Function to update cart count in header
 function updateCartCount(cart) {

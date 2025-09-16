@@ -43,75 +43,15 @@
 </div>
 
 
- <h2 class="best_in_value_heading">Best in value</h2>
+<h2 class="best_in_value_heading">Newly Added Products</h2>
 <div class="bg-best">
-<div class="container">
-    
-    <div class="grid">
-        <div class="card" >
-            <a href="/product/32" style="text-decoration: none; color: #000;">
-            <img src="images/buy-page-phones/i-12.webp" alt="Apple iPhone 12" >
-            <p class="best_in_value_phone_name">Apple iPhone 12 Refurbished</p>
-            <p class="price">₹33119 <span class="old-price">₹35999</span></p>
-            <p class="discount">8% off</p>
-            <p>Grade : Very Good</p>
-            <p>FREE 6 Months Warranty</p>
-            </a>
-        </div>
-        <div class="card" >
-            <a href="/product/56" style="text-decoration: none; color: #000;">
-            <img src="images/buy-page-phones/galaxy s10 lite.webp" alt="Galaxy s10 lite" class="best_in_value_img">
-            <p class="best_in_value_phone_name">Samsung Galaxy S10 <br>Lite Refurbished</p>
-            <p class="price">₹20520<span class="old-price">₹22800</span></p>
-            <p class="discount">10% off</p>
-            <p>Grade : Good</p>
-            <p>FREE 6 Months Warranty</p>
-            </a>
-        </div>
-        <div class="card" >
-            <a href="/product/76" style="text-decoration: none; color: #000;">
-            <img src="/images/best_in_value/realme 9.webp" alt="realme 9">
-            <p class="best_in_value_phone_name">realme 9 Refurbished</p>
-            <p class="price">₹9,899 <span class="old-price">₹22999</span></p>
-            <p class="discount">57% off</p>
-            <p>Grade :Very good</p>
-            <p>FREE 6 Months Warranty</p>
-            </a>
-        </div>
-        
-        <div class="card" >
-            <a href="/product/1" style="text-decoration: none; color: #000;">
-            <img src="/images/best_in_value/OnePlus_Nord_2.webp" alt="OnePlus Nord 2">
-            <p class="best_in_value_phone_name">OnePlus Nord 2 Refurbished</p>
-            <p class="price">₹13,999 <span class="old-price">₹27999</span></p>
-            <p class="discount">50% off</p>
-            <p>Grade : Good</p>
-            <p>FREE 6 Months Warranty</p>
-        </a>
-        </div>
-        <div class="card">
-            <a href="/product/11" style="text-decoration: none; color: #000;">
-            <img src="/images/best_in_value/Google pixel 7.webp" alt="Google pixel 7">
-            <p class="best_in_value_phone_name">Google pixel 7  <br>Refurbished</p>
-            <p class="price">₹28,299 <span class="old-price">₹59999</span></p>
-            <p class="discount">53% off</p>
-            <p>Grade : Superb</p>
-            <p>FREE 6 Months Warranty</p>
-        </a>
-        </div>
-        <div class="card">
-            <a href="/product/45" style="text-decoration: none; color: #000;">
-            <img src="/images/best_in_value/Vivo V20 pro .webp" alt="Vivo V20 pro">
-            <p class="best_in_value_phone_name"> Vivo V20 pro  <br> Refurbished</p>
-            <p class="price">₹11,749 <span class="old-price">₹34,990</span></p>
-            <p class="discount">66% off</p>
-            <p>Grade : Very Good</p>
-            <p>FREE 6 Months Warranty</p>
-        </a>
-        </div>
+  <div class="container">
+    <div class="grid" id="latest-products-grid">
+      <!-- Populated by JS -->
     </div>
+  </div>
 </div>
-</div>
+
 <h2 class="top_brands_heading">Top Brands</h2>
 <div class="bg_top_brands ">
     <div class="brands-section">
@@ -153,13 +93,6 @@
     </div>
     </div>
 
-
-<div class=" text-center" >
-    <a href="/product/97">
-        <img src="/images/homepage/home_page_img2.jpeg" class="width">
-    </a>
-</div>
-
 <div style="margin-top: 6vh;">
     <h2 class="top_brands_heading">Grade</h2>
     <div class=" text-center">
@@ -168,6 +101,64 @@
 </div>
 
 <script>
+    async function fetchAndRenderLatestProducts() {
+        try {
+            const response = await fetch('/api/latest-products');
+            if (!response.ok) throw new Error('Failed to fetch latest products');
+            const products = await response.json();
+            const grid = document.getElementById('latest-products-grid');
+            grid.innerHTML = '';
+
+            // Handle no products
+            if (products.length === 0) {
+                grid.innerHTML = '<p>No new products available.</p>';
+                return;
+            }
+
+            products.forEach(product => {
+                const finalPrice = calculateFinalPrice(product);
+                const originalPrice = product.base_price;
+                const productUrl = product.series ? `/laptop/${product.id}` : `/product/${product.id}`;
+                const productName = product.series ? `${product.brand} ${product.series}` : `${product.brand} ${product.model}`;
+
+                // Ensure prices are valid numbers
+                if (typeof finalPrice !== 'number' || typeof originalPrice !== 'number') {
+                    console.warn(`Invalid price data for product ${product.id}`);
+                    return;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <a href="${productUrl}" style="text-decoration: none; color: #000;">
+                        <img src="${product.image}" alt="${productName}">
+                        <p class="best_in_value_phone_name">${productName}</p>
+                        <p class="price">₹${finalPrice.toLocaleString('en-IN')} <span class="old-price">₹${originalPrice.toLocaleString('en-IN')}</span></p>
+                        <p class="discount">${product.discount}% off</p>
+                        <p>Grade: ${product.condition}</p>
+                        <p>FREE 6 Months Warranty</p>
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        } catch (error) {
+            console.error('Error fetching latest products:', error);
+            const grid = document.getElementById('latest-products-grid');
+            grid.innerHTML = '<p>Error loading products. Please try again later.</p>';
+        }
+    }
+
+    // Pricing calculation function
+    function calculateFinalPrice(product) {
+        const price = parseFloat(product.base_price || 0);
+        const discount = parseFloat(product.discount || 0);
+        const finalPrice = Number((price - (price * discount / 100)).toFixed(2));
+        return finalPrice;
+    }
+
+    fetchAndRenderLatestProducts();
+    setInterval(fetchAndRenderLatestProducts, 30000);
+
     function redirectToFilterPage(brand) {
         window.location.href = `/filter-buy-phone?brand=${brand}`;
     }

@@ -1,10 +1,17 @@
-// mouse.js
-import { accessoriesData } from './accessories-data.js';  
+async function fetchMouseData() {
+    try {
+        const response = await fetch('/api/mouses'); // Replace with your API endpoint
+        if (!response.ok) {
+            throw new Error('Failed to fetch mouse data');
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching mouse data:', error);
+        return []; // Return an empty array in case of error
+    }
+}
 
-const productList = document.getElementById('product-list');  
-
-// Access the mouses array from the imported object  
-const mouses = accessoriesData.mouses;  
 
 // Function to calculate discounted price
 function calculateDiscountedPrice(price, discount) {
@@ -12,7 +19,8 @@ function calculateDiscountedPrice(price, discount) {
 }
 
 // Function to display mouses  
-function displayMouses(filteredMouses) {  
+function displayMouses(filteredMouses) {
+    const productList = document.getElementById('product-list');  
     productList.innerHTML = ''; // Clear the product list 
     
     if (filteredMouses.length === 0) {
@@ -129,16 +137,31 @@ function addToCart(mouse) {
     showAddedToCartMessage(mouse.title);
 }
 
-// Function to filter mouses
-function filterMouses() {
+function filterMouses(mouses) {
     const checkedBrands = Array.from(document.querySelectorAll('.brand-filter:checked')).map(checkbox => checkbox.value);
     const checkedres = Array.from(document.querySelectorAll('.res-filter:checked')).map(checkbox => parseInt(checkbox.value));
     const checkedtype = Array.from(document.querySelectorAll('.type-filter:checked')).map(checkbox => checkbox.value);
     const checkedcon = Array.from(document.querySelectorAll('.connect-filter:checked')).map(checkbox => checkbox.value);
     const checkedDiscounts = Array.from(document.querySelectorAll('.discount-filter:checked')).map(checkbox => parseInt(checkbox.value));
     
+    // Predefined list of main brands (excluding "Others")
+    const mainBrands = ["Logitech", "Razer", "HP", "Dell", "Microsoft"]; // Adjust based on your actual mouse brands
+
     const filteredMouses = mouses.filter(mouse => {
-        const matchesBrand = checkedBrands.length === 0 || checkedBrands.includes(mouse.brand);
+        // Brand filter with corrected "Others" handling
+        let matchesBrand = true;
+        if (checkedBrands.length > 0) {
+            const includesOthers = checkedBrands.includes("Others");
+            const includesSpecificBrand = checkedBrands.includes(mouse.brand);
+            const isOtherBrand = !mainBrands.includes(mouse.brand);
+
+            if (!includesOthers) {
+                matchesBrand = includesSpecificBrand;
+            } else {
+                matchesBrand = includesSpecificBrand || isOtherBrand;
+            }
+        }
+
         const matchedres = parseInt(mouse.resolution);
         const matchesres = checkedres.length === 0 || checkedres.some(e => matchedres >= e);
         const matchestype = checkedtype.length === 0 || checkedtype.includes(mouse.type);
@@ -174,8 +197,9 @@ function updateCartCount(cart) {
 }
 
 // Initial setup when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded',async () => {
     // Check if user is logged in
+    const mouses = await fetchMouseData();
     const session = JSON.parse(localStorage.getItem("currentSession"));
     
     // Initialize cart count on page load
@@ -191,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add event listeners for filters
     document.querySelectorAll('.brand-filter, .res-filter, .type-filter, .connect-filter, .discount-filter').forEach(checkbox => {
-        checkbox.addEventListener('change', filterMouses);
+        checkbox.addEventListener('change',  () => filterMouses(mouses));
     });
     
     // Add event listener for clear filters button if it exists

@@ -66,8 +66,8 @@ function addToCart(mouseId) {
                         resolution: mouse.resolution,
                         type: mouse.type,
                         image: mouse.image,
-                        price: mouse.originalPrice,
-                        discount: parseFloat(mouse.discount),
+                        price: mouse.pricing.originalPrice,
+                        discount: parseFloat(mouse.pricing.discount),
                         quantity: 1,
                     });
                 }
@@ -95,22 +95,17 @@ function addToCart(mouseId) {
 
 // Function to buy now
 function buyNow(mouseId) {
-    // Check if user is logged in
     const session = JSON.parse(localStorage.getItem("currentSession"));
-
     if (!session || !session.loggedIn) {
-        // Redirect to login page if not logged in
         window.location.href = "/login";
         return;
     }
-
-    // Add mouse to cart first
-    addToCart(mouseId);
-
     setTimeout(() => {
-        window.location.href = "/orders";
+        window.location.href = `/buy/mouse/${mouseId}`; // For earphones
+        // or `/buy/charger/${accessoryId}` for chargers
     }, 500);
 }
+
 
 // Function to update cart count in header
 function updateCartCount(cart) {

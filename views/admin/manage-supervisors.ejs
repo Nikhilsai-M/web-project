@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Supervisors</title>
+    <link rel="stylesheet" href="/styles/admin/manage-supervisors.css">
+    <link rel="stylesheet" href="/styles/admin/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+              <a href="/admin/home"><img  src="/images/header/logo1.png" alt="Logo"></a>  
+            </div>
+            
+            <div class="nav-items">
+                <div class="nav-item ">
+                    <i class="fa-solid fa-house"></i>
+                    <a href="/admin/home"  style="text-decoration: none;color: white;"">Dashboard</a>
+                </div>
+                <div class="nav-item active">
+                    <i class="fa-solid fa-box"></i>
+                    <a href="/admin/manage-supervisors" style="text-decoration: none;color: white;">Manage supervisors</a>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <a href="/admin/statistics" style="text-decoration: none;color: white;" >Analytics</a>
+                </div>
+                <div class="nav-item">
+                    <i class="fa-solid fa-gear"></i>
+                    <span id="logout-button" style="cursor: pointer; text-decoration: none; color: white;">Logout</span>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="user-actions">
+                    <div class="avatar">
+                    </div>
+                </div>
+            </div>
+            <h1>Manage Supervisors</h1>
+
+            <!-- Supervisors List -->
+            <div class="supervisor-list">
+                <h2>Current Supervisors</h2>
+                <div id="supervisors-container"></div>
+            </div>
+
+            <!-- Add Supervisor Form -->
+            <div class="add-supervisor">
+                <h2>Add New Supervisor</h2>
+                <form id="add-supervisor-form">
+                    <div class="form-group">
+                        <label for="firstName">First Name:</label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name:</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone:</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit">Add Supervisor</button>
+                </form>
+                <div id="form-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+         document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('logout-button').addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/api/admin/logout', {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include'
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        window.location.href = '/admin/login';
+                    } else {
+                        alert('Failed to log out: ' + (data.message || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    alert('Error during logout');
+                }
+            });
+        });
+    </script>
+    <script src="/scripts/admin/manage-supervisors.js"></script>
+</body>
+</html>

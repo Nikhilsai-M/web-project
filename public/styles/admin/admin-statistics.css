@@ -1,0 +1,110 @@
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --secondary: #64748b;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --light-bg: #f8fafc;
+    --dark-text: #1e293b;
+    --light-text: #f8fafc;
+    --border: #e2e8f0;
+}
+
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-title {
+    font-size: 0.875rem;
+    color: var(--secondary);
+    margin-bottom: 0.5rem;
+}
+
+.card-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--primary);
+}
+
+.card-indicator {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.card-indicator.positive {
+    color: var(--success);
+}
+
+.card-indicator.negative {
+    color: var(--danger);
+}
+
+.chart-section {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    max-width: 500px; /* Limit width for pie chart readability */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#statsChart {
+    max-height: 400px; /* Square-ish for pie chart */
+}
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--dark-text);
+}
+
+
+.refresh-section {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.refresh-section .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.refresh-section .btn-primary {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+}
+
+.refresh-section .btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.refresh-section p {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--secondary);
+}
+
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}

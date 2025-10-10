@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Portal | eCommerce Store</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/supervisor/home.css">
+    <link rel="stylesheet" href="/styles/supervisor/verify-listings.css">
+</head>
+<body>
+    <header class="portal-header">
+        <div class="logo">
+            <a href="/supervisor" class="header-link">
+                <img class="logoi" src="/images/header/logo1.png" alt="Logo">
+            </a>
+        </div>
+        <div class="user-info">
+            <span> Welcome, <%= supervisor.first_name %> <%= supervisor.last_name %></span>
+            <a href="/supervisor/profile" class="profile-icon"><i class="fas fa-user-cog"></i></a>
+        </div>
+    </header>
+
+    <div class="portal-container">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/supervisor"><i class="fas fa-house"></i> Home</a></li>
+                    <li><a href="/supervisor/verify-listings" class="active"><i class="fas fa-clipboard-check"></i> Verify Product Listings</a></li>
+                    <li><a href="/supervisor/manage-inventory"><i class="fas fa-boxes"></i> Manage Inventory</a></li>
+                    <li><a href="/supervisor/statistics"><i class="fas fa-chart-bar"></i> Statistics</a></li>
+                    <li><a id="logout-button" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h2>Verify Product Listings</h2>
+                <div class="date-display">
+                    <i class="far fa-calendar-alt"></i> <%= new Date().toLocaleDateString('en-in', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}) %>
+                </div>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All Listings</button>
+                <button class="filter-btn" data-filter="pending">Pending</button>
+                <button class="filter-btn" data-filter="processing">On Processing</button>
+                <button class="filter-btn" data-filter="verified">Verified</button>
+                <button class="filter-btn" data-filter="added_to_inventory">Added to Inventory</button>
+                <button class="filter-btn" data-filter="rejected">Rejected</button> 
+            </div>
+
+            <div class="listings-container" id="listingsContainer">
+                <!-- Listings will be dynamically populated here -->
+            </div>
+
+            <div class="modal" id="applicationModal">
+                <div class="modal-content">
+                    <span class="close"><i class="fas fa-times"></i></span>
+                    <h2>Application Details</h2>
+                    <div id="applicationDetails"></div>
+                    <div class="action-buttons" id="actionButtons">
+                        <!-- Buttons will be dynamically populated based on status -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="portal-footer">
+        <p>&copy; 2025 eCommerce Store. All rights reserved. | <a href="mailto:support@ecommerce.com"><i class="far fa-envelope"></i> Contact Support</a></p>
+    </footer>
+    <script src="/scripts/supervisor/home.js"></script>
+    <script src="/scripts/supervisor/verify-listings.js"></script>
+</body>
+</html>

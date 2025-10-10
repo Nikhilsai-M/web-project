@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Smart Exchange</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .about-us {
+            padding: 80px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 3em;
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .intro {
+            font-size: 1.3em;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto 60px;
+            color: #555;
+            animation: slideUp 1s ease-out;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px; /* Reduced gap for tighter layout */
+            margin-bottom: 80px;
+        }
+
+        .content-box {
+            flex: 1;
+            min-width: 300px;
+            background: linear-gradient(135deg, #ffffff 0%, #e8f0fe 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Added for hover */
+        }
+
+        .content-box:hover {
+            transform: scale(1.03); /* Slight scale up on hover */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+        }
+
+        .content-box h2 {
+            font-size: 2em;
+            color: #1a73e8;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .content-box h2::after {
+            content: '';
+            width: 50px;
+            height: 3px;
+            background: #34c759;
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+        }
+
+        .content-box p {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 0; /* No bottom margin since it’s the only paragraph */
+        }
+
+        .team {
+            text-align: center;
+            padding: 0 15px;
+        }
+
+        .team h2 {
+            font-size: 2em;
+            color: #1a73e8;
+            margin-bottom: 40px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 40px;
+            padding: 20px 0;
+            overflow-x: hidden;
+        }
+
+        .team-member {
+            background: #fff;
+            padding: 25px 15px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+            word-wrap: break-word;
+        }
+
+        .team-member:hover {
+            transform: translateY(-10px);
+        }
+
+        .team-member img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            border: 3px solid #34c759;
+        }
+
+        .team-member h3 {
+            font-size: 1.4em;
+            color: #1a73e8;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .team-member p {
+            font-size: 1em;
+            color: #888;
+            margin-bottom: 15px;
+            word-wrap: break-word;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+                padding: 0; /* Remove padding from content, handled by content-box */
+            }
+            h1 {
+                font-size: 2.2em;
+            }
+            .intro {
+                font-size: 1.1em;
+            }
+            .content-box {
+                padding: 20px;
+            }
+            .content-box h2 {
+                font-size: 1.6em;
+            }
+            .team {
+                padding: 0 10px;
+            }
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 15px 0;
+            }
+            .team-member {
+                padding: 20px 10px;
+                max-width: 100%;
+            }
+            .team-member img {
+                width: 100px;
+                height: 100px;
+                margin-bottom: 15px;
+            }
+            .team-member h3 {
+                font-size: 1.2em;
+            }
+            .team-member p {
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-box {
+                padding: 15px;
+            }
+            .team-member {
+                padding: 15px 8px;
+            }
+            .team-member img {
+                width: 80px;
+                height: 80px;
+            }
+            .team-member h3 {
+                font-size: 1.1em;
+            }
+            .team-member p {
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/header') %> 
+    <section class="about-us">
+        <div class="container">
+            <h1>About Smart Exchange</h1>
+            <p class="intro">
+                At Smart Exchange, we believe in giving tech a second life. We’re passionate about refurbishing devices to deliver high-quality, affordable solutions while reducing e-waste.
+            </p>
+            <div class="content">
+                <div class="content-box">
+                    <h2>Our Journey</h2>
+                    <p>
+                        Launched in 2021, Smart Exchange began with a vision to make premium technology accessible to everyone. We’ve since refurbished thousands of devices, blending innovation with sustainability.
+                    </p>
+                </div>
+                <div class="content-box">
+                    <h2>Our Mission</h2>
+                    <p>
+                        We’re here to provide top-tier refurbished smartphones, laptops, and gadgets that rival new ones in performance—all while championing a greener planet. Trust, quality, and eco-friendliness drive everything we do.
+                    </p>
+                </div>
+                <div class="content-box">
+                    <h2>Our Vision</h2>
+                    <p>
+                        We aim to lead the refurbished tech industry by setting new standards in quality and sustainability, ensuring every device we touch contributes to a circular economy and a brighter future.
+                    </p>
+                </div>
+            </div>
+            <div class="team">
+                <h2>Our Team</h2>
+                <div class="team-grid">
+                    <div class="team-member">
+                        <img src="https://via.placeholder.com/150" alt="Team Member 1" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=='">
+                        <h3>Member1</h3>
+                        <p>Founder</p>
+                    </div>
+                    <div class="team-member">
+                        <img src="https://via.placeholder.com/150" alt="Team Member 2" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=='">
+                        <h3>Member2</h3>
+                        <p> co Founder</p>
+                    </div>
+                    <div class="team-member">
+                        <img src="https://via.placeholder.com/150" alt="Team Member 3" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=='">
+                        <h3>Member3</h3>
+                        <p>Customer Experience</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+<footer><%- include('partials/footer') %> </footer>
+</html>

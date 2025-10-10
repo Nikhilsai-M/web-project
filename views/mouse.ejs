@@ -1,0 +1,55 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>SmartExchange:Buy Mouses</title>  
+    <link rel="stylesheet" href="/styles/accessories-data.css">  
+</head>  
+<body>  
+    <%- include('partials/header') %> 
+    <div class="page-container">  
+        <aside class="filters">  
+            <h2>Filters</h2>  
+            <div class="selected-filters">  
+                <h3>Brand</h3>  
+                <label><input type="checkbox" class="brand-filter" value="HP"> HP</label>  
+                <label><input type="checkbox" class="brand-filter" value="DELL">DELL</label>  
+                <label><input type="checkbox" class="brand-filter" value="ZEBRONICS"> Zebronics</label>  
+                <label><input type="checkbox" class="brand-filter" value="Arctic Fox">Arctic Fox</label>  
+                <label><input type="checkbox" class="brand-filter" value="Logitech">Logitech</label>  
+                <label><input type="checkbox" class="brand-filter" value="Others">Others</label> 
+            </div>  
+            <div class="filter-group">  
+                <h3>Type</h3>  
+                <label><input type="checkbox" class="type-filter" value="Wired">Wired</label>  
+                <label><input type="checkbox" class="type-filter" value="Wireless">Wireless</label>  
+                  
+            </div>  
+            <div class="filter-group">  
+                <h3>Connectivity</h3>  
+                <label><input type="checkbox" class="connect-filter" value="USB">USB</label>  
+                <label><input type="checkbox" class="connect-filter" value="Bluetooth & USB">Bluetooth & USB</label> 
+                 
+            </div>  
+            <div class="filter-group">  
+                <h3>Resolution</h3>  
+                <label><input type="checkbox" class="res-filter" value="1000"> 1000 DPI & above</label>  
+                <label><input type="checkbox" class="res-filter" value="2000"> 2000 DPI & above</label>  
+                <label><input type="checkbox" class="res-filter" value="3000"> 3000 DPI & above</label>  
+            </div>  
+            <div class="filter-group">  
+                <h3>Discount</h3>  
+                <label><input type="checkbox" class="discount-filter" value="10"> 10% & above</label>  
+                <label><input type="checkbox" class="discount-filter" value="20"> 20% & above</label>  
+                <label><input type="checkbox" class="discount-filter" value="30"> 30% & above</label>  
+            </div>  
+        </aside>              
+            <div id="product-list" class="products"></div>     
+    </div>  
+
+    <script src="/scripts/mouse.js" type="module"></script>  
+    
+</body>  
+<footer><%- include('partials/footer') %> </footer>
+</html>  

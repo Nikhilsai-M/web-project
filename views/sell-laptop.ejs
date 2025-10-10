@@ -152,7 +152,14 @@
                     <div class="form-row">
                       <div class="form-group">
                         <label for="device-image">Upload Device Image</label>
+                        <label for="device-image" class="custom-upload">
+                          ⬆️ Choose File 
+                        </label>
                         <input type="file" id="device-image" name="device-image" accept="image/*" required>
+                        <span id="file-name">No file chosen</span>
+                        <div class="image-preview" id="image-preview" style="display: none;">
+                            <img id="preview-img" src="" alt="Device Preview" />
+                            </div>
                       </div>
                     </div>
                   </div>

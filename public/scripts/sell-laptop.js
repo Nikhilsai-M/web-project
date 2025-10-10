@@ -34,3 +34,36 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+const input = document.getElementById('device-image');
+const fileName = document.getElementById('file-name');
+
+input.addEventListener('change', () => {
+  if (input.files.length > 0) {
+    fileName.textContent = input.files[0].name;
+  } else {
+    fileName.textContent = "No file chosen";
+  }
+});
+
+//image preview
+const imagePreview = document.getElementById('image-preview');
+const previewImg = document.getElementById('preview-img');
+
+input.addEventListener('change', () => {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    fileName.textContent = file.name;
+    fileName.style.color = '#007bff';
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      previewImg.src = e.target.result;
+      imagePreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  } else {
+    fileName.textContent = "No file chosen";
+    imagePreview.style.display = 'none';
+  }
+});

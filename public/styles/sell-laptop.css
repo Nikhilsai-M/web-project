@@ -109,6 +109,7 @@ select {
   appearance: none;
   background: var(--white) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="%235a6a84"><polygon points="0,0 12,0 6,12"/></svg>') no-repeat right 12px center;
   cursor: pointer;
+  
 }
 
 /* Textarea */
@@ -202,4 +203,110 @@ select:invalid:focus {
   .form-section h2 {
     font-size: 1.25rem;
   }
+}
+
+/* Style the form group */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+  font-family: Arial, sans-serif;
+}
+
+/* Style the label */
+.form-group label {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Base input styling */
+#device-image {
+  padding: 10px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+#device-image:hover {
+  background-color: #eef5ff;
+  border-color: #007bff;
+}
+
+/* Focus effect */
+#device-image:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+}
+
+
+#device-image::file-selector-button {
+  background-color: #125db3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover on button */
+#device-image::file-selector-button:hover {
+  background-color: #0056b3;
+}
+
+/* Hide the default file input */
+#device-image {
+  display: none;
+}
+#file-name {
+  font-size: 14px;
+  color: #333;
+  font-family: Arial, sans-serif;
+}
+
+/* Style for the custom label button */
+.custom-upload {
+  display: inline-block;
+  background-color: #b4d4f7;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  transition: background-color 0.3s ease;
+  user-select: none;
+  width: 250px;              
+  text-align: center;
+}
+
+/* Hover and focus effects */
+.custom-upload:hover {
+  background-color: #94c0ef;
+}
+
+/* Image preview */
+.image-preview {
+  margin-top: 15px;
+  text-align: left;
+}
+
+.image-preview img {
+  width: 280px;
+  max-width: 100%;
+  border-radius: 8px;
+  border: 2px solid #ccc;
+  display: block;
+  margin-top: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  transition: transform 0.3s ease;
+}
+
+.image-preview img:hover {
+  transform: scale(1.05);
+  border-color: #3b8ef3;
 }

@@ -1,0 +1,76 @@
+<!-- views/smartwatches-details.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= smartwatch.brand %> <%= smartwatch.title %> | Your Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/product-details.css">
+</head>
+<body>
+    <%- include('partials/header') %> 
+    <div class="container">
+        <div class="product-details-container">
+            <div class="product-image">
+                <img src="/<%= smartwatch.image %>" alt="<%= smartwatch.brand %> <%= smartwatch.title %>">
+            </div>
+            <div class="product-info">
+                <h1 class="product-title"><%= smartwatch.brand %> <%= smartwatch.title %></h1>
+                
+                <div class="product-price-container">
+                    <span class="discounted-price">₹<%= (parseFloat(smartwatch.pricing.originalPrice) - (parseFloat(smartwatch.pricing.originalPrice) * parseFloat(smartwatch.pricing.discount) / 100)).toLocaleString('en-IN') %></span>
+                    <span class="original-price">₹<%= smartwatch.pricing.originalPrice.toLocaleString('en-IN') %></span>
+                    <span class="discount"><%= smartwatch.pricing.discount %> Off</span>
+                </div>
+                
+                <div class="product-actions">
+                    <button id="add-to-cart" class="btn btn-primary" data-id="<%= smartwatch.id %>">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                    <button id="buy-now" class="btn btn-success" data-id="<%= smartwatch.id %>">
+                        <i class="fas fa-bolt"></i> Buy Now
+                    </button>
+                </div>
+                <div class="product-specifications">
+                    <h3>Key Specifications</h3>
+                    <ul>
+                        <li><i class="fas fa-expand"></i> <strong>Display Size:</strong> <%= smartwatch.display_size %> inches</li>
+                        <li><i class="fas fa-tv"></i> <strong>Display Type:</strong> <%= smartwatch.display_type %></li>
+                        <li><i class="fas fa-battery-full"></i> <strong>Battery Runtime:</strong> <%= smartwatch.battery_runtime %> days</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <h2>Product Description</h2>
+            <p>Stay connected and track your fitness with the  <%= smartwatch.title %>. This <%= smartwatch.condition %> condition smartwatch features a <%= smartwatch.displaySize %> inch <%= smartwatch.displayType %> display and a long-lasting battery life of <%= smartwatch.batteryRuntime %> days.</p>
+            
+            <div class="highlight-features">
+                <h3>Highlight Features</h3>
+                <div class="features-grid">
+                    <div class="feature">
+                        <i class="fas fa-expand"></i>
+                        <h4>Large Display</h4>
+                        <p><%= smartwatch.displaySize %> inch display for clear visuals</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-tv"></i>
+                        <h4>Advanced Display</h4>
+                        <p><%= smartwatch.displayType %> for vibrant colors</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-battery-full"></i>
+                        <h4>Long Battery Life</h4>
+                        <p>Up to <%= smartwatch.batteryRuntime %> days of usage</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/scripts/smartwatch-details.js"></script>
+</body>
+<footer><%- include('partials/footer') %> </footer>
+</html>

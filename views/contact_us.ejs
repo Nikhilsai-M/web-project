@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Smart Exchange</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .contact-us {
+            padding: 80px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 3em;
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .intro {
+            font-size: 1.3em;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto 60px;
+            color: #555;
+            animation: slideUp 1s ease-out;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .content-box {
+            flex: 1;
+            min-width: 300px;
+            background: linear-gradient(135deg, #ffffff 0%, #e8f0fe 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .content-box:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .content-box h2 {
+            font-size: 2em;
+            color: #1a73e8;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .content-box h2::after {
+            content: '';
+            width: 50px;
+            height: 3px;
+            background: #34c759;
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+        }
+
+        .content-box p {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 15px; /* Adjusted for multiple lines */
+        }
+
+        .content-box a {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .content-box a:hover {
+            text-decoration: underline;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+                padding: 0;
+            }
+            h1 {
+                font-size: 2.2em;
+            }
+            .intro {
+                font-size: 1.1em;
+            }
+            .content-box {
+                padding: 20px;
+            }
+            .content-box h2 {
+                font-size: 1.6em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-box {
+                padding: 15px;
+            }
+            .content-box h2 {
+                font-size: 1.5em;
+            }
+            .content-box p {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/header') %> 
+    <section class="contact-us">
+        <div class="container">
+            <h1>Contact Smart Exchange</h1>
+            <p class="intro">
+                We're here to assist you with all your refurbished tech needs. Reach out to us for inquiries, support, or to learn more about Smart Exchange.
+            </p>
+            <div class="content">
+                <div class="content-box">
+                    <h2>Get in Touch</h2>
+                    <p>Email: <a href="mailto:info@smartexchange.com">inf0@smartexchange.com</a></p>
+                    <p>Phone: <a href="tel:+91 6304630478">+91 6304630478</a></p>
+                    <p>We respond within 24 hours, Monday to Friday.</p>
+                </div>
+                <div class="content-box">
+                    <h2>Support</h2>
+                    <p>Need help with your device? Contact our support team:</p>
+                    <p>Email: <a href="mailto:support@smartexchange.com">support@smartexchange.com</a></p>
+                
+                </div>
+                <div class="content-box">
+                    <h2>Visit Us</h2>
+                    <p>Smart Exchange HQ</p>
+                    <p>jublee hills, Hyderabad</p>
+                    <p>Andhra Pradesh, CA 94405, India</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+<footer><%- include('partials/footer') %> </footer>
+</html>

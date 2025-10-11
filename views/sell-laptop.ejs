@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell Your Laptop - Application Form</title>
+    <link rel="stylesheet" href="/styles/sell-laptop.css">
+</head>
+<body>
+    <%- include('partials/header') %> 
+    <div class="container">
+        <form id="laptopSellForm" action="/api/sell-laptop" method="POST" enctype="multipart/form-data">
+            <div class="form-section">
+                <h2>Laptop Information</h2>
+                
+                <div class="form-group">
+                    <label for="brand">Brand (Required)</label>
+                    <input type="text" id="brand" name="brand" required placeholder="E.g. DELL, HP, ASUS" oninput="this.value = this.value.toUpperCase()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="model">Model (Required)</label>
+                    <input type="text" id="model" name="model" required placeholder="E.g. XPS 13, MacBook Pro">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="ram">RAM (Required)</label>
+                        <select id="ram" name="ram" required>
+                            <option value="" disabled selected>Select RAM</option>
+                            <option value="4GB">4GB</option>
+                            <option value="8GB">8GB</option>
+                            <option value="16GB">16GB</option>
+                            <option value="32GB">32GB</option>
+                            <option value="64GB">64GB</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="storage">Storage (Required)</label>
+                        <select id="storage" name="storage" required>
+                            <option value="" disabled selected>Select Storage</option>
+                            <option value="128GB">128GB</option>
+                            <option value="256GB">256GB</option>
+                            <option value="512GB">512GB</option>
+                            <option value="1TB">1TB</option>
+                            <option value="2TB">2TB</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="processor">Processor (Required)</label>
+                        <input type="text" id="processor" name="processor" required placeholder="E.g. Intel Core i7, AMD Ryzen 5">
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="generation">Generation</label>
+                        <input type="text" id="generation" name="generation" placeholder="E.g. 11th Gen, Ryzen 5000">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="displaySize">Approximate Display Size (inches)</label>
+                        <select id="displaySize" name="displaySize">
+                            <option value="" disabled selected>Select Size</option>
+                            <option value="11-12">11-12 inches</option>
+                            <option value="13-14">13-14 inches</option>
+                            <option value="15-16">15-16 inches</option>
+                            <option value="17+">17+ inches</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="weight">Approximate Weight</label>
+                        <select id="weight" name="weight">
+                            <option value="" disabled selected>Select Weight</option>
+                            <option value="<1kg">Less than 1kg</option>
+                            <option value="1-1.5kg">1-1.5kg</option>
+                            <option value="1.6-2kg">1.6-2kg</option>
+                            <option value="2.1-3kg">2.1-3kg</option>
+                            <option value=">3kg">More than 3kg</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="os">Operating System</label>
+                        <select id="os" name="os">
+                            <option value="" disabled selected>Select OS</option>
+                            <option value="Windows 11">Windows 11</option>
+                            <option value="Windows 10">Windows 10</option>
+                            <option value="macOS">macOS</option>
+                            <option value="Linux">Linux</option>
+                            <option value="Chrome OS">Chrome OS</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="deviceAge">Device Age (Years)</label>
+                        <select id="deviceAge" name="deviceAge">
+                            <option value="" disabled selected>Select Age</option>
+                            <option value="<1">Less than 1 year</option>
+                            <option value="1-2">1-2 years</option>
+                            <option value="3-4">3-4 years</option>
+                            <option value="5+">5+ years</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="batteryIssues">Battery Issues</label>
+                    <select id="batteryIssues" name="batteryIssues">
+                        <option value="None">No issues</option>
+                        <option value="Minor">Minor issues (quick discharge)</option>
+                        <option value="Major">Major issues (needs replacement)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">Your Location (Required)</label>
+                    <input type="text" id="location" name="location" required placeholder="City, State">
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2>Contact Information</h2>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="name">Full Name (Required)</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="email">Email (Required)</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number (Required)</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+
+                <div class="form-section">
+                    <h2>Device Image</h2>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="device-image">Upload Device Image</label>
+                        <label for="device-image" class="custom-upload">
+                          ⬆️ Choose File 
+                        </label>
+                        <input type="file" id="device-image" name="device-image" accept="image/*" required>
+                        <span id="file-name">No file chosen</span>
+                        <div class="image-preview" id="image-preview" style="display: none;">
+                            <img id="preview-img" src="" alt="Device Preview" />
+                            </div>
+                      </div>
+                    </div>
+                  </div>
+
+                <div class="form-action">
+                    <button type="submit" class="submit-btn">Get Your Quote</button>
+                </div>
+            </div>
+            
+
+        </form>
+    </div>
+    <script src="/scripts/sell-laptop.js"></script>
+</body>
+<footer><%- include('partials/footer') %> </footer>
+</html>

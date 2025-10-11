@@ -1,0 +1,79 @@
+<!-- views/earphones-details.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= earphone.brand %> <%= earphone.title %> | Your Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/product-details.css">
+</head>
+<body>
+    <%- include('partials/header') %> 
+    <div class="container">
+        <div class="product-details-container">
+            <div class="product-image">
+                <img src="/<%= earphone.image %>" alt="<%= earphone.brand %> <%= earphone.title %>">
+            </div>
+            <div class="product-info">
+                <h1 class="product-title"><%= earphone.brand %> <%= earphone.title %></h1>
+               
+                
+                <div class="product-price-container">
+                    <span class="discounted-price">₹<%= (parseFloat(earphone.pricing.originalPrice) - (parseFloat(earphone.pricing.originalPrice) * parseFloat(earphone.pricing.discount) / 100)).toLocaleString('en-IN') %></span>
+                    <span class="original-price">₹<%= earphone.pricing.originalPrice.toLocaleString('en-IN') %></span>
+                    <span class="discount"><%= earphone.pricing.discount %> Off</span>
+                </div>
+                
+                <div class="product-actions">
+                    <button id="add-to-cart" class="btn btn-primary" data-id="<%= earphone.id %>">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                    <button id="buy-now" class="btn btn-success" data-id="<%= earphone.id %>">
+                        <i class="fas fa-bolt"></i> Buy Now
+                    </button>
+                </div>
+                <div class="product-specifications">
+                    <h3>Key Specifications</h3>
+                    <ul>
+                        <li><i class="fas fa-headphones"></i> <strong>Design:</strong> <%= earphone.design %></li>
+                        <li><i class="fas fa-battery-full"></i> <strong>Battery Life:</strong> <%= earphone.batteryLife %> hours</li>
+                        <li><i class="fas fa-volume-up"></i> <strong>Sound Quality:</strong> Bass</li>
+                        
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <h2>Product Description</h2>
+            <p>Experience superior audio quality with the <%= earphone.brand %> <%= earphone.title %>. This <%= earphone.condition %> condition <%= earphone.design %> earphone delivers exceptional sound with <%= earphone.batteryLife %> hours of battery life.</p>
+            
+            <div class="highlight-features">
+                <h3>Highlight Features</h3>
+                <div class="features-grid">
+                    <div class="feature">
+                        <i class="fas fa-headphones"></i>
+                        <h4>Ergonomic Design</h4>
+                        <p><%= earphone.design %> for comfortable all-day wear</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-battery-full"></i>
+                        <h4>Long-lasting Battery</h4>
+                        <p>Up to <%= earphone.batteryLife %> hours of playback time</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-volume-up"></i>
+                        <h4>Premium Sound Quality</h4>
+                        <p>Bass, Clear & Balanced Sound</p>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/scripts/earphone-details.js"></script>
+</body>
+<footer><%- include('partials/footer') %> </footer>
+</html>

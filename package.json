@@ -1,0 +1,32 @@
+{
+  "name": "web-project",
+  "version": "1.0.0",
+  "description": "https://nikhilsai-m.github.io/web-project/",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nikhilsai-M/web-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "type": "module",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nikhilsai-M/web-project/issues"
+  },
+  "homepage": "https://github.com/Nikhilsai-M/web-project#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cloudinary": "^2.6.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "mongoose": "^8.13.2",
+    "multer": "^1.4.5-lts.2",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  }
+}

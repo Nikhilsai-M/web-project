@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= phone.brand %> <%= phone.model %> | Your Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/product-details.css">
+</head>
+<body>
+    <%- include('partials/header') %> 
+    <div class="container">
+        <div class="product-details-container">
+            <div class="product-image">
+                <img src="<%= phone.image %>" alt="<%= phone.brand %> <%= phone.model %>"> 
+            </div>
+            <div class="product-info">
+                <h1 class="product-title"><%= phone.brand %> <%= phone.model %></h1>
+                <span class="product-condition"><%= phone.condition %></span>
+                
+                <div class="product-price-container">
+                    <span class="discounted-price">₹<%= (phone.pricing.basePrice - (phone.pricing.basePrice * phone.pricing.discount / 100)).toLocaleString('en-IN') %></span>
+                    <span class="original-price">₹<%= phone.pricing.basePrice.toLocaleString('en-IN') %></span>
+                    <span class="discount"><%= phone.pricing.discount %>% Off</span>
+                </div>
+                
+                <div class="product-actions">
+                    <button id="add-to-cart" class="btn btn-primary" data-id="<%= phone.id %>">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                    <button id="buy-now" class="btn btn-success" data-id="<%= phone.id %>">
+                        <i class="fas fa-bolt"></i> Buy Now
+                    </button>
+                </div>
+                <div class="product-specifications">
+                    <h3>Key Specifications</h3>
+                    <ul>
+                        <li><i class="fas fa-microchip"></i> <strong>Processor:</strong> <%= phone.specs.processor %></li>
+                        <li><i class="fas fa-mobile-alt"></i> <strong>Display:</strong> <%= phone.specs.display %></li>
+                        <li><i class="fas fa-battery-full"></i> <strong>Battery:</strong> <%= phone.specs.battery %>mAh</li>
+                        <li><i class="fas fa-camera"></i> <strong>Camera:</strong> <%= phone.specs.camera %></li>
+                        <li><i class="fab fa-android"></i> <strong>OS:</strong> <%= phone.specs.os %></li>
+                        <li><i class="fas fa-network-wired"></i> <strong>Network:</strong> <%= phone.specs.network %></li>
+                        <li><i class="fas fa-weight"></i> <strong>Weight:</strong> <%= phone.specs.weight %></li>
+                        <li><i class="fas fa-memory"></i> <strong>RAM:</strong> <%= phone.ram %></li>
+                        <li><i class="fas fa-hdd"></i> <strong>Storage:</strong> <%= phone.rom %></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <h2>Product Description</h2>
+            <p>Experience the power and performance of the <%= phone.brand %> <%= phone.model %>. This <%= phone.condition %> condition device features <%= phone.ram %> RAM and <%= phone.rom %> storage, making it perfect for multitasking and storing all your media.</p>
+            
+            <div class="highlight-features">
+                <h3>Highlight Features</h3>
+                <div class="features-grid">
+                    <div class="feature">
+                        <i class="fas fa-microchip"></i>
+                        <h4>Powerful Processor</h4>
+                        <p><%= phone.specs.processor %></p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h4>Stunning Display</h4>
+                        <p><%= phone.specs.display %></p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-battery-full"></i>
+                        <h4>Long-lasting Battery</h4>
+                        <p><%= phone.specs.battery %>mAh battery for extended usage</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-camera"></i>
+                        <h4>Professional Camera</h4>
+                        <p><%= phone.specs.camera %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/scripts/product-details.js"></script>
+</body>
+<footer><%- include('partials/footer') %> </footer>
+</html>

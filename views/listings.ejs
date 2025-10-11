@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Listings</title>
+    <link rel="stylesheet" href="/styles/listings.css">
+</head>
+<body>
+    <%- include('partials/header') %> 
+    <div class="container">
+        <h1>My Listings</h1>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All Listings</button>
+            <button class="filter-btn" data-filter="pending">Pending</button>
+            <button class="filter-btn" data-filter="processing">On Processing</button>
+            <button class="filter-btn" data-filter="completed">Previous Listings</button>
+            <button class="filter-btn" data-filter="rejected">Rejected</button> <!-- Added Rejected filter button -->
+        </div>
+        <div class="listings-grid" id="listingsGrid">
+            <!-- Listings will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <!-- Modal for displaying full form details -->
+    <div id="listingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modalTitle">Listing Details</h2>
+            <div id="modalBody">
+                <!-- Form details will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/scripts/listings.js"></script>
+    <%- include('partials/footer') %> 
+</body>
+</html>

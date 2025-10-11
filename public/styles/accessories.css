@@ -1,0 +1,151 @@
+/* public/styles/accessories.css */
+.carousel-container {
+    width: 93%; 
+    margin: auto;
+    border-radius: 20px; 
+}
+
+.carousel-inner img {
+    height: 60vh; 
+    width: 100%; 
+    border-radius: 20px;
+}
+.carousel-control-prev,
+.carousel-control-next {
+    width: 50px; /* Set a smaller width */
+    height: 50px; /* Set a smaller height */
+    background-color: rgba(128, 128, 128, 0.5); /* Gray semi-transparent */
+    border-radius: 50%; /* Make it circular */
+    top: 50%; /* Align vertically */
+    transform: translateY(-50%);
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    background-color: rgba(128, 128, 128, 0.8); /* Darker on hover */
+}
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 20px;
+    height: 20px;
+}
+body {  
+    font-family: Arial, sans-serif;  
+    margin: 0;  
+}  
+
+.container {  
+    max-width: 1200px;  
+    margin: auto;  
+}  
+
+.categories {  
+    display: flex;  
+    justify-content: space-around;  
+    margin-bottom: 20px;  
+}  
+
+.category {  
+    padding: 10px 20px;  
+    background:white;  
+    cursor: pointer;  
+    justify-content: center;
+}  
+
+a {
+    color:black;
+    text-underline-offset: none;
+    display:block;
+    justify-content: center;
+    text-decoration: none;
+}
+a:hover {
+    color:#40BFFF;
+}
+.category-image {
+    align-items: center;
+    margin-bottom:5px;
+} 
+
+.bg-best {
+    font-family: Arial, sans-serif;
+    margin: 1vw;
+    padding: 0;
+    margin-top: 0;
+    background-color: #f1eeee;
+}
+.container {
+    max-width: 100%;
+    margin: 0;
+    padding: 20px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+.grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: nowrap;
+}
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    min-width: 250px;
+    max-width: 250px; /* Fixed width to prevent stretching */
+    height: auto; /* Allow dynamic height based on content */
+    overflow: hidden; /* Contain overflow */
+    display: flex;
+    flex-direction: column;
+}
+.card img {
+    height: 150px; 
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+.price {
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 5px 0;
+}
+.old-price {
+    text-decoration: line-through;
+    color: gray;
+    font-size: 14px;
+    margin-left: 5px;
+}
+.discount {
+    color: green;
+    font-weight: bold;
+    margin: 5px 0;
+}
+.best_in_value_heading {
+    margin-left: 3vw;
+    margin-top: 2vh;
+}
+.best_in_value_phone_name {
+    font-weight: bold;
+    margin: 5px 0;
+    font-size: 1.1rem;
+    line-height: 1.2;
+    word-wrap: break-word; 
+}
+.width {
+    width: 95vw;
+}
+.height {
+    height: 40vh;
+}
+.accessories-homepage-div-bold {
+    font-weight: bold;
+}
+p {
+    margin: 2px 0; /* Consistent spacing for all paragraphs */
+    font-size: 0.9rem;
+    line-height: 1.2;
+    word-wrap: break-word; /* Wrap long text */
+}

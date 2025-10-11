@@ -1,0 +1,142 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+  <title>SmartExchange:Header</title>  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles/header.css">  
+  <link rel="stylesheet" href="/styles/navbar.css">  
+  <link rel="stylesheet" href="/styles/general.css">
+ </head>  
+<body>  
+    <div class="header">
+        <div class="header-left-section">
+            <a href="/" class="header-link">
+                <img class="logo" src="/images/header/logo1.png" alt="Logo">
+            </a>
+        </div>
+
+        <div class="header-middle-section">
+            <div class="search-container" style="display: none;">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input class="search-bar" type="text" placeholder="Search for mobiles,laptops & More">
+            </div>
+        </div>
+
+        <!-- Right Section with Cart and Sign In/Profile -->
+        <div class="header-right-section">
+            <a class="cart-link" href="#" id="cart-link">
+                <img class="icons" src="/images/header/cart-icon.png" alt="Cart">
+                <div class="cart-text">Cart</span></div>
+            </a>
+        
+            <!-- User Section -->
+            <div id="user-section" class="user-profile-container">
+                <a id="profile-link" href="/login">
+                    <img class="icons profile-icon" src="/images/header/profile-icon.png" alt="Profile">
+                    <span id="login-link"></span>
+                </a>
+                <div id="user-dropdown" class="user-dropdown">
+                    <a href="/profile">User Profile</a>
+                    <a href="/myorders">My Orders</a>
+                    <a href="/listings">My Listings</a>
+                    <a href="/cart">Cart</a>
+                    <a id="logout-button">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+
+    <!-- Navigation Menu -->
+<div class="navbar">
+    <div class="brand-text">Smart Exchange</div>
+    <div class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="nav-menu">
+        <div class="nav-item all-item">All
+            <div class="dropdown">
+                <a class="all-dropdown" href="/sell-phone">Sell phone</a>
+                <a class="all-dropdown" href="/sell-laptop">Sell laptop</a>
+                <a class="all-dropdown" href="/buy-phone">Buy phone</a>
+                <a class="all-dropdown" href="/buy-laptop">Buy laptop </a>
+                <a class="all-dropdown" href="/Accessories">Accessories</a>
+            </div>
+        </div>
+        <div class="nav-item"><a href="/sell-phone" class="text-decoration">Sell Phone</a>
+        </div>
+        <div class="nav-item"><a href="/sell-laptop" class="text-decoration">Sell Laptops</a>
+        </div>
+        <div class="nav-item"><a href="/buy-phone" class="text-decoration">Buy Phones</a>
+            <div class="dropdown">
+                <a  class="dropdown-heading">Top brands</a>
+                <a class="top-buy-phone-dropdown">Apple</a>
+                <a class="top-buy-phone-dropdown">Samsung</a>
+                <a class="top-buy-phone-dropdown">Xiaomi</a>
+                <a class="top-buy-phone-dropdown">One plus</a>
+                <a class="top-buy-phone-dropdown">Realme</a>
+                <a class="top-buy-phone-dropdown">Motorola</a>
+                <a class="top-buy-phone-dropdown">Google</a>
+                <a class="top-buy-phone-dropdown">Vivo</a>
+            </div>
+        </div>
+        <div class="nav-item"><a href="/buy-laptop" class="text-decoration">Buy Laptop</a>
+            <div class="dropdown">
+                <a  class="dropdown-heading">Top  brands</a>
+                <a class="top-buy-laptop-dropdown">Apple</a>
+                <a class="top-buy-laptop-dropdown">Dell</a>
+                <a class="top-buy-laptop-dropdown">Hp</a>
+                <a class="top-buy-laptop-dropdown">Asus</a>
+                <a class="top-buy-laptop-dropdown">Acer</a>
+                <a class="top-buy-laptop-dropdown">Microsoft</a>
+                <a class="top-buy-laptop-dropdown">Msi</a>
+                <a class="top-buy-laptop-dropdown">Lenovo</a>
+            </div>
+        </div>
+        <div class="nav-item"><a href="/Accessories" class="text-decoration">Accessories</a>
+            <div class="dropdown">
+                <a class="dropdown-heading">Categories</a>
+                <a href="/smartwatches">Smart Watches</a>
+                <a href="/earbuds">Ear Phones</a>
+                <a href="/chargers">Chargers</a>
+                <a href="/mouses">Mouses</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="/scripts/index.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const hamburger = document.querySelector(".hamburger");
+            const navMenu = document.querySelector(".nav-menu");
+        
+            hamburger.addEventListener("click", () => {
+                navMenu.classList.toggle("active");
+                hamburger.classList.toggle("active");
+            });
+        
+            // Session handling
+            const session = JSON.parse(localStorage.getItem("currentSession"));
+            if (session && session.loggedIn) {
+                document.getElementById("profile-link").href = "/profile";
+                document.getElementById("login-link").textContent = session.name;
+                document.getElementById("cart-link").href = "/cart";
+            } else {
+                document.getElementById("cart-link").addEventListener("click", function(event) {
+                    event.preventDefault();
+                    window.location.href = "/login";
+                });
+            }
+        });
+        </script>
+        
+</body>  
+</html>  

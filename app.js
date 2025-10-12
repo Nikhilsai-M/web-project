@@ -746,6 +746,23 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+app.get('/api/latest-products', async (req, res) => {
+  try {
+    const latestPhones = await getLatestPhones(5);
+    const latestLaptops = await getLatestLaptops(5);
+    
+    // Combine both arrays
+    const allLatestProducts = [...latestPhones, ...latestLaptops];
+    
+    // Sort all products by their creation date in ascending order0
+    allLatestProducts.sort((a, b) => b.created_at - a.created_at);
+    
+    res.json(allLatestProducts);
+  } catch (error) {
+    console.error('Error fetching latest products:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 app.get('/api/latest-laptops', async (req, res) => {
   try {
     const laptops = await getLatestLaptops(5);
@@ -1988,7 +2005,7 @@ app.post('/api/supervisor/add-to-inventory/:type/:id', requireSupervisorAuth, as
     const { type, id } = req.params;
     const { discount, condition } = req.body;
 
-    if (!condition || !['Used', 'Like New', 'Refurbished'].includes(condition)) {
+    if (!condition || !['Good', 'Very Good', 'Superb'].includes(condition)) {
       return res.status(400).json({ success: false, message: 'Valid condition is required' });
     }
     if (discount && (isNaN(discount) || discount < 0 || discount > 100)) {

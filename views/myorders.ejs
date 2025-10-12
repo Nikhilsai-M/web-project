@@ -5,15 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders | Your Store</title>
     <link rel="stylesheet" href="/styles/myorders.css">
+    <style>
+        /* CSS for the back button */
+        .back-button {
+            display: inline-block;
+            padding: 10px 18px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: green;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #e0e0e0;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+      <%- include('partials/header') %> 
     <div class="container">
+        <a href="/" class="back-button">&larr; Back to Home</a>
+        
         <h1>My Orders</h1>
         <div id="orders-list">
-            <!-- Orders will be populated by JS -->
-        </div>
+            </div>
     </div>
     <input type="hidden" id="orders-data" value='<%- JSON.stringify(orders || []) %>'>
     <script src="/scripts/myorders.js"></script>
+    <footer><%- include('partials/footer') %> </footer>
 </body>
 </html>

@@ -1,0 +1,76 @@
+<!-- views/chargers-details.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= charger.brand %> <%= charger.title %> | Your Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/product-details.css">
+</head>
+<body>
+    <%- include('partials/header') %> 
+    <div class="container">
+        <div class="product-details-container">
+            <div class="product-image">
+                <img src="/<%= charger.image %>" alt="<%= charger.brand %> <%= charger.title %>">
+            </div>
+            <div class="product-info">
+                <h1 class="product-title"><%= charger.title %></h1>
+                
+                <div class="product-price-container">
+                    <span class="discounted-price">₹<%= (parseFloat(charger.pricing.originalPrice) - (parseFloat(charger.pricing.originalPrice) * parseFloat(charger.pricing.discount) / 100)).toLocaleString('en-IN') %></span>
+                    <span class="original-price">₹<%= charger.pricing.originalPrice.toLocaleString('en-IN') %></span>
+                    <span class="discount"><%= charger.pricing.discount %> Off</span>
+                </div>
+                
+                <div class="product-actions">
+                    <button id="add-to-cart" class="btn btn-primary" data-id="<%= charger.id %>">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                    <button id="buy-now" class="btn btn-success" data-id="<%= charger.id %>">
+                        <i class="fas fa-bolt"></i> Buy Now
+                    </button>
+                </div>
+                <div class="product-specifications">
+                    <h3>Key Specifications</h3>
+                    <ul>
+                        <li><i class="fas fa-bolt"></i> <strong>Wattage:</strong> <%= charger.wattage %>W</li>
+                        <li><i class="fas fa-plug"></i> <strong>Type:</strong> <%= charger.type %></li>
+                        <li><i class="fas fa-battery-full"></i> <strong>Output Current:</strong> <%= charger.outputCurrent %></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="product-description">
+            <h2>Product Description</h2>
+            <p>Power up your devices efficiently with the <%= charger.brand %> <%= charger.title %>. This <%= charger.condition %> condition charger features <%= charger.wattage %>W power output, <%= charger.type %> compatibility, and <%= charger.outputCurrent %>A current for fast and reliable charging.</p>
+            
+            <div class="highlight-features">
+                <h3>Highlight Features</h3>
+                <div class="features-grid">
+                    <div class="feature">
+                        <i class="fas fa-bolt"></i>
+                        <h4>High Wattage</h4>
+                        <p><%= charger.wattage %>W for fast and efficient charging</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-plug"></i>
+                        <h4>Universal Compatibility</h4>
+                        <p>Supports <%= charger.type %> devices</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-battery-full"></i>
+                        <h4>Optimal Output Current</h4>
+                        <p><%= charger.outputCurrent %>A for safe and fast charging</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/scripts/charger-details.js"></script>
+</body>
+<footer><%- include('partials/footer') %> </footer>
+</html>

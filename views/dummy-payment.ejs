@@ -1,0 +1,60 @@
+<!-- views/dummy-payment.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment | Your Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/dummy-payment.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Complete Your Payment</h1>
+        <div class="payment-container">
+            <div class="amount-display">
+                <h2>Amount to Pay</h2>
+                <p class="price">₹<%= price.toLocaleString('en-IN') %></p>
+                <% if (typeof type !== 'undefined' && typeof id !== 'undefined') { %>
+                    <p>Purchasing: <%= type.charAt(0).toUpperCase() + type.slice(1) %> (ID: <%= id %>)</p>
+                <% } %>
+                <% if (typeof accessory !== 'undefined' && accessory.brand && accessory.title) { %>
+                    <p><strong>Item:</strong> <%= accessory.brand %> <%= accessory.title %></p>
+                <% } %>
+            </div>
+
+            <div class="payment-options">
+                <h3>Choose Payment Method</h3>
+                <div class="payment-methods">
+                    <div class="payment-method" data-method="upi">
+                        <i class="fas fa-wallet"></i>
+                        <span>UPI</span>
+                    </div>
+                    <div class="payment-method" data-method="card">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Credit/Debit Card</span>
+                    </div>
+                    <div class="payment-method" data-method="netbanking">
+                        <i class="fas fa-university"></i>
+                        <span>Net Banking</span>
+                    </div>
+                    <div class="payment-method" data-method="cod">
+                        <i class="fas fa-money-bill"></i>
+                        <span>Cash on Delivery</span>
+                    </div>
+                </div>
+
+                <div class="payment-details" id="payment-details"></div>
+                <button id="pay-now" class="btn btn-success" disabled>Pay Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden inputs for type, id, and accessory -->
+    <input type="hidden" id="order-type" value="<%= typeof type !== 'undefined' ? type : 'unknown' %>">
+    <input type="hidden" id="order-id" value="<%= typeof id !== 'undefined' ? id : 'unknown' %>">
+    <input type="hidden" id="order-accessory" value='<%- JSON.stringify(typeof accessory !== 'undefined' ? accessory : {}) %>'>
+
+    <script src="/scripts/dummy-payment.js"></script>
+</body>
+</html>

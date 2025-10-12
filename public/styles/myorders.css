@@ -1,0 +1,410 @@
+/* public/styles/myorders.css */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(52, 152, 219, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(52, 152, 219, 0.5);
+    }
+}
+
+.container {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 0 20px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.orders-container {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    animation: slideInFromBottom 0.6s ease-out;
+    transition: box-shadow 0.3s ease;
+}
+
+.orders-container:hover {
+    box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+}
+
+.orders-container h2 {
+    color: #2c3e50;
+    font-size: 2.2em;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: none;
+    position: relative;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.orders-container h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    border-radius: 2px;
+    animation: slideInFromBottom 0.8s ease-out 0.3s backwards;
+}
+
+#orders-list {
+    min-height: 100px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.order-item {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    animation: slideInFromBottom 0.6s ease-out;
+    animation-fill-mode: backwards;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 2px solid transparent;
+    overflow: hidden;
+}
+
+.order-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+}
+
+.order-item:hover::before {
+    transform: scaleX(1);
+}
+
+/* Stagger animation for multiple items */
+.order-item:nth-child(1) { animation-delay: 0.1s; }
+.order-item:nth-child(2) { animation-delay: 0.2s; }
+.order-item:nth-child(3) { animation-delay: 0.3s; }
+.order-item:nth-child(4) { animation-delay: 0.4s; }
+.order-item:nth-child(5) { animation-delay: 0.5s; }
+.order-item:nth-child(6) { animation-delay: 0.6s; }
+.order-item:nth-child(n+7) { animation-delay: 0.7s; }
+
+.order-item:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+    border-color: #764ba2;
+}
+
+.order-item:hover * {
+    color: white !important;
+}
+
+.order-item h3 {
+    margin: 0 0 15px;
+    color: #667eea;
+    font-size: 1.4em;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+}
+
+.order-item h3::before {
+    content: '📦';
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+}
+
+.order-item:hover h3::before {
+    transform: rotate(10deg) scale(1.1);
+}
+
+.order-item p {
+    margin: 10px 0;
+    color: #555;
+    font-size: 1em;
+    line-height: 1.8;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.order-item p::before {
+    content: '•';
+    color: #667eea;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.order-item:hover p::before {
+    color: #fff;
+}
+
+.order-item strong {
+    color: #764ba2;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #95a5a6;
+    animation: fadeIn 0.6s ease-out;
+    grid-column: 1 / -1;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.empty-state i {
+    font-size: 5em;
+    margin-bottom: 20px;
+    opacity: 0.3;
+    display: block;
+}
+
+.empty-state p {
+    font-size: 1.3em;
+    margin: 10px 0;
+}
+
+.order-actions {
+    margin-top: 40px;
+    text-align: center;
+    animation: slideInFromBottom 0.6s ease-out 0.4s backwards;
+}
+
+.btn {
+    padding: 16px 40px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    display: inline-block;
+    font-weight: 600;
+    font-size: 1.1em;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn:hover::before {
+    width: 400px;
+    height: 400px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+    animation: glow 2s infinite;
+}
+
+.btn-primary:active {
+    transform: translateY(-1px);
+}
+
+/* Loading skeleton animation */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+    border-radius: 16px;
+}
+
+.skeleton-item {
+    height: 200px;
+    margin: 15px 0;
+}
+
+/* Order status badges */
+.status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 25px;
+    font-size: 0.8em;
+    font-weight: 700;
+    margin-left: 10px;
+    animation: slideInFromLeft 0.4s ease-out;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-pending {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+}
+
+.status-confirmed {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+}
+
+.status-delivered {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(67, 233, 123, 0.4);
+}
+
+/* Order details styling */
+.order-id {
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.order-item:hover .order-id {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #orders-list {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .orders-container {
+        padding: 25px 15px;
+    }
+    
+    .order-item {
+        padding: 20px;
+    }
+    
+    .order-item h3 {
+        font-size: 1.2em;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 14px 30px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    #orders-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Scroll reveal effect */
+@media (prefers-reduced-motion: no-preference) {
+    .order-item {
+        opacity: 0;
+        animation: slideInFromBottom 0.6s ease-out forwards;
+    }
+}
+
+/* Additional polish */
+.order-item:hover h3 {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.order-item p {
+    position: relative;
+    padding-left: 5px;
+}
+
+/* Decorative corner accent */
+.order-item::after {
+    content: '✨';
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.5em;
+    opacity: 0;
+    transition: all 0.3s ease;
+    transform: rotate(-15deg);
+}
+
+.order-item:hover::after {
+    opacity: 1;
+    transform: rotate(0deg);
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Your Store</title>
+    <link rel="stylesheet" href="/styles/checkout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Checkout</h1>
+        <div class="checkout-container">
+            <div class="order-summary">
+                <h2>Order Summary</h2>
+                <div id="order-items">
+                    <!-- Items will be populated by JS -->
+                </div>
+                <div class="summary-details">
+                    <p><strong>Subtotal:</strong> <span id="subtotal">₹0</span></p>
+                    <p><strong>Shipping:</strong> <span id="shipping">₹0</span></p>
+                    <p><strong>Total:</strong> <span id="total">₹0</span></p>
+                </div>
+            </div>
+            <div class="payment-section">
+                <h2>Payment Details</h2>
+                <div class="payment-methods">
+                    <div class="payment-method" data-method="card">
+                        <i class="fas fa-credit-card"></i> Credit/Debit Card
+                    </div>
+                    <div class="payment-method" data-method="netbanking">
+                        <i class="fas fa-university"></i> Net Banking
+                    </div>
+                    <div class="payment-method" data-method="upi">
+                        <i class="fas fa-mobile-alt"></i> UPI
+                    </div>
+                    <div class="payment-method" data-method="cod">
+                        <i class="fas fa-money-bill"></i> Cash on Delivery
+                    </div>
+                </div>
+                <button class="pay-btn" id="pay-btn">Pay Now</button>
+            </div>
+        </div>
+        <div class="message" id="message"></div>
+    </div>
+    <input type="hidden" id="user-id" value="<%= userId %>">
+    <script src="/scripts/checkout.js"></script>
+</body>
+</html>

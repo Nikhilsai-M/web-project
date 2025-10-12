@@ -1,0 +1,153 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+}
+
+.bg-best {
+    font-family: Arial, sans-serif;
+    margin: 3vw;
+    padding: 0;
+    margin-top: 0;
+    background-color: #f1eeee;
+}
+.container {
+    max-width: 100%;
+    margin: 0;
+    padding: 20px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+.grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: nowrap;
+}
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    
+    min-width: 250px;
+}
+.card img {
+    width: 85%;
+    height: 33vh;
+    border-radius: 8px;
+    margin-bottom: 2vh;
+}
+.price {
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+}
+.old-price {
+    text-decoration: line-through;
+    color: gray;
+    font-size: 14px;
+}
+.discount {
+    color: green;
+    font-weight: bold;
+}
+.best_in_value_heading{
+    margin-left: 3vw;
+    margin-top: 2vh;
+    
+}
+.best_in_value_phone_name{
+    font-weight: bold;
+}
+.width{
+    width: 95vw;
+   
+}
+.height{
+    height: 40vh;
+}
+.bg_top_brands {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+    text-align: center;
+}
+
+.brands-section {
+    padding: 30px;
+}
+
+.brands-section h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.brands-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.brand-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+    width: 140px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+}
+
+.brand-card:hover {
+    transform: scale(1.05);
+}
+
+.brand-card img {
+    width: 100%;
+    height: auto;
+}
+
+.brand-name {
+    padding: 10px;
+    font-size: 14px;  
+    font-weight: bold;
+}
+.carousel{
+    z-index: 1;
+}
+.carousel-inner img {
+    height: 55vh; 
+    border-radius: 20px;
+    }
+.carousel-inner img {
+        height: 60vh; 
+        width: 100%; 
+        border-radius: 20px;
+    }
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 50px; /* Set a smaller width */
+        height: 50px; /* Set a smaller height */
+        background-color: rgba(128, 128, 128, 0.5); /* Gray semi-transparent */
+        border-radius: 50%; /* Make it circular */
+        top: 50%; /* Align vertically */
+        transform: translateY(-50%);
+        margin-right: 5px;
+        margin-left: 5px;;
+    }
+    
+    .carousel-control-prev:hover,
+.carousel-control-next:hover {
+    background-color: rgba(128, 128, 128, 0.8); /* Darker on hover */
+}
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 20px;
+        height: 20px;
+    }
+.top_brands_heading{
+    margin-left: 3vw;
+}

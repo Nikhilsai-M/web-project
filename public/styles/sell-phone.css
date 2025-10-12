@@ -1,0 +1,246 @@
+/* Reset and Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Use CSS custom properties (variables) for maintainability */
+  :root {
+    --primary-color: #3498db;
+    --primary-hover: #2980b9;
+    --text-dark: #2c3e50;
+    --text-light: #34495e;
+    --border-light: #ddd;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --background-light: #f5f5f5;
+    --white: #fff;
+    --error: #e74c3c;
+    --focus-ring: rgba(52, 152, 219, 0.2);
+    --transition: all 0.3s ease;
+  }
+  
+  body {
+    background-color: var(--background-light);
+    color: var(--text-dark);
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Added modern fallback fonts */
+    line-height: 1.6;
+    padding: 10px 0; /* Increased padding for breathing room */
+    font-size: 16px; /* Base font size for accessibility */
+  }
+  
+  /* Container */
+  .container {
+    max-width: 960px; /* Slightly wider for a more spacious feel */
+    margin: 0 auto;
+    padding: 0 ;
+    margin-top: 20px;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1) ,-10px -10px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+
+  .form-group input[type="file"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+  }
+  /* Form Card */
+  .form-card {
+    background-color: var(--white);
+    border-radius: 12px; /* Softer corners */
+    box-shadow: var(--shadow);
+    padding: 40px; /* More padding for a premium look */
+    margin-bottom: 40px;
+    transition: var(--transition); /* Smooth transitions */
+  }
+  
+  /* Form Section */
+  .form-section {
+    margin-bottom: 30px;
+  }
+  
+  .form-section h2 {
+    font-size: 1.5rem; /* Slightly larger for hierarchy */
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-light); /* Thicker border for emphasis */
+    font-weight: 600; /* Bolder for professionalism */
+  }
+  
+  /* Form Layout */
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Modern spacing using gap instead of margins */
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    flex: 1 1 300px; /* More flexible growth */
+  }
+  
+  /* Form Elements */
+  label {
+    display: block;
+    font-weight: 600; /* Bolder labels */
+    margin-bottom: 8px;
+    color: var(--text-light);
+    font-size: 0.9rem; /* Slightly smaller for balance */
+  }
+  
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 12px 14px; /* Increased padding for comfort */
+    border: 1px solid var(--border-light);
+    border-radius: 6px; /* Softer corners */
+    font-size: 1rem;
+    background-color: var(--white);
+    transition: var(--transition);
+  }
+  
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+  }
+  
+  input::placeholder,
+  textarea::placeholder {
+    color: #999; /* Darker placeholder for readability */
+    opacity: 0.8;
+  }
+  
+  /* Radio Buttons */
+  .radio-group {
+    display: flex;
+    gap: 20px; /* Consistent spacing */
+    margin-top: 8px;
+  }
+  
+  .radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 0.95rem;
+  }
+  
+  .radio-label input[type="radio"] {
+    margin-right: 8px;
+    accent-color: var(--primary-color); /* Custom radio button color */
+  }
+  
+  /* Condition Group */
+  .condition-group {
+    flex: 1 1 300px;
+  }
+  
+  /* Responsive Condition Rows */
+  @media (max-width: 768px) {
+    .condition-row {
+      flex-direction: column;
+      gap: 15px;
+    }
+  }
+  
+  /* Textarea */
+  .additional-info textarea {
+    resize: vertical;
+    min-height: 120px;
+    border-radius: 6px;
+  }
+  
+  /* Submit Button */
+  .form-submit {
+    text-align: center;
+    margin-top: 30px;
+  }
+  
+  .submit-button {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 14px 40px; /* Larger button for prominence */
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  
+  .submit-button:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px); /* Subtle lift effect */
+  }
+  
+  .submit-button:active {
+    transform: translateY(0); /* Reset on click */
+  }
+  
+  .submit-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+  
+  /* Required Field Indicator */
+  label[for] {
+    position: relative;
+  }
+  
+  label[for]::after {
+    content: "*";
+    color: var(--error);
+    margin-left: 4px;
+    font-size: 0.9rem;
+  }
+  
+  /* Form Validation */
+  input:invalid:focus,
+  select:invalid:focus {
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+  }
+  
+  /* Accessibility Enhancements */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .container {
+      padding: 0 15px;
+    }
+  
+    .form-card {
+      padding: 25px;
+    }
+  
+    .form-row {
+      flex-direction: column;
+      gap: 15px;
+    }
+  
+    .form-group {
+      flex: 1 1 100%;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .form-section h2 {
+      font-size: 1.25rem;
+    }
+  
+    .submit-button {
+      width: 100%;
+      padding: 12px;
+    }
+  }

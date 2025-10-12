@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Portal | Manage Inventory</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/supervisor/home.css">
+    <link rel="stylesheet" href="/styles/supervisor/manage-inventory.css">
+</head>
+<body>
+    <header class="portal-header">
+        <div class="logo">
+            <a href="/supervisor" class="header-link">
+                <img class="logoi" src="/images/header/logo1.png" alt="Logo">
+            </a>
+        </div>
+        <div class="user-info">
+            <span>Welcome, <%= supervisor.first_name %> <%= supervisor.last_name %></span>
+            <a href="/supervisor/profile" class="profile-icon"><i class="fas fa-user-cog"></i></a>
+        </div>
+    </header>
+
+    <div class="portal-container">
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="/supervisor"><i class="fas fa-house"></i> Home</a></li>
+                    <li><a href="/supervisor/verify-listings"><i class="fas fa-clipboard-check"></i> Verify Product Listings</a></li>
+                    <li><a href="/supervisor/manage-inventory" class="active"><i class="fas fa-boxes"></i> Manage Inventory</a></li>
+                    <li><a href="/supervisor/statistics" ><i class="fas fa-chart-bar"></i> Statistics</a></li>
+                    <li><a id="logout-button" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h2>Manage Inventory</h2>
+                <div class="date-display">
+                    <i class="far fa-calendar-alt"></i> <%= new Date().toLocaleDateString('en-in', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'}) %>
+                </div>
+            </div>
+
+<section class="create-section">
+    <h3><i class="fas fa-plus"></i> Add New Inventory Item</h3>
+    <form id="createInventoryForm" class="create-form">
+        <div class="form-group">
+            <label for="itemType">Item Type:</label>
+            <select id="itemType" name="itemType" required>
+                <option value="earphones">Earphones</option>
+                <option value="chargers">Chargers</option>
+                <option value="mouses">Mouses</option>
+                <option value="smartwatches">Smartwatches</option>
+            </select>
+        </div>
+        <!-- Common Fields -->
+        <div class="form-group">
+            <label for="id">ID:</label>
+            <input type="text" id="id" name="id" required>
+        </div>
+        <div class="form-group">
+            <label for="brand">Brand:</label>
+            <input type="text" id="brand" name="brand" required>
+        </div>
+        <div class="form-group">
+            <label for="price">Original Price (₹):</label>
+            <input type="number" id="price" name="price" min="0" step="1" required>
+        </div>
+        <div class="form-group">
+            <label for="discount">Discount (%):</label>
+            <input type="text" id="discount" name="discount" required>
+        </div>
+        <div class="form-group">
+            <label for="image">Image URL:</label>
+            <input type="text" id="image" name="image" required>
+        </div>
+        <!-- Dynamic Fields -->
+        <div id="dynamicFields" class="dynamic-fields"></div>
+    </form>
+    <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Add Item</button>
+    <div id="createMessage" class="message"></div>
+</section>
+
+            <!-- Inventory Management Section -->
+            <section class="inventory-section">
+                <h3><i class="fas fa-boxes"></i> Inventory Items</h3>
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all">All Items</button>
+                    <button class="filter-btn" data-filter="phones">Phones</button>
+                    <button class="filter-btn" data-filter="laptops">Laptops</button>
+                    <button class="filter-btn" data-filter="earphones">Earphones</button>
+                    <button class="filter-btn" data-filter="chargers">Chargers</button>
+                    <button class="filter-btn" data-filter="mouses">Mouses</button>
+                    <button class="filter-btn" data-filter="smartwatches">Smartwatches</button>
+                </div>
+                <div class="inventory-container" id="inventoryContainer"></div>
+            </section>
+
+            <!-- Edit/Delete Modal -->
+            <div class="modal" id="inventoryModal">
+                <div class="modal-content">
+                    <span class="close">×</span>
+                    <h2>Manage Item</h2>
+                    <div id="productDetails"></div>
+                    <div class="action-buttons" id="actionButtons"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="portal-footer">
+        <p>© 2025 eCommerce Store. All rights reserved. | <a href="mailto:support@ecommerce.com"><i class="far fa-envelope"></i> Contact Support</a></p>
+    </footer>
+    <script src="/scripts/supervisor/home.js"></script>
+    <script src="/scripts/supervisor/manage-inventory.js"></script>
+</body>
+</html>

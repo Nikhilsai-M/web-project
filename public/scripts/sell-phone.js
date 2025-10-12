@@ -31,4 +31,29 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+<<<<<<< HEAD
+=======
+});
+
+const fileInput = document.getElementById("device-image");
+const fileName = document.getElementById("file-name");
+const previewBox = document.getElementById("image-preview");
+const previewImg = document.getElementById("preview-img");
+
+fileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        fileName.textContent = `File selected: ${file.name}`;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            previewImg.src = event.target.result;
+            previewBox.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+    } else {
+        fileName.textContent = "No file chosen";
+        previewBox.style.display = "none";
+        previewImg.src = "";
+    }
+>>>>>>> 5d58b6310197f69d572bb914d8144818d95747cd
 });

@@ -148,6 +148,118 @@ body {
         width: 20px;
         height: 20px;
     }
-.top_brands_heading{
-    margin-left: 3vw;
-}
+
+    .refurbished-grades {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #e8f4f8 0%, #d1e7dd 100%);
+        padding: 40px 20px;
+        box-sizing: border-box;
+    }
+    
+    .refurbished-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
+        flex-wrap: wrap;
+    }
+    
+    .grade-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px 25px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        width: 320px;
+        position: relative;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-sizing: border-box;
+        height: 420px;
+        margin: 20px;
+    }
+
+    .grade-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+    
+    .grade-badge {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 24px;
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+        text-align: center;
+        min-width: 250px;
+
+        box-sizing: border-box;
+    }
+    
+    .superb-badge {
+        background: linear-gradient(135deg, #20E5B2, #17D1AA);
+    }
+    
+    .very-good-badge {
+        background: linear-gradient(135deg, #4A90E2, #357ABD);
+    }
+    
+    .good-badge {
+        background: linear-gradient(135deg, #1e3a8a, #1e40af);
+       
+    }
+    
+    .grade-content {
+        margin-top: 25px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .grade-features {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .grade-feature-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 15px;
+        color: #4a5568;
+        font-size: 15px;
+        line-height: 1.5;
+        margin: 0 0 15px 0;
+        padding: 0;
+    }
+    
+    .grade-feature-item::before {
+        content: "•";
+        color: #68d391;
+        font-weight: bold;
+        font-size: 18px;
+        margin-right: 12px;
+        margin-top: -2px;
+        flex-shrink: 0;
+    }
+    
+    .grade-feature-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .refurbished-container {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .grade-card {
+            width: 100%;
+            max-width: 350px;
+        }
+    }
+

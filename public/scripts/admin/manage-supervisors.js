@@ -7,13 +7,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formData = new FormData(form);
         const data = {
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            email: formData.get('email'),
-            phone: formData.get('phone'),
-            username: formData.get('username'),
+            firstName: formData.get('firstName').trim(),
+            lastName: formData.get('lastName').trim(),
+            email: formData.get('email').trim(),
+            phone: formData.get('phone').trim(),
+            username: formData.get('username').trim(),
             password: formData.get('password')
         };
+
+        const messageDiv = document.getElementById('form-message');
+        
+        const nameRegex = /^[A-Za-z]{2,50}$/;
+        if (!nameRegex.test(data.firstName)) {
+            messageDiv.textContent = 'First name must be 2-50 letters only.';
+            messageDiv.style.color = 'red';
+            return;
+        }
+        if (!nameRegex.test(data.lastName)) {
+            messageDiv.textContent = 'Last name must be 2-50 letters only.';
+            messageDiv.style.color = 'red';
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(data.email)) {
+            messageDiv.textContent = 'Please enter a valid email address.';
+            messageDiv.style.color = 'red';
+            return;
+        }
+
+        const phoneRegex = /^(\d{10}|\d{3}-\d{3}-\d{4})$/;
+        if (!phoneRegex.test(data.phone)) {
+            messageDiv.textContent = 'Phone must be 10 digits or in format 123-456-7890.';
+            messageDiv.style.color = 'red';
+            return;
+        }
+
+        const usernameRegex = /^[A-Za-z0-9]{4,20}$/;
+        if (!usernameRegex.test(data.username)) {
+            messageDiv.textContent = 'Username must be 4-20 alphanumeric characters.';
+            messageDiv.style.color = 'red';
+            return;
+        }
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!passwordRegex.test(data.password)) {
+            messageDiv.textContent = 'Password must be 8+ characters with uppercase, lowercase, number, and special character.';
+            messageDiv.style.color = 'red';
+            return;
+        }
 
         try {
             const response = await fetch('/api/admin/add-supervisor', {
@@ -23,12 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const result = await response.json();
 
-            const messageDiv = document.getElementById('form-message');
             if (result.success) {
                 messageDiv.textContent = 'Supervisor added successfully!';
                 messageDiv.style.color = 'green';
                 form.reset();
-                loadSupervisors(); // Refresh the list
+                loadSupervisors();
             } else {
                 messageDiv.textContent = result.message || 'Failed to add supervisor.';
                 messageDiv.style.color = 'red';
@@ -45,7 +86,6 @@ async function loadSupervisors() {
     try {
         const response = await fetch('/api/admin/supervisors');
         const result = await response.json();
-        console.log('API response:', result); // Debug log
 
         const container = document.getElementById('supervisors-container');
         container.innerHTML = '';
@@ -85,7 +125,7 @@ async function deleteSupervisor(userId) {
         const result = await response.json();
 
         if (result.success) {
-            loadSupervisors(); // Refresh the list
+            loadSupervisors();
             alert('Supervisor deleted successfully!');
         } else {
             alert(result.message || 'Failed to delete supervisor.');

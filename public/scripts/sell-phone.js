@@ -31,8 +31,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
-<<<<<<< HEAD
-=======
 });
 
 const fileInput = document.getElementById("device-image");
@@ -55,5 +53,4 @@ fileInput.addEventListener("change", (e) => {
         previewBox.style.display = "none";
         previewImg.src = "";
     }
->>>>>>> 5d58b6310197f69d572bb914d8144818d95747cd
 });

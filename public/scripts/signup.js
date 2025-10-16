@@ -2,12 +2,35 @@ document.addEventListener('DOMContentLoaded', function() {
     setupPasswordToggles();
     const signupForm = document.getElementById('signupForm');
     
+    // Real-time validation setup
+    const fields = ['firstName', 'lastName', 'email', 'phone', 'street', 'city', 'state', 'postalCode', 'country', 'password', 'confirmPassword'];
+    fields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', () => validateField(fieldId));
+        }
+    });
+    // Special handling for confirmPassword when password changes
+    const passwordField = document.getElementById('password');
+    if (passwordField) {
+        passwordField.addEventListener('input', () => validateField('confirmPassword'));
+    }
+    
     signupForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-
         clearErrors();
         
+        // Revalidate all fields
+        fields.forEach(validateField);
+        
+        // Check if any errors exist
+        const hasErrors = Array.from(document.querySelectorAll('.error-message')).some(el => el.textContent.trim() !== '');
+        if (hasErrors) {
+            return;
+        }
+        
+        // Proceed with form submission if no errors
         const firstName = document.getElementById('firstName').value.trim();
         const lastName = document.getElementById('lastName').value.trim();
         const email = document.getElementById('email').value.trim();
@@ -18,104 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const postalCode = document.getElementById('postalCode').value.trim();
         const country = document.getElementById('country').value.trim();
         const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
         
-        // Validation flags
-        let isValid = true;
-        
-        // First Name validation
-        if (!firstName) {
-            showError('firstName', 'First name is required');
-            isValid = false;
-        } else if (firstName.length < 2) {
-            showError('firstName', 'First name must be at least 2 characters');
-            isValid = false;
-        } else if (!/^[a-zA-Z\s-]+$/.test(firstName)) {
-            showError('firstName', 'First name can only contain letters, spaces, and hyphens');
-            isValid = false;
-        }
-        
-        // Last Name validation
-        if (!lastName) {
-            showError('lastName', 'Last name is required');
-            isValid = false;
-        } else if (lastName.length < 2) {
-            showError('lastName', 'Last name must be at least 2 characters');
-            isValid = false;
-        } else if (!/^[a-zA-Z\s-]+$/.test(lastName)) {
-            showError('lastName', 'Last name can only contain letters, spaces, and hyphens');
-            isValid = false;
-        }
-        
-        // Email validation
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!email) {
-            showError('email', 'Email is required');
-            isValid = false;
-        } else if (!emailRegex.test(email)) {
-            showError('email', 'Please enter a valid email address (e.g., user@example.com)');
-            isValid = false;
-        }
-        
-        // Phone validation
-        const phoneRegex = /^\d{10,12}$/;
-        if (!phone) {
-            showError('phone', 'Phone number is required');
-            isValid = false;
-        } else if (!phoneRegex.test(phone)) {
-            showError('phone', 'Phone number must be 10-12 digits');
-            isValid = false;
-        }
-        
-        // Address validations
-        if (!street) {
-            showError('street', 'Street is required');
-            isValid = false;
-        }
-        if (!city) {
-            showError('city', 'City is required');
-            isValid = false;
-        }
-        if (!state) {
-            showError('state', 'State is required');
-            isValid = false;
-        }
-        if (!postalCode) {
-            showError('postalCode', 'Postal code is required');
-            isValid = false;
-        } else if (!/^\d{5,10}$/.test(postalCode)) {
-            showError('postalCode', 'Postal code must be 5-10 digits');
-            isValid = false;
-        }
-        if (!country) {
-            showError('country', 'Country is required');
-            isValid = false;
-        }
-        
-        // Password validation
-        if (!password) {
-            showError('password', 'Password is required');
-            isValid = false;
-        } else if (password.length < 6) {
-            showError('password', 'Password must be at least 6 characters');
-            isValid = false;
-        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-            showError('password', 'Password must contain at least one uppercase letter, one lowercase letter, and one number');
-            isValid = false;
-        }
-        
-        // Confirm Password validation
-        if (!confirmPassword) {
-            showError('confirmPassword', 'Please confirm your password');
-            isValid = false;
-        } else if (password !== confirmPassword) {
-            showError('confirmPassword', 'Passwords do not match');
-            isValid = false;
-        }
-        
-        if (!isValid) return;
-        
-        // Form submission
         const submitButton = signupForm.querySelector('button[type="submit"]');
         const originalButtonText = submitButton.textContent;
         submitButton.disabled = true;
@@ -172,11 +98,104 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Helper functions (unchanged)
+// Real-time field validation
+function validateField(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+    
+    const value = field.value.trim();
+    let message = '';
+    
+    const nameRegex = /^[a-zA-Z\s-]+$/;
+    
+    switch (fieldId) {
+        case 'firstName':
+        case 'lastName':
+            if (!value) {
+                message = `${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)} is required`;
+            } else if (value.length < 2) {
+                message = `${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)} must be at least 2 characters`;
+            } else if (!nameRegex.test(value)) {
+                message = `${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)} can only contain letters, spaces, and hyphens`;
+            }
+            break;
+        
+        case 'street':
+        case 'city':
+        case 'state':
+        case 'country':
+            if (!value) {
+                message = `${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)} is required`;
+            } else if (!nameRegex.test(value)) {
+                message = `${fieldId.charAt(0).toUpperCase() + fieldId.slice(1)} can only contain letters, spaces, and hyphens`;
+            }
+            break;
+        
+        case 'email':
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!value) {
+                message = 'Email is required';
+            } else if (!emailRegex.test(value)) {
+                message = 'Please enter a valid email address (e.g., user@example.com)';
+            }
+            break;
+        
+        case 'phone':
+            const phoneRegex = /^\d{10,12}$/;
+            if (!value) {
+                message = 'Phone number is required';
+            } else if (!phoneRegex.test(value)) {
+                message = 'Phone number must be 10-12 digits';
+            }
+            break;
+        
+        case 'postalCode':
+            if (!value) {
+                message = 'Postal code is required';
+            } else if (!/^\d{5,10}$/.test(value)) {
+                message = 'Postal code must be 5-10 digits';
+            }
+            break;
+        
+        case 'password':
+            if (!value) {
+                message = 'Password is required';
+            } else if (value.length < 6) {
+                message = 'Password must be at least 6 characters';
+            } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value)) {
+                message = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+            }
+            break;
+        
+        case 'confirmPassword':
+            const passwordValue = document.getElementById('password').value;
+            if (!value) {
+                message = 'Please confirm your password';
+            } else if (value !== passwordValue) {
+                message = 'Passwords do not match';
+            }
+            break;
+    }
+    
+    if (message) {
+        showError(fieldId, message);
+    } else {
+        clearError(fieldId);
+    }
+}
+
+// Helper functions
 function showError(fieldId, message) {
     const errorElement = document.getElementById(`${fieldId}-error`);
     if (errorElement) {
         errorElement.textContent = message;
+    }
+}
+
+function clearError(fieldId) {
+    const errorElement = document.getElementById(`${fieldId}-error`);
+    if (errorElement) {
+        errorElement.textContent = '';
     }
 }
 

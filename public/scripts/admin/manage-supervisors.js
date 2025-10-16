@@ -2,6 +2,41 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSupervisors();
 
     const form = document.getElementById('add-supervisor-form');
+    const inputs = {
+        firstName: document.getElementById('firstName'),
+        lastName: document.getElementById('lastName'),
+        email: document.getElementById('email'),
+        phone: document.getElementById('phone'),
+        username: document.getElementById('username'),
+        password: document.getElementById('password')
+    };
+
+    const errorDivs = {};
+    Object.keys(inputs).forEach(key => {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.id = `${key}-error`;
+        inputs[key].parentNode.appendChild(errorDiv);
+        errorDivs[key] = errorDiv;
+    });
+
+    const validators = {
+        firstName: (value) => /^[A-Za-z]{2,50}$/.test(value.trim()) ? '' : 'First name must be 2-50 letters only.',
+        lastName: (value) => /^[A-Za-z]{2,50}$/.test(value.trim()) ? '' : 'Last name must be 2-50 letters only.',
+        email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()) ? '' : 'Please enter a valid email address.',
+        phone: (value) => /^(\d{10}|\d{3}-\d{3}-\d{4})$/.test(value.trim()) ? '' : 'Phone must be 10 digits or in format 123-456-7890.',
+        username: (value) => /^[A-Za-z0-9]{4,20}$/.test(value.trim()) ? '' : 'Username must be 4-20 alphanumeric characters.',
+        password: (value) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value) ? '' : 'Password must be 8+ characters with uppercase, lowercase, number, and special character.'
+    };
+
+    Object.entries(inputs).forEach(([key, input]) => {
+        input.addEventListener('input', () => {
+            const errorMessage = validators[key](input.value);
+            errorDivs[key].textContent = errorMessage;
+            errorDivs[key].style.color = errorMessage ? 'red' : '';
+        });
+    });
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -17,41 +52,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const messageDiv = document.getElementById('form-message');
         
-        const nameRegex = /^[A-Za-z]{2,50}$/;
-        if (!nameRegex.test(data.firstName)) {
+        if (!/^[A-Za-z]{2,50}$/.test(data.firstName)) {
             messageDiv.textContent = 'First name must be 2-50 letters only.';
             messageDiv.style.color = 'red';
             return;
         }
-        if (!nameRegex.test(data.lastName)) {
+        if (!/^[A-Za-z]{2,50}$/.test(data.lastName)) {
             messageDiv.textContent = 'Last name must be 2-50 letters only.';
             messageDiv.style.color = 'red';
             return;
         }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(data.email)) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
             messageDiv.textContent = 'Please enter a valid email address.';
             messageDiv.style.color = 'red';
             return;
         }
-
-        const phoneRegex = /^(\d{10}|\d{3}-\d{3}-\d{4})$/;
-        if (!phoneRegex.test(data.phone)) {
+        if (!/^(\d{10}|\d{3}-\d{3}-\d{4})$/.test(data.phone)) {
             messageDiv.textContent = 'Phone must be 10 digits or in format 123-456-7890.';
             messageDiv.style.color = 'red';
             return;
         }
-
-        const usernameRegex = /^[A-Za-z0-9]{4,20}$/;
-        if (!usernameRegex.test(data.username)) {
+        if (!/^[A-Za-z0-9]{4,20}$/.test(data.username)) {
             messageDiv.textContent = 'Username must be 4-20 alphanumeric characters.';
             messageDiv.style.color = 'red';
             return;
         }
-
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        if (!passwordRegex.test(data.password)) {
+        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(data.password)) {
             messageDiv.textContent = 'Password must be 8+ characters with uppercase, lowercase, number, and special character.';
             messageDiv.style.color = 'red';
             return;
@@ -69,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 messageDiv.textContent = 'Supervisor added successfully!';
                 messageDiv.style.color = 'green';
                 form.reset();
+                Object.values(errorDivs).forEach(div => div.textContent = '');
                 loadSupervisors();
             } else {
                 messageDiv.textContent = result.message || 'Failed to add supervisor.';

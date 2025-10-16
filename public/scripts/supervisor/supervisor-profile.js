@@ -1,4 +1,33 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Validation functions
+    const validateEmail = (email) => {
+        const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,63})$/;
+        return email.length <= 254 && emailRegex.test(email);
+    };
+
+    const validatePhone = (phone) => {
+        const phoneRegex = /^\+?[\d\s-]{10,15}$/;
+        return phoneRegex.test(phone);
+    };
+
+    const validateName = (name) => {
+        const nameRegex = /^[a-zA-Z\s-]{2,50}$/;
+        return nameRegex.test(name);
+    };
+
+    const validateUsername = (username) => {
+        const usernameRegex = /^[a-zA-Z0-9_-]{3,20}$/;
+        return usernameRegex.test(username);
+    };
+
+    // Function to show validation error
+    const showValidationError = (message) => {
+        const profileMessage = document.getElementById('profile-message');
+        profileMessage.textContent = message;
+        profileMessage.className = 'message error';
+        return false;
+    };
+
     // Logout functionality
     document.getElementById('logout-button').addEventListener('click', async () => {
         try {
@@ -46,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editProfileBtn.style.display = 'none';
         saveProfileBtn.style.display = 'inline-flex';
         cancelEditBtn.style.display = 'inline-flex';
+        profileMessage.textContent = '';
     });
 
     cancelEditBtn.addEventListener('click', () => {
@@ -70,9 +100,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const updatedProfile = {};
         const inputs = profileDetails.querySelectorAll('input');
         
-        inputs.forEach(input => {
-            updatedProfile[input.dataset.field] = input.value.trim();
-        });
+        // Validate inputs before proceeding
+        for (const input of inputs) {
+            const value = input.value.trim();
+            const field = input.dataset.field;
+
+            if (!value) {
+                return showValidationError('All fields are required');
+            }
+
+            switch (field) {
+                case 'first_name':
+                case 'last_name':
+                    if (!validateName(value)) {
+                        return showValidationError(`${field === 'first_name' ? 'First' : 'Last'} name must be 2-50 characters long and contain only letters, spaces, or hyphens`);
+                    }
+                    break;
+                case 'email':
+                    if (!validateEmail(value)) {
+                        return showValidationError('Please enter a valid email address (e.g., user@domain.com)');
+                    }
+                    break;
+                case 'phone':
+                    if (!validatePhone(value)) {
+                        return showValidationError('Please enter a valid phone number (10-15 digits, may include +, spaces, or hyphens)');
+                    }
+                    break;
+                case 'username':
+                    if (!validateUsername(value)) {
+                        return showValidationError('Username must be 3-20 characters long and contain only letters, numbers, underscores, or hyphens');
+                    }
+                    break;
+            }
+            updatedProfile[field] = value;
+        }
 
         try {
             const response = await fetch('/api/supervisor/profile', {
@@ -114,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
             profileMessage.className = 'message error';
         }
     });
+
     // Change password form submission
     const passwordForm = document.getElementById('change-password-form');
     const passwordMessage = document.getElementById('password-message');

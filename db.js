@@ -27,7 +27,7 @@ const __dirname = dirname(__filename);
 // MongoDB connection
 const connectToMongoDB = async () => {
   try {
-    await mongoose.connect('mongodb://localhost:27017/Smartexchange_test2');
+    await mongoose.connect('mongodb+srv://abhinavysns03_db_user:hJYgZCIZ2CVsBfW2@fdfed-project.f7iosrr.mongodb.net/?retryWrites=true&w=majority&appName=fdfed-project');
     console.log('Connected to MongoDB');
   } catch (error) {
     console.error('MongoDB connection error:', error);

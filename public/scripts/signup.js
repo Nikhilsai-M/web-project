@@ -141,11 +141,11 @@ function validateField(fieldId) {
             break;
         
         case 'phone':
-            const phoneRegex = /^\d{10,12}$/;
+            const phoneRegex = /^\d{10}$/;
             if (!value) {
                 message = 'Phone number is required';
             } else if (!phoneRegex.test(value)) {
-                message = 'Phone number must be 10-12 digits';
+                message = 'Phone number must be 10 digits';
             }
             break;
         
